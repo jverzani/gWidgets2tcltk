@@ -1,0 +1,403 @@
+##' @include tcltk-misc.R
+NULL
+
+
+## Base classes. These are *not* exported, rather each toolkit implementation needs
+## to (mostly) provide these same basic classes:
+## GComponent
+##   - GWidget
+##     - GButton
+##     - GLabel
+##     - Others matching the constructors
+##   -GContainer
+##     - GWindow
+##     - GGroup
+##       - GFrame
+##         - GExpandGroup
+##     - GLayout
+##     - GNotebook
+##       - GStacked
+##     - GPanedGroup
+
+
+
+##' Base Class for widgets and containers
+##' 
+##' GComponent is a parent class for both GContainer and GWidget and
+##' inherits its primary interface from
+##' gWidgets2::BasicToolkitInterface.
+##' @rdname gWidgets2tcltk-package
+GComponent <- setRefClass("GComponent",
+                               contains="BasicToolkitInterface",
+                               fields=list(
+                                 handler_id="ANY",
+                                 .e="environment" # for tag
+                                 ),
+                               methods=list(
+                                 initialize=function(toolkit=guiToolkit(), ...) {
+                                   initFields(toolkit=toolkit,
+                                              .e=new.env()
+                                              )
+                                   if(is(handler_id, "uninitializedField"))
+                                     handler_id <<- NULL
+
+                                   if(is(default_expand, "uninitializedField"))
+                                     default_expand <<- NULL
+
+                                   if(is(default_fill, "uninitializedField"))
+                                     default_fill <<- NULL
+
+                                   callSuper(...)
+                                 },
+                                 is_ttkwidget=function() {
+                                   "Is widget new style widget?. Override in subclass if not"
+                                   TRUE
+                                 },
+                                 is_tkwidget=function() {
+                                   "Is widget older style widget"
+                                   !is_ttkwidget()
+                                 },
+                                 show = function() {
+                                   cat(sprintf("Object of class %s", class(.self)[1]))
+                                 },
+                                 get_value = function(...) {
+                                   ## no default
+                                 },
+                                 get_index=function(...) get_value(),
+                                 set_value = function(value, ...) {
+                                   ## no default
+                                 },
+                                 set_index=function(value, ...) set_value(value, ...),
+                                 ## length
+                                 get_length = function(...) {
+                                   "Get length of object. Needed for sapply."
+                                   1
+                                 },
+                                 ## visible
+                                 get_visible = function()  {
+                                   as.logicalt(tkwinfo("viewable", get_widget()))
+                                 },
+                                 set_visible = function(value) {
+                                   message("Default visible<- method is not implemented")
+                                 },
+                                 ## focus
+                                 get_focus = function() {
+                                   if(is_ttkwidget()) {
+                                     if(is.tkwin(widget))
+                                       x <- widget$ID
+                                     else
+                                       x <- get_widget()
+                                     tl <- tkwinfo("toplevel", x)
+                                     cur <- as.character(tcl("focus", displayof=tl))
+                                     return(cur == x)
+                                   } else {
+                                     as.logical(tcl(x, "instate", "focus"))
+                                   }
+                                 },
+                                 set_focus = function(value) {
+                                   "Focus widget if TRUE"
+                                   if(value) {
+                                     if(is_ttkwidget()) {
+                                       tcl(get_widget(), "state", "focus")
+                                     } else {
+                                       tkfocus(get_widget())
+                                     }
+                                   }
+                                 },
+                                 ## enabled 
+                                 get_enabled = function() {
+                                   if(is_ttkwidget())
+                                     !as.logical(tcl(get_widget(), "instate", "disabled"))
+                                   else
+                                     as.character(tkcget(get_widget(), "-state")) == "normal"
+                                 },
+                                 set_enabled = function(value) {
+                                   if(is_ttkwidget())
+                                     tcl(get_widget(), "state", ifelse(value, "!disabled", "disabled"))
+                                   else
+                                     tkconfigure(get_widget(), state=ifelse(as.logical(value), "normal", "disabled"))
+                                 },
+                                 ## tooltip
+                                 get_tooltip = function(...) {
+                                   message("tooltip not implemented")
+                                 },
+                                 set_tooltip = function(value) {
+                                   tcltk2:::tk2tip(get_widget(), paste(value, collapse="\n"))
+                                 },
+                                 ## font
+                                 set_font = function(value) {
+                                   XXX("implement font<-")
+                                 },
+                                 ## tag
+                                 get_attr = function(key) {
+                                   if(missing(key))
+                                     ls(.e)
+                                   else
+                                     attr(.e, key)
+                                 },
+                                 set_attr = function(key, value) {
+                                   tmp <- .e
+                                   attr(tmp, key) <- value
+                                 },
+                                 ## still there?
+                                 is_extant = function() {
+                                   "Is widget still available?"
+                                    as.logical(as.numeric(tkwinfo("exists", w)))
+                                 },
+                                 ## size
+                                 get_size=function(...) {
+                                   width <- tclvalue(tkwinfo("width", get_block()))
+                                   height <- tclvalue(tkwinfo("height", get_block()))
+                                   return(as.numeric(c(width=width, height=height)))
+                                 },
+                                 set_size=function(value, ...) {
+                                   "Set widget size (size request), value=c(width=-1, height=-1)"
+                                   if(!is.list(value))
+                                     value <- setNames(as.list(value), c("width", "height")[1:length(value)])
+                                   value$widget <- block
+                                   do.call(tkconfigure, value)
+                                 },
+                                 get_widget=function() {
+                                   "Return widget (not block)"
+                                   widget
+                                 },
+                                 get_block=function() {
+                                   "Return surround block"
+                                   block
+                                 },
+                                 ##
+                                 ## Work with containers
+                                 ##
+                                 set_parent = function(parent) {
+                                   "Assign parent to parent property"
+                                   parent <<- parent
+                                 },
+                                 add_to_parent = function(parent, child, expand=NULL, fill=NULL, anchor=NULL, ...) {
+                                   "Add a child to parent if it is ia container and non null. Dispatches to add_child method of parent"
+                                   
+                                   if(missing(parent) || is.null(parent))
+                                     return()
+
+                                   ## return here. This is for tcltk compliance
+                                   if(is(parent, "GLayout"))
+                                     return()
+                                   
+                                   if(!is(parent, "GContainer") && is.logical(parent) && parent) {
+                                     tmp <- gwindow(toolkit=toolkit)
+                                     tmp$add_child(child, expand, fill, anchor, ...)
+                                     return()
+                                   }
+                                   if(!is(parent,  "GContainer")) {
+                                     message("parent is not a container")
+                                     return()
+                                   }
+
+                                   parent$add_child(child, expand, fill, anchor, ...)
+                                 },
+                                 ##
+                                 ## Drag and drop
+                                 ##
+                                 add_drop_source=function(handler, action=NULL, data.type="text", ...) {
+                                   "Specify widget is a drag source"
+                                   XXX("implement me")
+                                 },
+                                 add_drop_target=function(handler, action=NULL, ...) {
+                                   "Specify that widget is a drop target"
+                                   XXX("impleente me")
+                                 },
+                                 add_drag_motion=function(handler, action=NULL, ...) {
+                                   "Called when motion over widget occurs"
+                                   XXX("implement me")
+                                 }
+                                 ))
+
+##' GComponentObservable adds the observable interface
+GComponentObservable <- setRefClass("GComponentObservable",
+                                    fields=list(
+                                      change_signal="character", # what signal is default change signal
+                                      connected_signals="list"
+                                      ),
+                                    contains="GComponent",
+                                    methods=list(
+                                      ## Some decorators for handlers
+                                      ## these wrap the handler to satisfy or fill the h object or return value
+                                      event_decorator=function(handler) {
+                                        "Decorator for basic event"
+                                        f <- function(h, ...) {
+                                          out <- handler(h, ...)
+                                          if(is.atomic(out) && is.logical(out) && out[1])
+                                            out[1]
+                                          else
+                                            FALSE # need logical
+                                        }
+                                        f
+                                      },
+                                      key_release_decorator=function(handler) {
+                                        f <- function(w, k, K, N, s, x, y, X, Y, ...) {
+                                          h <- list(obj=d$obj,action=d$action)
+                                          h$key <- event$getString() # XXX This is bad -- no locale, ...
+                                          state <- event$getState()
+                                          if(state == 0)
+                                            h$modifier <- NULL
+                                          else
+                                            h$modifier <- gsub("-mask", "", names(which(state == GdkModifierType)))
+                                          handler(h,widget, event,...)
+                                        }
+                                        event_decorator(f)
+                                      },
+                                      button_press_decorator = function(handler) {
+                                        "Add in position information to 'h' component"
+                                        f <- function(h, widget, event, ...) {
+                                          ## stuff in some event information
+                                          h$x <- event$getX(); h$X <- event$getXRoot()
+                                          h$y <- event$getY(); h$Y <- event$getYRoot()
+                                          h$state <- gsub("-mask", "", names(which(event$getState() == GdkModifierType)))
+                                          h$button <- event$getButton()
+                                          handler(h, widget, event, ...)
+                                        }
+                                        event_decorator(f)
+                                      },
+                                      ## code for integrating observable interface with RGtk2
+                                      handler_widget = function() widget, # allow override for block (e.g., glabel)
+                                      is_handler=function(handler) {
+                                        "Helper to see if handler is a handler"
+                                        !missing(handler) && !is.null(handler) && is.function(handler)
+                                      },
+                                      ##
+                                      ## Adding a handler means to
+                                      ## a) create an observer and add an observer for the given signal
+                                      ## 
+                                      ## b) create a call back which
+                                      ## calls the notify observer
+                                      ## method when the widget
+                                      ## actualy emits the signal
+                                      add_handler=function(signal, handler, action=NULL, decorator, emitter=handler_widget(), ...) {
+                                        "Uses Observable framework for events. Adds observer, then call connect signal method. Override last if done elsewhere"
+                                        if(is_handler(handler)) {
+                                          o <- gWidgets2:::observer(.self, handler, action)
+                                          invisible(add_observer(o, signal))
+                                          connect_to_toolkit_signal(signal, decorator=decorator, emitter=emitter, ...)
+                                        }
+                                      },
+                                      connect_to_toolkit_signal=function(
+                                        signal, # which signal (tkbind)
+                                        decorator, 
+                                        emitter=handler_widget(),
+                                        ...
+                                        ) {
+                                        "Connect signal of toolkit to notify observer"
+
+                                        ## finds .self, signal through enclosing environment
+                                        f <- function(...) {
+                                          .self$notify_observers(signal=signal, ...)
+                                        }
+                                        ## only connect once
+                                        if(is.null(connected_signals[[signal, exact=TRUE]])) {
+                                          if(!missing(decorator))
+                                            f <- decorator(f)
+                                          if(signal == "command")
+                                            tkconfigure(emitter, command=f)
+                                          else
+                                            tkbind(emitter, signal, f)
+                                        }
+                                        connected_signals[[signal]] <<- TRUE
+                                      },
+                                      ## initiate a handler (emit signal)
+                                      invoke_handler=function(signal, ...) {
+                                        "Invoke observers listening to signal"
+                                        notify_observers(..., signal=signal)
+                                      },
+                                      invoke_change_handler=function(...) {
+                                        "Generic change handler invoker."
+                                        if(!is(change_signal, "uninitializedField") && length(change_signal))
+                                          invoke_handler(signal=change_signal, ...)
+                                      },
+                                      ## block and unblock
+                                      block_handlers=function() {
+                                        "Block all handlers."
+                                        ## default is to block the observers. 
+                                        block_observers()
+                                      },
+                                      block_handler=function(ID) {
+                                        "Block a handler by ID"
+                                        block_observer(ID)
+                                      },
+                                      unblock_handlers=function() {
+                                        "unblock blocked observer. May need to be called more than once to clear block"
+                                        unblock_observers()
+                                      },
+                                      unblock_handler=function(ID) {
+                                        "unblock a handler by ID"
+                                        unblock_observer(ID)
+                                      },
+                                      remove_handlers=function() {
+                                        "Remove all observers"
+                                        remove_observers()
+                                      }, 
+                                      remove_handler=function(ID) {
+                                        "remove a handler by ID"
+                                        remove_observer(ID)
+                                      },
+                                      
+                                      ## basic set of handlers
+                                      add_handler_changed=function(handler, action=NULL,...) {
+                                        if(!is(change_signal, "uninitializedField") && length(change_signal)) {
+                                          add_handler(change_signal, handler, action, ...)
+                                        } else {
+                                          stop("No change_signal defined for widget")
+                                        }
+                                      },
+                                      
+                                      ## Basic event handlers
+                                      ## Define decorators here
+                                      add_handler_clicked = function(handler, action=NULL, ...) {
+                                        add_handler("<Button-1>", handler, action, ...)
+                                      },
+                                      add_handler_doubleclick = function(handler, action=NULL, ...) {
+                                        add_handler("<Double-Button1>", handler, action, ...)
+                                      },
+                                      add_handler_button_press=function(handler, action=NULL, ...) {
+                                        add_handler("<ButtonPress>", handler, action, ...)
+                                      },
+                                      add_handler_focus=function(handler, action=NULL, ...) {
+                                        add_handler("<FocusIn>", handler, action, event_decorator, ...)
+                                      },
+                                      add_handler_blur=function(handler, action=NULL, ...) {
+                                        add_handler("<FocusOut>", handler, action, event_decorator, ...)
+                                      },
+                                      ## Decorator for keystrokes. See bind man page
+                                      keystroke_decorator=function(handler) {
+                                        f <- function(w, k, K, N, s, x, y, X, Y, ...) {
+                                          ## ??? consult state via s?
+                                          handler(h, key=k, x=x, X=X, y=y, Y=Y)
+                                        }
+                                        f
+                                      },
+                                      add_handler_keystroke=function(handler, action=NULL, ...) {
+                                        "Keystroke handler."
+                                        add_handler("<KeyRelease>", handler, action, decorator=key_release_decorator, ...)
+                                      },
+                                      motion_decorator=function(handler) {
+                                        f <- function(w, s, x, y, X, Y, ...) {
+                                          ## ??? consult state via s?
+                                          handler(h,  x=x, X=X, y=y, Y=Y)
+                                        }
+                                        f
+                                      },
+                                      add_handler_mousemotion=function(handler, action=NULL, ...) {
+                                        "Keystroke handler."
+                                        add_handler("<Motion>", handler, action, decorator=motion_decorator, ...)
+                                      },
+
+                                      ## XXX add stibs for others
+                                      ##
+                                      add_popup_menu = function(menulist, action=NULL, ...) {
+                                        XXX("do me")
+                                      },
+                                      add_3rd_mouse_popup_menu=function(menulist, action=NULL, ...) {
+                                        XXX("Do me")
+                                      }
+
+
+                                      ))
+

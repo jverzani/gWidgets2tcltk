@@ -1,0 +1,44 @@
+Package: gWidgets2tcltk
+Version: 0.0-1
+Title: Toolkit implementation of gWidgets2 for tcltk
+    package
+Author: John Verzani
+Maintainer: John Verzani <gwidgetsrgtk@gmail.com>
+Depends:
+    R (>= 2.12.0),
+    methods,
+    gWidgets2,
+    tcltk(>= 2.7.0),
+    digest,
+    tcltk2
+Description: Port of the gWidgets2 API to the tcltk
+    package.
+License: GPL (>= 2)
+URL: https://github.com/jverzani/gWidgets2tcltk
+LazyLoad: yes
+Collate:
+    'gWidgets2tcltk-package.R'
+    'misc.R'
+    'tcltk-misc.R'
+    'GComponent.R'
+    'GContainer.R'
+    'GWidget.R'
+    'gwindow.R'
+    'icons.R'
+    'gbutton.R'
+    'gedit.R'
+    'ggroup.R'
+    'gframe.R'
+    'glabel.R'
+    'gcheckbox.R'
+    'gstatusbar.R'
+    'gtimer.R'
+    'gslider.R'
+    'gspinbutton.R'
+    'gradio.R'
+    'gcheckboxgroup.R'
+    'gnotebook.R'
+    'gcontainer.R'
+    'gstackwidget.R'
+    'gpanedgroup.R'
+    'gexpandgroup.R'

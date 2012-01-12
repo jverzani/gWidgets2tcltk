@@ -1,0 +1,47 @@
+DONE GComponent.R
+DONE GContainer.R
+DONE GWidget.R
+DONE gWidgets2RGtk2-package.R
+
+dialogs.R 
+
+gaction.R
+* gbutton.R: needs actions
+gcalendar.R
+DONE gcheckbox.R
+* gcheckboxgroup.R: use.table needed
+gcombobox.R
+gdf.R
+gdfnotebook.R
+* gedit.R: [<-; validation
+gfile.R
+ggraphics.R
+gimage.R
+DONE glabel.R
+gmenu.R
+DONE gradio.R
+gseparator.R
+DONE gslider.R
+DONE gspinbutton.R
+DONE gstatusbar.R
+gtable.R
+gtext.R
+DONE gtimer.R
+gtoolbar.R
+gtree.R
+gvarbrowser.R
+gwindow.R
+icons.R
+misc.R
+notebook-widgets.R
+
+gexpandgroup.R
+DONE gframe.R 
+DONE ggroup.R 
+glayout.R
+DONE gnotebook.R
+DONE gpanedgroup.R
+DONE gstackwidget.R
+
+tcltk-misc.R 
+startup.R

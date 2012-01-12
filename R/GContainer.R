@@ -1,0 +1,134 @@
+##' @include GComponent.R
+NULL
+
+##' GContainer is the base class for container objects. The main
+##' method is \code{add_child}, but there is also book-keepingn code
+##' to keep track of the child components of the container
+##' @rdname gWidgets2tcltk-package
+GContainer <- setRefClass("GContainer",
+                          contains="GComponentObservable",
+                          fields=list(
+                            children="list"
+                            ),
+                          methods=list(
+                            get_widget = function() {
+                              "What widget do we use for the parent of the children"
+                              widget
+                            },
+                            add=function(...) {
+                              "add is just add_child"
+                              add_child(...)
+                            },
+                            add_child = function(child, expand, fill, anchor, ...) {
+                              "Add child to parent, do internal book keeping"
+                            },
+                            child_bookkeeping=function(child) {
+                              "Update parent property of child and children property of parent container"
+                              if(is(child, "GComponent"))
+                                child$set_parent(.self)
+                              children <<- c(children, child)
+                            },
+                            set_child_align=function(child, alt_child, anchor) {
+                              "Set child alignment, if a GtkMisc or GtkAlignment object"
+                              XXX("align")
+                            },
+                            set_child_fill=function(child, fill, horizontal=TRUE) {
+                              "Fill can be NULL, TRUE, FALSE, '', 'both', 'x', 'y'..."
+                              XXX("fill")
+                            }
+                          ))
+
+                              
+
+
+
+## base class for box containers. 
+GBoxContainer <- setRefClass("GBoxContainer",
+                             contains="GContainer",
+                                            
+                             fields=list(
+                               horizontal="logical",
+                               spacing="numeric"
+                               ),
+                             methods=list(
+                               set_spacing=function(value) {
+                                 "Spacing is padx and pady"
+                                 if(length(value) == 1)
+                                   spacing <<- rep(value, 2)
+                                 else
+                                   spacing <<- value[1:2]
+                               },
+                               ## Main add method
+                               add_child = function(child, expand, fill, anchor, ...) {
+                                 "Add child to box container. Child can be tk or GComponent. We use expand=TRUE, fill=TRUE as a default for containers, and expand=FALSE, fill=FALSE, as the default for widgets. These will usually need tweeking. The properties default_expand and default_fill allow for this."
+
+                                 toolkit_child <- getBlock(child)
+
+                                 side <- ifelse(horizontal, "left", "top")
+                                 expand <- getWithDefault(expand, FALSE)
+
+                                 fill_default <- getWithDefault(child$default_fill, ifelse(horizontal, "y", "x"))
+                                 fill <- getWithDefault(fill, fill_default)
+                                 if(is.logical(fill))
+                                   fill <- ifelse(fill, "both", "none")
+
+                                 anchor <- xyToAnchor(getWithDefault(anchor, c(-1,0)))
+
+                                 padx <- spacing[1]
+                                 pady <- spacing[2]
+
+                                 tkpack(toolkit_child, side=side,expand=expand, fill=fill, anchor=anchor,
+                                        padx=padx, pady=pady)
+
+                                 child_bookkeeping(child)
+                               },
+                               ## Remove a child from list. Can be added back in, if not garbage collected
+                               remove_child = function(child) {
+                                 "remove child from box container"
+                                 children <<- Filter(function(x) !identical(x, child), children) # remove from list
+                                 child$set_parent(NULL) # adjust child widget property
+                                 tkpack.forget(getBlock(child))
+                               },
+                               add_spring=function() {
+                                 blank_label <- ttklabel(get_widget(), text=" ")
+                                 l <- list(
+                                           expand=TRUE,
+                                           fill=ifelse(horizontal, "x","y"),
+                                           side=ifelse(horizontal, "left", "top")
+                                           )
+                                 l_tkpack <- function(...) tkpack(blank_label, ...)
+                                 do.call(l_tkpack, l)
+                               },
+                               add_space=function(value) {
+                                 l <- list(widget=ttklabel(get_widget(), text=""),
+                                           side=ifelse(horizontal, "left", "top")
+                                           )
+                                 if(horizontal)
+                                   l$padx <- as.integer(value)
+                                 else
+                                   l$pady <- as.integer(value)
+
+                                 do.call(tkpack, l)
+                               },
+                               ## [ for returning children
+                               get_items = function(i, j, ..., drop=TRUE) {
+                                 "Return children"
+                                 out <- children[i]
+                                 if(drop && length(out) == 1)
+                                   out[[1]]
+                                 else
+                                   out
+                               },
+                               
+                               ## svalue (borderwidth, spacing -- which is it...)
+                               get_value=function(...) {
+                                 spacing
+                               },
+                               set_value=function(value, ...) {
+                                 set_spacing(value)
+                                 sapply(children, function(i) {
+                                   tkconfigure(i$get_widget(), padx=spacing[1], pady=spacing[2])
+                                 })
+                               }
+                        ))
+
