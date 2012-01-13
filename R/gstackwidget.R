@@ -1,4 +1,4 @@
-##' @include gcontainer.R
+##' @include GContainer.R
 NULL
 
 ##' Toolkit constructor

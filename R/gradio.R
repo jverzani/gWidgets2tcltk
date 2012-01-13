@@ -1,4 +1,5 @@
 ##' @include GWidget.R
+##' @include gmenu.R
 NULL
 
 ##' Toolkit  constructor
@@ -12,9 +13,8 @@ NULL
                                             items,selected=1, horizontal=FALSE, handler=NULL,
                                             action=NULL, container=NULL, ...
                                             ) {
-
   GRadio$new(toolkit, items, selected, horizontal,
-             handler, action, container, ...)
+               handler, action, container, ...)
 }
 
 
@@ -22,25 +22,32 @@ NULL
 GRadio <- setRefClass("GRadio",
                       contains="GWidgetWithItems",
                       fields=list(
-                        items="character" # label names
+                        items="character", # label names
+                        menu_proxies="ANY"
                         ),
                       methods=list(
                         initialize=function(toolkit, items, selected, horizontal,
-                          handler, action, container, ...) {
+                          handler, action, container, parent, ...) {
                           widgets <<- list()
+
+                          ## might have parent argument if a menuitem
+                          if(!missing(parent))
+                            container <- parent
                           
                           widget <<- ttkframe(container$get_widget(), padding=c(2,2,2,2))
 
                           initFields(block=widget,
                                      horizontal=horizontal,
                                      state_var=tclVar(items[selected]), # store label name
-                                     change_signal="command"
+                                     change_signal="command",
+                                     menu_proxies=GMenuProxy$new()                                     
                                      )
                           
                           set_items(items)
                           set_index(selected)
-                          
-                          add_to_parent(container, .self, ...)
+
+                          if(missing(parent) || is(parent, "GToolbar"))
+                            add_to_parent(container, .self, ...)
                           
                           handler_id <<- add_handler_changed(handler, action)
                           
@@ -54,12 +61,17 @@ GRadio <- setRefClass("GRadio",
                             return()
                           a <- state_var
                           tclvalue(a) <- value
+                          menu_proxies$set_value(value)
                         },
                         get_index = function(...) {
                           match(tclvalue(state_var), items)
                         },
                         set_index = function(value, ...) {
                           set_value(items[value])
+                        },
+                        set_enabled=function(value) {
+                          menu_proxies$set_enabled(value)
+                          callSuper(value)
                         },
                         get_items = function(i, ...) {
                           items[i]
@@ -109,6 +121,10 @@ GRadio <- setRefClass("GRadio",
                           sapply(i, function(j) {
                             tkconfigure(widgets[[j]], image=value[j], compound=match.arg(compound))
                           })
+                        },
+                        add_menu_item_proxy=function(mb, index) {
+                          menu_proxies$add_proxy(mb, index)
                         }
                         ))
+
 

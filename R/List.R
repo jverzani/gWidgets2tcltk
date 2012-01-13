@@ -121,10 +121,11 @@ List <- setRefClass("List",
                         ## remove item by id key
                         l[[name]] <<- NULL
                       },
-                        len = function() {
+                      len = function() {
                         "length"
                         base:::length(l)
                       },
+                      ## iterators
                       each = function(FUN, ...) {
                         "Iterator for lists, like sapply, but FUN gets passed index, key, and value"
                         nms <- names(l)

@@ -1,4 +1,4 @@
-##' @require icons.R
+##' @include icons.R
 NULL
 
 .onLoad <- function(libname,pkgname,...) {

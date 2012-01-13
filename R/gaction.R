@@ -1,4 +1,5 @@
 ##' @include GWidget.R
+##' @include gmenu.R
 NULL
 
 ##' Toolkit constructor
@@ -27,6 +28,7 @@ GAction <- setRefClass("GAction",
                          accel_key="ANY",
                          parent="ANY",
                          observers="ANY",
+                         menu_proxies="ANY",
                          ..enabled="logical"
                          ),
                        methods=list(
@@ -39,6 +41,7 @@ GAction <- setRefClass("GAction",
                                       widget=NULL,
                                       block=NULL,
                                       observers=List$new(),
+                                      menu_proxies=GMenuProxy$new(),
                                       label=label,
                                       tooltip=tooltip,
                                       icon=icon,
@@ -59,20 +62,31 @@ GAction <- setRefClass("GAction",
                          add_listener=function(observer) {
                            observers$push(observer)
                          },
+                         add_menu_item_proxy=function(mb, index) {
+                           menu_proxies$add_proxy(mb, index)
+                         },
                          add_key_accel=function(parent, handler) {
                            "Hack to add in accelerator button binding"
-                           XXX()
+                           tkbind(parent$get_block(), accel_key, function() {
+                             invoke_change_handler()
+                           })
                          },
                          get_value=function( ...) {
                            label
                          },
                          set_value=function(value, ...) {
                            observers$each(function(i, key, widget) widget$set_value(value))
+                           menu_proxies$set_value(value)
                          },
                          get_icon=function(...) {
                            icon
                          },
-                         set_icon=function(value, ...) icon <<- value,
+                         set_icon=function(value, ...) {
+                           icon <<- value
+                           observers$each(function(i, key, widget) widget$set_icon(value))                           
+                           menu_proxies$set_value(value)
+                         },
+                           
                          get_tooltip=function(...) {
                            tooltip
                          },
@@ -83,6 +97,7 @@ GAction <- setRefClass("GAction",
                          set_enabled=function(value, ...) {
                            ..enabled <<- as.logical(value)
                            observers$each(function(i, key, widget) widget$set_enabled(value))
+                           menu_proxies$set_enabled(value)
                          }
                          ))
 

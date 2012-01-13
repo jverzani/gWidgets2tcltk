@@ -12,14 +12,18 @@
 \alias{.gframe.guiWidgetsToolkittcltk}
 \alias{.ggroup.guiWidgetsToolkittcltk}
 \alias{.glabel.guiWidgetsToolkittcltk}
+\alias{.glayout.guiWidgetsToolkittcltk}
+\alias{.gmenu.guiWidgetsToolkittcltk}
 \alias{.gnotebook.guiWidgetsToolkittcltk}
 \alias{.gpanedgroup.guiWidgetsToolkittcltk}
 \alias{.gradio.guiWidgetsToolkittcltk}
+\alias{.gseparator.guiWidgetsToolkittcltk}
 \alias{.gslider.guiWidgetsToolkittcltk}
 \alias{.gspinbutton.guiWidgetsToolkittcltk}
 \alias{.gstackwidget.guiWidgetsToolkittcltk}
 \alias{.gstatusbar.guiWidgetsToolkittcltk}
 \alias{.gtimer.guiWidgetsToolkittcltk}
+\alias{.gtoolbar.guiWidgetsToolkittcltk}
 \alias{.gwindow.guiWidgetsToolkittcltk}
 \title{toolkit constructor for gwindow}
 \usage{
@@ -55,6 +59,9 @@
   \method{.glabel}{guiWidgetsToolkittcltk} (toolkit, text =
   "", markup = FALSE, editable = FALSE, handler = NULL,
   action = NULL, container = NULL, ...)
+
+  \method{.gmenu}{guiWidgetsToolkittcltk} (toolkit,
+  menu.list = list(), popup = FALSE, container = NULL, ...)
 
   \method{.gcheckbox}{guiWidgetsToolkittcltk} (toolkit,
   text, checked = FALSE, use.togglebutton = FALSE, handler
@@ -104,6 +111,16 @@
   items, selected = 1, editable = FALSE, coerce.with =
   NULL, handler = NULL, action = NULL, container = NULL,
   ...)
+
+  \method{.gseparator}{guiWidgetsToolkittcltk} (toolkit,
+  horizontal = TRUE, container = NULL, ...)
+
+  \method{.gtoolbar}{guiWidgetsToolkittcltk} (toolkit,
+  toolbar.list = list(), style = c("both", "icons", "text",
+  "both-horiz"), container = NULL, ...)
+
+  \method{.glayout}{guiWidgetsToolkittcltk} (toolkit,
+  homogeneous = FALSE, spacing = 10, container = NULL, ...)
 }
 \arguments{
   \item{initial.msg}{initial.msg}
@@ -177,6 +194,17 @@
   \item{editable}{If TRUE, then clicking on label will
   enable editing of value}
 
+  \item{menu.list}{A list defining the menu structure.
+  Named sub lists determine the submenu titles and
+  structure. The list may have components of class:
+  \code{GAction}, mapped to a button; \code{GSeparator},
+  mapped to a horizontal separator; \code{GRadio}, mapped
+  to linked buttons; or \code{GCheckbox}, mapped to a
+  checkbox button.}
+
+  \item{popup}{logical. If true, make a popup window to be
+  added through a handler call}
+
   \item{checked}{is button selected}
 
   \item{use.togglebutton}{Use a toggle button (shows
@@ -229,6 +257,16 @@
   \item{coerce.with}{A function of function name to be
   called before selected value is returned by
   \code{svalue}}
+
+  \item{toolbar.list}{list. A one-level list of
+  \code{gaction} items, \code{gseparator} items or possibly
+  other widgets. In the latter cases the \code{container}
+  argument is not specified prior. (XXX Need to work this
+  out with gWidgetstcltk)}
+
+  \item{style}{style for icon or text.}
+
+  \item{homogeneous}{are cells all the same size}
 }
 \description{
   toolkit constructor for gwindow
@@ -248,6 +286,8 @@
   gframe constructor
 
   Toolkit label constructor
+
+  Toolkit constructor
 
   Toolkit XXX constructor
 
@@ -270,6 +310,12 @@
   Toolkit constructor
 
   toolkit constructor
+
+  Toolkit constructor
+
+  Toolkit constructor
+
+  Toolkit constructor
 
   Toolkit constructor
 

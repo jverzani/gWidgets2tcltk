@@ -1,4 +1,5 @@
 ##' @include GWidget.R
+##' @include gmenu.R
 NULL
 
 ##' Toolkit XXX constructor
@@ -19,13 +20,20 @@ NULL
 ## Checkbox reference class
 GCheckbox <- setRefClass("GCheckbox",
                          contains="GWidgetWithTclVariable",
+                         fields=list(
+                           menu_proxies="ANY"
+                           ),
                          methods=list(
                            initialize=function(toolkit=NULL,
                              text="", checked = FALSE, use.togglebutton=FALSE,
                              handler = NULL, action = NULL,
-                             container = NULL, ... ) {
+                             container = NULL, parent, ... ) {
                              
                              t_var <<- tclVar(as.numeric(checked))
+
+                             if(!missing(parent)) # a menu item
+                               container <- parent
+                             
                              l <- list(parent=container$get_widget(),
                                        text=as.character(text),
                                        variable=t_var)
@@ -34,10 +42,12 @@ GCheckbox <- setRefClass("GCheckbox",
                              widget <<- do.call(ttkcheckbutton, l)
                              
                              initFields(block=widget,
-                                        change_signal="command"
+                                        change_signal="command",
+                                        menu_proxies=GMenuProxy$new()                                     
                                         )
-                             
-                             add_to_parent(container, .self, ...)
+
+                             if(missing(parent) || is(parent, "GToolbar")) # not menu item
+                               add_to_parent(container, .self, ...)
                              
                              handler_id <<- add_handler_changed(handler, action)
                              
@@ -47,11 +57,22 @@ GCheckbox <- setRefClass("GCheckbox",
                              val <- callSuper()
                              as.logical(as.numeric(val))
                            },
+                           set_value=function(value, ...) {
+                             menu_proxies$set_value(value)
+                             callSuper(value, ...)
+                           },
                            get_items = function(i, j, ..., drop=TRUE) {
                              as.character(tkcget(widget, "-text"))
                            },
                            set_items = function(value, i, j, ...) {
                              tkconfigure(widget, text=as.character(value))
+                           },
+                           set_enabled=function(value) {
+                             menu_proxies$set_enabled(value)
+                             callSuper(value)
+                           },
+                           add_menu_item_proxy=function(mb, index) {
+                             menu_proxies$add_proxy(mb, index)
                            }
                            ))
 

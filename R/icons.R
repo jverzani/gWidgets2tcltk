@@ -26,14 +26,18 @@ TcltkStockIcons <- setRefClass("TcltkStockIcons",
                                      out <- try(tcl("image","create","photo",
                                                     iconName,
                                                     file=f), silent=TRUE)
-                                     if(!inherits(out,"try-error"))
+                                     if(!inherits(out,"try-error")) {
+                                       class(f) <- c("gWidgetstcltkIcon", class(f))
                                        l[[nm]] <<- f
+                                     }
                                    }
                                  },
                                  has_icon=function(stockname) {
+
                                    stockname <- as.character(stockname)
                                    
-                                   out <- is.null(stockname) || nchar(stockname) == 0 ||
+                                   out <- is.null(stockname) || length(stockname) == 0 ||
+                                          nchar(stockname) == 0 ||
                                           stockname == "" || is.null(l[[stockname, exact=TRUE]])
                                    !out
                                  },

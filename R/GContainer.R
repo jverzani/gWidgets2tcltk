@@ -8,7 +8,8 @@ NULL
 GContainer <- setRefClass("GContainer",
                           contains="GComponentObservable",
                           fields=list(
-                            children="list"
+                            children="list",
+                            ..enabled="logical"
                             ),
                           methods=list(
                             get_widget = function() {
@@ -28,13 +29,16 @@ GContainer <- setRefClass("GContainer",
                                 child$set_parent(.self)
                               children <<- c(children, child)
                             },
-                            set_child_align=function(child, alt_child, anchor) {
-                              "Set child alignment, if a GtkMisc or GtkAlignment object"
-                              XXX("align")
+                            set_enabled=function(value) {
+                              ..enabled <<- as.logical(value)
+                              tclServiceMode(FALSE)
+                              sapply(children, function(i) i$set_enabled(value))
+                              tclServiceMode(TRUE)
                             },
-                            set_child_fill=function(child, fill, horizontal=TRUE) {
-                              "Fill can be NULL, TRUE, FALSE, '', 'both', 'x', 'y'..."
-                              XXX("fill")
+                            get_enabled=function(value) {
+                              if(is(..enabled, "uninitializedField"))
+                                ..enabled <<- TRUE
+                              ..enabled
                             }
                           ))
 
@@ -88,6 +92,14 @@ GBoxContainer <- setRefClass("GBoxContainer",
                                  children <<- Filter(function(x) !identical(x, child), children) # remove from list
                                  child$set_parent(NULL) # adjust child widget property
                                  tkpack.forget(getBlock(child))
+                               },
+                               remove_children=function() {
+                                 tclServiceMode(TRUE)
+                                 sapply(children, function(i) {
+                                   child$set_parent(NULL)
+                                   tkpack.forge(getBlock(child))
+                                 })
+                                 children <<- list()
                                },
                                add_spring=function() {
                                  blank_label <- ttklabel(get_widget(), text=" ")

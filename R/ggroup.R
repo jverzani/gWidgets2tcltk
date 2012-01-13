@@ -30,7 +30,7 @@ GGroup <- setRefClass("GGroup",
                           if(use.scrollwindow) {
                             init_scrollwindow(container)
                           } else {
-                            widget <<- ttkframe(container$get_widget())
+                            widget <<- ttkframe(getWidget(container))
                             block <<- widget
                           }
                           initFields(horizontal=horizontal,

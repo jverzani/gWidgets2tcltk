@@ -19,15 +19,15 @@ ggraphics.R
 gimage.R
 DONE glabel.R
 gmenu.R
-DONE gradio.R
-gseparator.R
+* gradio.R: as menu item and set_enabled
+DONE gseparator.R
 DONE gslider.R
 DONE gspinbutton.R
 DONE gstatusbar.R
 gtable.R
 gtext.R
 DONE gtimer.R
-gtoolbar.R
+DONE gtoolbar.R
 gtree.R
 gvarbrowser.R
 * gwindow.R: subwindows, parents
@@ -35,10 +35,10 @@ DONE icons.R
 misc.R
 notebook-widgets.R
 
-gexpandgroup.R
+DONE gexpandgroup.R
 DONE gframe.R 
 DONE ggroup.R 
-glayout.R
+DONE glayout.R
 DONE gnotebook.R
 DONE gpanedgroup.R
 DONE gstackwidget.R

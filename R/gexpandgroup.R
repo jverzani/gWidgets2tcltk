@@ -1,4 +1,4 @@
-##' @include gcontainer.R
+##' @include GContainer.R
 NULL
 
 ##' toolkit constructor
@@ -35,7 +35,7 @@ GExpandGroup <- setRefClass("GExpandGroup",
 
                                 do_layout()
                                 set_names(text)
-gc
+
 
                                 initFields(horizontal=horizontal,
                                           ..visible=TRUE,
@@ -82,6 +82,12 @@ gc
                                 }
 
                                 tcl("event", "generate", widget, change_signal)
+                              },
+                              set_enabled=function(value) {
+                                sapply(list(disclose_icon, label), function(i) {
+                                  tcl(i, "state", ifelse(value, "!disabled", "disabled"))
+                                })
+                                callSuper(value)
                               }
                               ))
                             

@@ -45,11 +45,6 @@
 
   The main reference methods \code{GTimer} are
   \code{start_timer} and \code{stop_timer}
-
-  GContainer is the base class for container objects. The
-  main method is \code{add_child}, but there is also
-  book-keepingn code to keep track of the child components
-  of the container
 }
 \author{
   John Verzani \email{jverzani@gmail.com}

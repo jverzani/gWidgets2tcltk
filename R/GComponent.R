@@ -42,10 +42,10 @@ GComponent <- setRefClass("GComponent",
                                      handler_id <<- NULL
 
                                    if(is(default_expand, "uninitializedField"))
-                                     default_expand <<- NULL
+                                     default_expand <<- FALSE
 
                                    if(is(default_fill, "uninitializedField"))
-                                     default_fill <<- NULL
+                                     default_fill <<- FALSE
 
                                    callSuper(...)
                                  },
@@ -58,7 +58,7 @@ GComponent <- setRefClass("GComponent",
                                    !is_ttkwidget()
                                  },
                                  show = function() {
-                                   cat(sprintf("Object of class %s", class(.self)[1]))
+                                   cat(sprintf("Object of class %s\n", class(.self)[1]))
                                  },
                                  get_value = function(...) {
                                    ## no default
@@ -188,6 +188,17 @@ GComponent <- setRefClass("GComponent",
                                      tmp$add_child(child, expand, fill, anchor, ...)
                                      return()
                                    }
+
+                                   if(is(parent, "tkwin")) {
+                                     ## we just pack in
+                                     if(is.null(expand))
+                                       expand <- FALSE
+                                     if(is.logical(fill))
+                                       fill <- ifelse(fill, "both", "none")
+                                     tkpack(child$get_block(), expand=expand, fill=fill)
+                                     return()
+                                   }
+                                   
                                    if(!is(parent,  "GContainer")) {
                                      message("parent is not a container")
                                      return()

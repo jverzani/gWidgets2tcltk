@@ -39,6 +39,8 @@ GButton <- setRefClass("GButton",
                               },
                               get_index=function(...) get_value(),
                               set_icon=function(value, ...) {
+                                if(!is(value, "gWidgetstcltkIcon"))
+                                  value <- getStockIconByName(value)
                                 if(!missing(value) && !is.null(value)) {
                                   tkconfigure(widget, image=value, compound="left")
                                 }
