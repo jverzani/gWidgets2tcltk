@@ -122,7 +122,8 @@ GComponent <- setRefClass("GComponent",
                                    message("tooltip not implemented")
                                  },
                                  set_tooltip = function(value) {
-                                   tcltk2:::tk2tip(get_widget(), paste(value, collapse="\n"))
+                                   if(!missing(value) && !is.null(value))
+                                     tcltk2:::tk2tip(get_widget(), paste(value, collapse="\n"))
                                  },
                                  ## font
                                  set_font = function(value) {

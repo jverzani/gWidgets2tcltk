@@ -11,9 +11,9 @@ NULL
 ##' @S3method .gbutton guiWidgetsToolkittcltk
 .gbutton.guiWidgetsToolkittcltk <- function(toolkit, text, handler, action, container, ...) {
   if(is(action, "GAction"))
-    GButtonAction$new(toolkit, text, handler, action, container, ...)
+    GButtonAction$new(toolkit, action, container, ...)
   else
-    GButton$new(toolkit, text, handler, action, container, ...)
+    GButtonNoAction$new(toolkit, text, handler, action, container, ...)
 }
 
 ##' For RGtk2, the GButton class has the extra reference method
@@ -22,31 +22,13 @@ NULL
 GButton <- setRefClass("GButton",
                             contains="GWidget",
                             methods=list(
-                              initialize=function(toolkit=NULL, text=NULL,  handler, action, container, ...) {
-                                
-                                widget <<- ttkbutton(container$get_widget())
-                                toolkit <<- toolkit # otherwise next line fails to find toolkit for dispatch
-
-                                if(!is_empty(text))
-                                  set_value(text)
-
-
-                                
-                                initFields(block=widget,
-                                           change_signal="command"
-                                           )
-                                
-
-                                add_to_parent(container, .self, ...)
-                                add_handler_changed(handler, action)
-                                callSuper(toolkit)
-                              },
+                             
                               set_value=function(value, index=TRUE, drop=TRUE, ...) {
                                 "Set value, does not invoke widget"
 
                                 tkconfigure(widget, text=as.character(value))
                                 icon <- getStockIconByName(value, toolkit=toolkit)
-                                tkconfigure(widget, image=ifelse(is.null(icon), "", icon))
+                                set_icon(icon)
 
                               },
                               set_index=function(...) set_value(...),
@@ -56,6 +38,11 @@ GButton <- setRefClass("GButton",
                                 return(val)
                               },
                               get_index=function(...) get_value(),
+                              set_icon=function(value, ...) {
+                                if(!missing(value) && !is.null(value)) {
+                                  tkconfigure(widget, image=value, compound="left")
+                                }
+                              },
                               set_font = function(value) {
                                 XXX("Is this right")
                                callSuper(value)
@@ -72,6 +59,49 @@ GButton <- setRefClass("GButton",
                               ))
 
 
+GButtonNoAction <- setRefClass("GButtonNoAction",
+                       contains="GButton",
+                       methods=list(
+                         initialize=function(toolkit=NULL, text=NULL,  handler, action, container, ...) {
+                                
+                           widget <<- ttkbutton(container$get_widget())
+                           
+                           if(!is_empty(text))
+                             set_value(text)
+
+                           initFields(block=widget,
+                                      change_signal="command"
+                                      )
+                           
+
+                           add_to_parent(container, .self, ...)
+                           add_handler_changed(handler, action)
+                           callSuper(toolkit)
+                         }
+                         ))
 ## XXX
-GButtonAction <- setRefClass("GButtonAction")
+GButtonAction <- setRefClass("GButtonAction",
+                             contains="GButton",
+                             methods=list(
+                               initialize=function(toolkit, action, container, ...) {
+
+                                 print(action)
+                                 print(container)
+                                 widget <<- ttkbutton(container$get_widget())
+                                 block <<- widget
+                                
+                                 set_value(action$get_value())
+                                 set_icon(action$get_icon())
+                                 set_tooltip(action$get_tooltip())
+
+                                tkconfigure(widget, command=function() {
+                                  action$invoke_change_handler()
+                                })
+
+                                action$add_listener(.self)
+                                
+                                add_to_parent(container, .self, ...)
+                                callSuper(toolkit)                             
+                              }
+                               ))
                              

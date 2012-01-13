@@ -1,0 +1,88 @@
+##' @include GWidget.R
+NULL
+
+##' Toolkit constructor
+##'
+##' @inheritParams gWidgets2::gaction
+##' @export
+##' @rdname gWidgets2tcltk-undocumented
+##' @method .gaction guiWidgetsToolkittcltk
+##' @S3method .gaction guiWidgetsToolkittcltk
+.gaction.guiWidgetsToolkittcltk <-  function(toolkit,
+                                             label, tooltip=NULL, icon = NULL, key.accel = NULL,
+                                             handler = NULL,action = NULL, parent = NULL, ... ) {
+  GAction$new(toolkit,
+              label, tooltip=tooltip, icon = icon, key.accel = key.accel,
+              handler = handler,action = action, parent = parent, ...)
+}
+
+
+## GAction class
+GAction <- setRefClass("GAction",
+                       contains="GWidget",
+                       fields=list(
+                         label="character",
+                         tooltip="ANY",
+                         icon="ANY",
+                         accel_key="ANY",
+                         parent="ANY",
+                         observers="ANY",
+                         ..enabled="logical"
+                         ),
+                       methods=list(
+                         initialize=function(toolkit=NULL,
+                           label="", tooltip=NULL, icon = NULL, key.accel = NULL,
+                           handler, action=NULL, parent, ...) {
+
+
+                           initFields(
+                                      widget=NULL,
+                                      block=NULL,
+                                      observers=List$new(),
+                                      label=label,
+                                      tooltip=tooltip,
+                                      icon=icon,
+                                      accel_key=key.accel,
+                                      parent=parent,
+                                      change_signal="<<InvokeAction>>",
+                                      ..enabled=TRUE
+                                      )
+                           
+                           
+                           if(!is.null(parent) && !is.null(handler))
+                             add_key_accel(parent, handler)
+
+                           handler_id <<- add_handler_changed(handler, action)
+                           
+                           callSuper(toolkit)
+                         },
+                         add_listener=function(observer) {
+                           observers$push(observer)
+                         },
+                         add_key_accel=function(parent, handler) {
+                           "Hack to add in accelerator button binding"
+                           XXX()
+                         },
+                         get_value=function( ...) {
+                           label
+                         },
+                         set_value=function(value, ...) {
+                           observers$each(function(i, key, widget) widget$set_value(value))
+                         },
+                         get_icon=function(...) {
+                           icon
+                         },
+                         set_icon=function(value, ...) icon <<- value,
+                         get_tooltip=function(...) {
+                           tooltip
+                         },
+                         set_tooltip=function(value, ...) {
+                           observers$each(function(i, key, widget) widget$set_tooltip(value))
+                         },
+                         get_enabled=function(...) ..enabled,
+                         set_enabled=function(value, ...) {
+                           ..enabled <<- as.logical(value)
+                           observers$each(function(i, key, widget) widget$set_enabled(value))
+                         }
+                         ))
+

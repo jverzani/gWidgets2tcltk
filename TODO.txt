@@ -5,12 +5,12 @@ DONE gWidgets2RGtk2-package.R
 
 dialogs.R 
 
-gaction.R
-* gbutton.R: needs actions
+DONE gaction.R
+DONE  gbutton.R
 gcalendar.R
 DONE gcheckbox.R
 * gcheckboxgroup.R: use.table needed
-gcombobox.R
+DONE gcombobox.R
 gdf.R
 gdfnotebook.R
 * gedit.R: [<-; validation
@@ -30,8 +30,8 @@ DONE gtimer.R
 gtoolbar.R
 gtree.R
 gvarbrowser.R
-gwindow.R
-icons.R
+* gwindow.R: subwindows, parents
+DONE icons.R
 misc.R
 notebook-widgets.R
 

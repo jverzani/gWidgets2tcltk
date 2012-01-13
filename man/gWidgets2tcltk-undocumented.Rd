@@ -1,8 +1,13 @@
 \name{.gwindow.guiWidgetsToolkittcltk}
+\alias{.addStockIcons.guiWidgetsToolkittcltk}
+\alias{.gaction.guiWidgetsToolkittcltk}
 \alias{.gbutton.guiWidgetsToolkittcltk}
 \alias{.gcheckbox.guiWidgetsToolkittcltk}
 \alias{.gcheckboxgroup.guiWidgetsToolkittcltk}
+\alias{.gcombobox.guiWidgetsToolkittcltk}
 \alias{.gedit.guiWidgetsToolkittcltk}
+\alias{.getStockIconByName.guiWidgetsToolkittcltk}
+\alias{.getStockIcons.guiWidgetsToolkittcltk}
 \alias{.gexpandgroup.guiWidgetsToolkittcltk}
 \alias{.gframe.guiWidgetsToolkittcltk}
 \alias{.ggroup.guiWidgetsToolkittcltk}
@@ -21,6 +26,15 @@
   \method{.gwindow}{guiWidgetsToolkittcltk} (toolkit,
   title, visible = visible, name, width, height, parent,
   handler, action, ...)
+
+  \method{.addStockIcons}{guiWidgetsToolkittcltk} (toolkit,
+  iconNames, iconFiles, ...)
+
+  \method{.getStockIcons}{guiWidgetsToolkittcltk} (toolkit,
+  ...)
+
+  \method{.getStockIconByName}{guiWidgetsToolkittcltk}
+  (toolkit, name, ...)
 
   \method{.gbutton}{guiWidgetsToolkittcltk} (toolkit, text,
   handler, action, container, ...)
@@ -81,6 +95,15 @@
   \method{.gexpandgroup}{guiWidgetsToolkittcltk} (toolkit,
   text, markup, horizontal = TRUE, handler = NULL, action =
   NULL, container = NULL, ...)
+
+  \method{.gaction}{guiWidgetsToolkittcltk} (toolkit,
+  label, tooltip = NULL, icon = NULL, key.accel = NULL,
+  handler = NULL, action = NULL, parent = NULL, ...)
+
+  \method{.gcombobox}{guiWidgetsToolkittcltk} (toolkit,
+  items, selected = 1, editable = FALSE, coerce.with =
+  NULL, handler = NULL, action = NULL, container = NULL,
+  ...)
 }
 \arguments{
   \item{initial.msg}{initial.msg}
@@ -123,6 +146,10 @@
   \item{action}{action passed t handler}
 
   \item{...}{ignored}
+
+  \item{iconNames}{names of icons}
+
+  \item{iconFiles}{path of icons}
 
   \item{text}{label text. If text matches a stock icon
   name, that is used as well}
@@ -189,9 +216,28 @@
 
   \item{tab.pos}{integer. Position of tabs, 1 on bottom, 2
   left, 3 top, 4 right. (If supported)}
+
+  \item{label}{label for action}
+
+  \item{tooltip}{toolktip for actin}
+
+  \item{icon}{icon (stock icon name) for icon}
+
+  \item{key.accel}{keyboard accelerator. If given, parent
+  must be specified.}
+
+  \item{coerce.with}{A function of function name to be
+  called before selected value is returned by
+  \code{svalue}}
 }
 \description{
   toolkit constructor for gwindow
+
+  add stock icons
+
+  Returns list of stock ids
+
+  return stock id
 
   Toolkit constructor
 
@@ -224,6 +270,10 @@
   Toolkit constructor
 
   toolkit constructor
+
+  Toolkit constructor
+
+  Toolkit constructor
 }
 \seealso{
   The documentation for this is found at

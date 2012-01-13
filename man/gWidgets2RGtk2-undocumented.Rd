@@ -1,12 +1,11 @@
-\name{.gexpandgroup.guiWidgetsToolkitRGtk2}
-\alias{.gexpandgroup.guiWidgetsToolkitRGtk2}
-\title{toolkit constructor}
+\name{.stockIconFromObject.guiWidgetsToolkitRGtk2}
+\alias{.stockIconFromObject.guiWidgetsToolkitRGtk2}
+\title{return stock id from object}
 \usage{
-  \method{.gexpandgroup}{guiWidgetsToolkitRGtk2} (toolkit,
-  text, markup, horizontal = TRUE, handler = NULL, action =
-  NULL, container = NULL, ...)
+  \method{.stockIconFromObject}{guiWidgetsToolkitRGtk2}
+  (toolkit, obj, ...)
 }
 \description{
-  toolkit constructor
+  return stock id from object
 }
 
