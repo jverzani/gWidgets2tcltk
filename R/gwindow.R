@@ -40,17 +40,10 @@ GWindow <- setRefClass("GWindow",
                                 if(is.null(height))
                                   height <- as.integer(0.7 * width)
 
+                                
 
-
-                                if(!is.null(parent)) {
-                                  if(inherits(parent, "GComponent")) {
-                                    ## a widget
-                                    
-                                  } else {
-                                    ## check that parent is a numeric pair
-                                    
-                                  }
-                                }
+                                if(!is.null(parent))
+                                  set_location(parent)
 
                                 
                                 initFields(toolkit=toolkit, 
@@ -89,6 +82,25 @@ GWindow <- setRefClass("GWindow",
                               ## Widget methods
                               is_ttkwidget=function() {
                                 FALSE
+                              },
+                              set_location=function(location) {
+                                "Locate window based on other. If location is a widget, make transient. Else location can be (x,y) pair of pixel counts"
+
+                                if(is(location, "GComponent"))
+                                  location <- location$get_widget()
+                                if(is(location, "tkwin")) {
+                                  ## make transient to widget
+                                  pos <- sapply(c("rootx", "rooty"), function(i) {
+                                    as.numeric(tkwinfo(i, location))
+                                  })
+                                  tkwm.geometry(block, sprintf("+%s+%s", pos[1] + 30, pos[2] + 30))
+                                  tkwm.transient(block, location) # set transient
+                                  tkbind(location, "<Destroy>",function(...) tkdestroy(block))
+                                  tkbind(location, "<Unmap>",function(...) tkdestroy(block))
+                                } else if(is.numeric(location)) {
+                                  pos <- rep(location, 2)
+                                  tkwm.geometry(block, sprintf("+%s+%s", pos[1] + 30, pos[2] + 30))
+                                }
                               },
                               get_value = function(...) as.character(tktitle(block)),
                               set_value = function(value, ...) {

@@ -362,11 +362,17 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                       
                                       ## Basic event handlers
                                       ## Define decorators here
+                                      click_decorator=function(f) {
+                                        FUN <- function(W, x, y, X, Y) {
+                                          args <- sapply(c("x","y","X","Y"), as.numeric, simplify=FALSE)
+                                          f(extra_args=args)
+                                        }
+                                      },
                                       add_handler_clicked = function(handler, action=NULL, ...) {
-                                        add_handler("<Button-1>", handler, action, ...)
+                                        add_handler("<Button-1>", handler, action, decorator=.self$click_decorator,...)
                                       },
                                       add_handler_doubleclick = function(handler, action=NULL, ...) {
-                                        add_handler("<Double-Button1>", handler, action, ...)
+                                        add_handler("<Double-Button1>", handler, action, decorator=.self$click_decorator, ...)
                                       },
                                       add_handler_button_press=function(handler, action=NULL, ...) {
                                         add_handler("<ButtonPress>", handler, action, ...)

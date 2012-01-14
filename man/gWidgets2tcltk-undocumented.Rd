@@ -2,6 +2,7 @@
 \alias{.addStockIcons.guiWidgetsToolkittcltk}
 \alias{.gaction.guiWidgetsToolkittcltk}
 \alias{.gbutton.guiWidgetsToolkittcltk}
+\alias{.gcalendar.guiWidgetsToolkittcltk}
 \alias{.gcheckbox.guiWidgetsToolkittcltk}
 \alias{.gcheckboxgroup.guiWidgetsToolkittcltk}
 \alias{.gcombobox.guiWidgetsToolkittcltk}
@@ -11,6 +12,7 @@
 \alias{.gexpandgroup.guiWidgetsToolkittcltk}
 \alias{.gframe.guiWidgetsToolkittcltk}
 \alias{.ggroup.guiWidgetsToolkittcltk}
+\alias{.gimage.guiWidgetsToolkittcltk}
 \alias{.glabel.guiWidgetsToolkittcltk}
 \alias{.glayout.guiWidgetsToolkittcltk}
 \alias{.gmenu.guiWidgetsToolkittcltk}
@@ -121,6 +123,14 @@
 
   \method{.glayout}{guiWidgetsToolkittcltk} (toolkit,
   homogeneous = FALSE, spacing = 10, container = NULL, ...)
+
+  \method{.gimage}{guiWidgetsToolkittcltk} (toolkit,
+  filename = "", dirname = "", stock.id = NULL, size = "",
+  handler = NULL, action = NULL, container = NULL, ...)
+
+  \method{.gcalendar}{guiWidgetsToolkittcltk} (toolkit,
+  text = "", format = "\%Y-\%m-\%d", handler = NULL, action
+  = NULL, container = NULL, ...)
 }
 \arguments{
   \item{initial.msg}{initial.msg}
@@ -267,6 +277,17 @@
   \item{style}{style for icon or text.}
 
   \item{homogeneous}{are cells all the same size}
+
+  \item{filename}{basename of file}
+
+  \item{dirname}{dirname of file}
+
+  \item{stock.id}{stock id of icon (if non NULL)}
+
+  \item{size}{size of icon when a stock id (toolkit
+  dependent)}
+
+  \item{format}{Date format}
 }
 \description{
   toolkit constructor for gwindow
@@ -310,6 +331,10 @@
   Toolkit constructor
 
   toolkit constructor
+
+  Toolkit constructor
+
+  Toolkit constructor
 
   Toolkit constructor
 

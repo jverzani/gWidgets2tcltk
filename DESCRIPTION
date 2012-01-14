@@ -49,3 +49,5 @@ Collate:
     'gseparator.R'
     'gtoolbar.R'
     'glayout.R'
+    'gimage.R'
+    'gcalendar.R'
