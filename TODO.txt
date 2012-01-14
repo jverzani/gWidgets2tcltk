@@ -7,7 +7,7 @@ dialogs.R
 
 DONE gaction.R
 DONE  gbutton.R
-gcalendar.R
+DONE gcalendar.R
 DONE gcheckbox.R
 * gcheckboxgroup.R: use.table needed
 DONE gcombobox.R
@@ -30,7 +30,7 @@ DONE gtimer.R
 DONE gtoolbar.R
 gtree.R
 gvarbrowser.R
-* gwindow.R: subwindows, parents
+DONE gwindow.R: 
 DONE icons.R
 misc.R
 notebook-widgets.R
