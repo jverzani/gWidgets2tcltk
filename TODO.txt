@@ -15,16 +15,16 @@ gdf.R
 gdfnotebook.R
 * gedit.R: [<-; validation
 gfile.R
-ggraphics.R
-gimage.R
+XXX ggraphics.R
+DONE gimage.R
 DONE glabel.R
-gmenu.R
-* gradio.R: as menu item and set_enabled
+DONE gmenu.R
+DONE  gradio.R
 DONE gseparator.R
 DONE gslider.R
 DONE gspinbutton.R
 DONE gstatusbar.R
-gtable.R
+gtable.R: decorator for column click to pass back column
 gtext.R
 DONE gtimer.R
 DONE gtoolbar.R

@@ -1,4 +1,4 @@
-##      Copyright (C) 2011  John Verzani
+##      Copyright (C) 2011, 2012  John Verzani
 ##  
 ##      This program is free software: you can redistribute it and/or modify
 ##      it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 ##      You should have received a copy of the GNU General Public License
 ##      along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-##' An list extension class.
+##' A list extension class.
 ##'
 ##' Like a list, but has some methods. Completely superflous, but
 ##' makes copying some code algorithms easier. We implement methods
@@ -30,15 +30,13 @@ List <- setRefClass("List",
                       initialize = function(...) {
                         if(nargs()) {
                           if(is.list(..1))
-                            l <<- ..1
-                          else
-                            l <<- list(...)
+                            lst <- ..1
                         } else {
-                          l <<- list()
+                          lst <- list(...)
                         }
-                        
-                        id_ctr <<- 0L
-                        .self
+                        initFields(l=lst,
+                                   id_ctr=0L)
+                        callSuper()
                       },
                       core = function() {
                         "return list"
@@ -78,9 +76,9 @@ List <- setRefClass("List",
                           else
                             lst <- list(...)
                           nms <- names(lst)
-                          sapply(seq_along(lst), function(i) {
-                            push(lst[[i]], nms[i])
-                          })
+                          if(is.null(nms))
+                            nms <- sapply(seq_len(lst), get_id)
+                          mapply(push, lst, nms)
                           invisible()
                         }
                       },
@@ -92,6 +90,7 @@ List <- setRefClass("List",
                         name
                       },
                       pop = function() {
+                        "pop last element of list"
                         out <- l[length(l)]
                         l <<- l[-length(l)]
                         out

@@ -34,7 +34,6 @@ GEdit <- setRefClass("GEdit",
                                 handler = NULL, action = NULL, container = NULL, ...) {
 
                                 t_var <<- tclVar(text)
-                                print(list("entry", container$get_widget(), t_var))
                                 widget <<- ttkentry(container$get_widget(),
                                                     textvariable=t_var)
 
@@ -59,7 +58,7 @@ GEdit <- setRefClass("GEdit",
                                   set_value(text)
                                 } else if(nchar(initial.msg) > 0) {
                                   set_init_txt(initial.msg)
-                                  tkbind(wiget, "<FocusIn>", clear_init_txt)
+                                  tkbind(widget, "<FocusIn>", clear_init_txt)
                                 }
 
                                 

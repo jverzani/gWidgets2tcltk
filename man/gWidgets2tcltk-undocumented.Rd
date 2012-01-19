@@ -1,11 +1,15 @@
 \name{.gwindow.guiWidgetsToolkittcltk}
 \alias{.addStockIcons.guiWidgetsToolkittcltk}
 \alias{.gaction.guiWidgetsToolkittcltk}
+\alias{.galert.guiWidgetsToolkittcltk}
+\alias{.gbasicdialog.guiWidgetsToolkittcltk}
 \alias{.gbutton.guiWidgetsToolkittcltk}
 \alias{.gcalendar.guiWidgetsToolkittcltk}
 \alias{.gcheckbox.guiWidgetsToolkittcltk}
 \alias{.gcheckboxgroup.guiWidgetsToolkittcltk}
 \alias{.gcombobox.guiWidgetsToolkittcltk}
+\alias{.gconfirm.guiWidgetsToolkittcltk}
+\alias{.gdf.guiWidgetsToolkittcltk}
 \alias{.gedit.guiWidgetsToolkittcltk}
 \alias{.getStockIconByName.guiWidgetsToolkittcltk}
 \alias{.getStockIcons.guiWidgetsToolkittcltk}
@@ -13,9 +17,11 @@
 \alias{.gframe.guiWidgetsToolkittcltk}
 \alias{.ggroup.guiWidgetsToolkittcltk}
 \alias{.gimage.guiWidgetsToolkittcltk}
+\alias{.ginput.guiWidgetsToolkittcltk}
 \alias{.glabel.guiWidgetsToolkittcltk}
 \alias{.glayout.guiWidgetsToolkittcltk}
 \alias{.gmenu.guiWidgetsToolkittcltk}
+\alias{.gmessage.guiWidgetsToolkittcltk}
 \alias{.gnotebook.guiWidgetsToolkittcltk}
 \alias{.gpanedgroup.guiWidgetsToolkittcltk}
 \alias{.gradio.guiWidgetsToolkittcltk}
@@ -24,6 +30,7 @@
 \alias{.gspinbutton.guiWidgetsToolkittcltk}
 \alias{.gstackwidget.guiWidgetsToolkittcltk}
 \alias{.gstatusbar.guiWidgetsToolkittcltk}
+\alias{.gtable.guiWidgetsToolkittcltk}
 \alias{.gtimer.guiWidgetsToolkittcltk}
 \alias{.gtoolbar.guiWidgetsToolkittcltk}
 \alias{.gwindow.guiWidgetsToolkittcltk}
@@ -87,6 +94,11 @@
   selected = 1, horizontal = FALSE, handler = NULL, action
   = NULL, container = NULL, ...)
 
+  \method{.gtable}{guiWidgetsToolkittcltk} (toolkit, items,
+  multiple = FALSE, chosen.col = 1, icon.col = NULL,
+  tooltip.col = NULL, handler = NULL, action = NULL,
+  container = NULL, ...)
+
   \method{.gcheckboxgroup}{guiWidgetsToolkittcltk} (toolkit
   = NULL, items, checked = FALSE, horizontal = FALSE,
   use.table = FALSE, handler = NULL, action = NULL,
@@ -131,11 +143,36 @@
   \method{.gcalendar}{guiWidgetsToolkittcltk} (toolkit,
   text = "", format = "\%Y-\%m-\%d", handler = NULL, action
   = NULL, container = NULL, ...)
+
+  \method{.gmessage}{guiWidgetsToolkittcltk} (toolkit, msg,
+  title = "message", icon = c("info", "warning", "error",
+  "question"), parent = NULL, ...)
+
+  \method{.gconfirm}{guiWidgetsToolkittcltk} (toolkit, msg,
+  title = "Confirm", icon = c("info", "warning", "error",
+  "question"), parent = NULL, ...)
+
+  \method{.ginput}{guiWidgetsToolkittcltk} (toolkit, msg,
+  text = "", title = "Input", icon = c("info", "warning",
+  "error", "question"), parent = NULL, ...)
+
+  \method{.gbasicdialog}{guiWidgetsToolkittcltk} (toolkit,
+  title = "Dialog", parent = NULL, do.buttons = TRUE,
+  handler = NULL, action = NULL, ...)
+
+  \method{.galert}{guiWidgetsToolkittcltk} (toolkit, msg,
+  title = "message", delay = 3, parent = NULL, ...)
+
+  \method{.gdf}{guiWidgetsToolkittcltk} (toolkit, items =
+  NULL, handler = NULL, action = NULL, container = NULL,
+  ...)
 }
 \arguments{
   \item{initial.msg}{initial.msg}
 
   \item{digits}{digits}
+
+  \item{delay}{delay}
 
   \item{toolkit}{toolkit}
 
@@ -249,6 +286,17 @@
 
   \item{selected}{index of initially selected item}
 
+  \item{multiple}{logical allow multiple selectino}
+
+  \item{chosen.col}{which value from the row is returned by
+  selection}
+
+  \item{icon.col}{NULL or integer. If latter, specifies
+  column containing stock icon}
+
+  \item{tooltip.col}{NULL or integer. If latter, specifies
+  column containing tooltip}
+
   \item{use.table}{logical. If supported, and \code{TRUE}
   then uses a table widget with scrollbars}
 
@@ -288,6 +336,14 @@
   dependent)}
 
   \item{format}{Date format}
+
+  \item{msg}{Character. Message to display.}
+
+  \item{do.buttons}{FALSE to suppress buttons when no
+  parent}
+}
+\value{
+  NULL
 }
 \description{
   toolkit constructor for gwindow
@@ -330,6 +386,8 @@
 
   Toolkit constructor
 
+  Toolkit constructor
+
   toolkit constructor
 
   Toolkit constructor
@@ -343,6 +401,18 @@
   Toolkit constructor
 
   Toolkit constructor
+
+  Toolkit constructor
+
+  toolkit implementation for gmessage
+
+  toolkit implementation for gconfirm
+
+  toolkit implmentation of ginput
+
+  toolkit implementation
+
+  toolkit implementation of galert
 
   Toolkit constructor
 }

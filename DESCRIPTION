@@ -38,6 +38,7 @@ Collate:
     'gslider.R'
     'gspinbutton.R'
     'gradio.R'
+    'gtable.R'
     'gcheckboxgroup.R'
     'gnotebook.R'
     'gstackwidget.R'
@@ -51,3 +52,5 @@ Collate:
     'glayout.R'
     'gimage.R'
     'gcalendar.R'
+    'dialogs.R'
+    'gdf.R'

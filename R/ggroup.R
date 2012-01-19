@@ -86,18 +86,6 @@ GGroup <- setRefClass("GGroup",
                             }
                           })
 
-                          tkbind(block, "<Configure>", function() {
-                            cat("blcok configured \n")
-                          })
-
-                          tkbind(cnv, "<Configure>", function() {
-                            cat("cnv configured \n")
-                          })
-                          
-                          tkbind(widget, "<Configure>", function() {
-                            cat("widget configured \n")
-                          })
-
                           ## coordinate change of heights
                           tkbind(block, "<Configure>", function(W) {
                             width <- as.numeric(tkwinfo("width", W))
@@ -114,8 +102,6 @@ GGroup <- setRefClass("GGroup",
                             else
                               scroll_size <- as.numeric(tkwinfo("width", yscr))
 
-                            print(list(block=c(width, height), cnv=c(cnvwidth, cnvheight), widget=c(widgetwidth, widgetheight), scroll=c(scroll_size)))
-
                             if(horizontal) {
                               tkconfigure(cnv, height=height - scroll_size, width=width)
                               tkitemconfigure(cnv, widgetID, height=height - scroll_size - 2)
@@ -127,7 +113,6 @@ GGroup <- setRefClass("GGroup",
 
                           
                           tkbind(widget,"<Configure>",function() {
-                            cat("addjust scrool\n")
                             bbox <- tcl(cnv,"bbox","all")
                             tcl(cnv,"config",scrollregion=bbox)
                           })

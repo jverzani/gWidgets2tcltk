@@ -43,10 +43,12 @@ TcltkStockIcons <- setRefClass("TcltkStockIcons",
                                  },
                                  find_icon=function(stockname) {
                                    "REturn tcltk icon name"
-                                   if(has_icon(stockname))
+                                   if(has_icon(stockname)) {
                                      val <- paste("::stockicon::", stockname, sep="")
-                                   else
+                                     class(val) <- c("StockIcon", class(val))
+                                   } else {
                                      val <- ""
+                                   }
                                    return(val)
                                  },
                                  find_icon_file=function(stockname) {

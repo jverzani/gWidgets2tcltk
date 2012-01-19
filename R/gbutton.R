@@ -64,7 +64,7 @@ GButton <- setRefClass("GButton",
 GButtonNoAction <- setRefClass("GButtonNoAction",
                        contains="GButton",
                        methods=list(
-                         initialize=function(toolkit=NULL, text=NULL,  handler, action, container, ...) {
+                         initialize=function(toolkit=NULL, text=NULL,  handler, action=NULL, container, ...) {
                                 
                            widget <<- ttkbutton(container$get_widget())
                            
@@ -87,8 +87,7 @@ GButtonAction <- setRefClass("GButtonAction",
                              methods=list(
                                initialize=function(toolkit, action, container, ...) {
 
-                                 print(action)
-                                 print(container)
+
                                  widget <<- ttkbutton(container$get_widget())
                                  block <<- widget
                                 

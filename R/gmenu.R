@@ -142,7 +142,6 @@ GMenuBar <- setRefClass("GMenuBar",
                          pop <- function(x) x[length(x)]
                          get_menu_item <- function(id, x) {
                            id <- pop(as.character(tcl(id, "entryconfigure", x, "menu"=NULL)))
-                           print(id)
                            id
                          }
                          get_menu_id <- function(id, x) {

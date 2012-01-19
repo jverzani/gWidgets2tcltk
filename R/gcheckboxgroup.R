@@ -1,4 +1,5 @@
 ##' @include GWidget.R
+##' @include gtable.R
 NULL
 
 ##' Toolkit  constructor
@@ -132,3 +133,113 @@ GCheckboxGroup <- setRefClass("GCheckboxGroup",
                         }
                         ))
 
+
+
+GCheckboxGroupTable <- setRefClass("GCheckboxGroupTable",
+                                   contains="BaseTableClass",
+                                   fields=list(
+                                     ..selected="logical",
+                                     on_off_icons="ANY"
+                                     ),
+                                   methods=list(
+                                     initialize=function(toolkit,
+                                       items, checked = FALSE,
+                                       handler = NULL,
+                                       action = NULL, container = NULL, ...,
+                                       icon.col, tooltip.col # don't pass along
+                                       ) {
+
+                                       items <- data.frame(items, stringsAsFactors=FALSE)
+
+                                       initFields(n=ncol(items),
+                                                  change_signal="<Button-1>")
+
+                                       init_widget(container$get_widget(), ...)
+                                       tkconfigure(widget, columns=seq_len(n))
+                                       
+                                       set_selectmode("none")
+                                       set_column_headings(names(items))
+                                       ## add in icons
+                                       configure_icon_column(50)
+                                       
+                                       icons <- paste("::image::", c("on","off"), sep="")
+                                       class(icons) <- "StockIcon"
+                                       on_off_icons <<- icons
+                                       
+                                       set_DF(items)
+                                       set_icons()
+                                       
+                                       toggle_handler <- function(W, x, y) {
+                                         row <- as.character(tcl(W, "identify", "row", x, y))
+                                         ind <- match(row, child_ids)
+                                         if(length(ind)) 
+                                           toggle_state(ind)
+                                       }
+                                       tkbind(widget, "<Button-1>", toggle_handler)
+
+                                       ## use header to toggle
+                                       tcl(widget, "heading", "#0", command=function() {
+                                         ind <- seq_len(get_length())
+                                         toggle_state(ind)
+                                       })
+
+                                       
+                                       ## need to turn on selection to get Return key
+
+                                       set_index(checked)
+                                       add_to_parent(container, .self, ...)
+
+                                       handler_id <<- add_handler_changed(handler, action)
+
+
+                                       
+                                       callSuper(...)
+                                     },
+                                     
+                                     set_DF=function(items) {
+                                       items <- data.frame(items, stringsAsFactors=FALSE)
+                                       ..selected <<- rep(TRUE, nrow(items))
+
+                                       callSuper(items)
+                                     },
+                                     set_icons=function() {
+                                       "Set icons by selected"
+                                       icons <- on_off_icons[2 - as.numeric(..selected)]
+                                       class(icons) <- "StockIcon"
+                                       callSuper(icons)
+                                     },
+                                     toggle_state=function(ind) {
+                                       "Toggle state after click"
+                                       ..selected[ind] <<- !..selected[ind]
+                                       sapply(ind, function(i) {
+                                         tcl(widget, "item", child_ids[i], image=on_off_icons[2 - as.numeric(..selected[i])])
+                                       })
+                                     },
+                                     ### gWidgets inteface
+                                     get_value=function() {
+                                       get_items()[get_index()]
+                                     },
+                                     get_index=function() {
+                                       which(..selected)
+                                     },
+                                     set_value=function(value, ...) {
+                                       set_index(match(value, get_items()))
+                                     },
+                                     set_index=function(value, ...) {
+                                       vals <- rep(FALSE, get_length())
+                                       vals[value] <- TRUE
+                                       ..selected <<- vals
+                                       set_icons()
+                                       invoke_change_handler()
+                                     },
+                                     get_items=function(i, ...) {
+                                       get_data()[i,1]
+                                     },
+                                     set_items=function(i, ...) {
+                                       ## set data, selected? ...
+
+                                     },
+                                     get_length=function(...) {
+                                       nrow(DF)
+                                     }
+                                     ))

@@ -68,7 +68,6 @@ GToolBar <- setRefClass("GToolBar",
                             "Map a toolbar list, a named list of gaction items or gsepartor items"
                             sapply(items, function(item) {
                               ## do dispatch based on class
-                              print(class(item))
                               if(is(item, "GAction"))
                                 add_gaction_toolitem(item)
                               else if(is(item, "GSeparator"))
@@ -84,7 +83,6 @@ GToolBar <- setRefClass("GToolBar",
                           },
                           add_gseparator_toolitem=function() {
                             "Helper to add a separator"
-                            print("add sep")
                             gseparator(horizontal=FALSE, container=widget)
                           },
                           clear_toolbar=function() {

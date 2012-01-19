@@ -1,6 +1,6 @@
 \name{List-class}
 \alias{List-class}
-\title{An list extension class.}
+\title{A list extension class.}
 \description{
   Like a list, but has some methods. Completely superflous,
   but makes copying some code algorithms easier. We

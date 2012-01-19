@@ -118,6 +118,9 @@ GComboBoxNoEntry <- setRefClass("GComboBoxNoEntry",
                                     callSuper(toolkit)
                                   },
                                   set_value=function(value, ...) {
+                                    if(is.factor(value))
+                                      value <- as.character(value)
+
                                     tmp <- t_var
                                     if(length(value) == 0 || value == "")
                                       tclvalue(tmp) <- ""

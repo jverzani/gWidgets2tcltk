@@ -21,7 +21,8 @@ GWindow <- setRefClass("GWindow",
                               infobar_area="ANY",
                               content_area="ANY",
                               statusbar_area="ANY",
-                              statusbar_widget="ANY"
+                              statusbar_widget="ANY",
+                              modal_flag="ANY"
                               ),
                             methods=list(
                               initialize=function(toolkit=NULL, title="",  visible=TRUE, name=NULL, width=NULL, height=NULL,
@@ -51,7 +52,8 @@ GWindow <- setRefClass("GWindow",
                                            toolbar_area=ttkframe(block),
                                            infobar_area=ttkframe(block),
                                            content_area=ttkframe(block, padding=c(3,3,12,12)),
-                                           statusbar_area=ttkframe(block)
+                                           statusbar_area=ttkframe(block),
+                                           modal_flag=tclVar(FALSE)
                                            )
                                 widget <<- content_area # generic name
                                 
@@ -100,6 +102,22 @@ GWindow <- setRefClass("GWindow",
                                 } else if(is.numeric(location)) {
                                   pos <- rep(location, 2)
                                   tkwm.geometry(block, sprintf("+%s+%s", pos[1] + 30, pos[2] + 30))
+                                }
+                              },
+                              set_modal=function(value) {
+                                "If TRUE, set modal, if FALSE release"
+
+                                tkwm.protocol(block, "WM_DELETE_WINDOW", function() {
+                                  tclvalue(modal_flag) <<- "FALSE"
+                                  TRUE
+                                })
+
+                                
+                                if(as.logical(value)) {
+                                  tclvalue(modal_flag) <<- TRUE
+                                  tkwait.variable(modal_flag)
+                                } else {
+                                  tclvalue(modal_flag) <<- FALSE
                                 }
                               },
                               get_value = function(...) as.character(tktitle(block)),
