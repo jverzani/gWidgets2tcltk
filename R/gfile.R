@@ -1,0 +1,181 @@
+##' @include GWidget.R
+NULL
+
+##' Toolkit implementation
+##'
+##' @inheritParams gWidgets2::gfile
+##' @export
+##' @rdname gWidgets2tcltk-undocumented
+##' @method .gfile guiWidgetsToolkittcltk
+##' @S3method .gfile guiWidgetsToolkittcltk
+.gfile.guiWidgetsToolkittcltk <- function(toolkit,
+                                          text = "",
+                                          type = c("open","save","selectdir"),
+                                          initial.filename = NULL,
+                                          filter = list(),
+                                          multi=FALSE,
+                                          ...) {
+  ## make dialog, return character class object (character(0) if no selectino)
+              
+  args = list(...)
+
+  ## pass in initial dir information, or get from filename, or get from option, or setwd
+  initialdir <- args$initialdir
+  if(is.null(initialdir) && !is.null(initial.filename))
+    initialdir <- dirname(initial.filename)
+  if(is.null(initialdir))
+    initialdir <- getOption("gWidgetstcltk::gfile_initialdir")
+  ## may still be NULL that is okay
+  options("gWidgetstcltk::gfile_initialdir"=initialdir) # store
+            
+  type <- match.arg(type)
+
+  ## different things depending on type
+  if(type == "open") {
+    ## the filter is a named list of patters, possibly more than one
+    ## theFilter <- list(
+    ##                   "R"=list(patterns=c(".R", ".Rdata")),
+    ##                   "images"=list(patterns=c(".gif", ".jpg", ".jpeg", ".png")),
+    ##                   "data"=list(patterns=c(".csv", ".txt", ".dcf", ".fwf"))
+    ##                   )
+
+    l <- list(title=text,  multiple=multi)
+
+    the_filter <- filter
+    the_filter <- Filter(function(i) !is.null(i$patterns), the_filter)
+    if(length(the_filter)) {
+      l$filetypes <-  paste(sapply(names(the_filter), function(nm) {
+                                sprintf("{{%s} {%s}}", nm, paste(the_filter[[nm]]$patterns, collapse=" "))
+                              }), sep=" ", collapse=" ")
+    }
+
+    if(!is.null(initial.filename))
+      l$initialfile=initial.filename
+    if(!is.null(initialdir))
+      l$initialdir=initialdir
+    
+    val <- do.call("tkgetOpenFile", l)
+    
+    if(multi) {
+      val <- as.character(val) # empty = character(0)
+      if(length(val) == 0)
+        val <- NA
+    } else {
+      val <- tclvalue(val)    # empty=""
+      if(val == "")
+        val <- character(0)
+    }
+    
+    ## save initialdir information
+    if(!is.na(val[1]) && nchar(val[1]) > 0)
+      options("gWidgetstcltk::gfile_initialdir"=dirname(val[1]))
+  } else if(type == "save") {
+    
+    l <- list(title=text)
+    l$initialfile <- initial.filename
+    val <- do.call(tkgetSaveFile, l)
+    val <- tclvalue(val)
+    
+  } else if(type == "selectdir") {
+    
+    val <- tkchooseDirectory()
+    val <- tclvalue(val)
+    
+  }
+  
+  
+  
+  if (length(val) > 1 || nchar(val) > 0) {
+    ## how to return filename?
+    return(val)
+  } else {
+    ## cancel
+    return(character(0))
+  }
+  
+  
+}
+
+
+##' Toolkit constructor
+##'
+##' @export
+##' @rdname gWidgets2tcltk-undocumented
+##' @method .gfilebrowse guiWidgetsToolkittcltk
+##' @S3method .gfilebrowse guiWidgetsToolkittcltk
+.gfilebrowse.guiWidgetsToolkittcltk <-  function(toolkit,
+                                                 text = "",
+                                                 type = c("open","save","selectdir"),
+                                                 initial.filename = NULL,
+                                                 filter = list(),
+                                                 quote=TRUE,
+                                                 handler=NULL,
+                                                 action=NULL,
+                                                 container = NULL,
+                                                 ... ) {
+  GFileBrowse$new(toolkit,
+            text=text, type=type, initial.filename=initial.filename,
+            filter=filter, quote=quote, handler=handler, action=action, container=container, ...)
+}
+
+
+## XXX
+GFileBrowse <- setRefClass("GFileBrowse",
+                           contains="GWidget",
+                           fields=list(
+                             t_var="ANY",
+                             text="ANY",
+                             type="ANY",
+                             initial.filename="ANY",
+                             filter="ANY",
+                             quote="ANY"
+                             ),
+                           methods=list(
+                              initialize=function(
+                                toolkit=NULL,
+                                text = "",
+                                type = c("open", "save", "selectdir"),
+                                initial.filename = NULL,
+                                filter = list(),
+                                quote=TRUE,
+                                handler=NULL,
+                                action=NULL,
+                                container = NULL,
+                                ... ) {
+
+
+                                block <<- ttkframe(container$get_widget())
+                                t_var <<- tclVar("")
+                                widget <<- ttkentry(block, textvariable=t_var)
+                                btn <- ttkbutton(block, text="file", image=getStockIconByName("file"), command=.self$popup_dialog)
+
+                                tkpack(widget, side="left", expand=TRUE, fill="both")
+                                tkpack(btn, side="left")
+
+                                initFields(change_signal="<Changed>",
+                                           text=text,
+                                           type=type,
+                                           initial.filename=initial.filename,
+                                           filter=filter,
+                                           quote=quote)
+
+                                
+                                add_to_parent(container, .self, ...)
+                                handler_id <<- add_handler_changed(handler, action)
+                                callSuper(toolkit)
+                              },
+                             popup_dialog=function() {
+                               ret <- gfile(text=text, type=type, initial.filename=initial.filename,filter=filter, toolkit=toolkit)
+                               if(length(ret))
+                                 set_value(ret)
+                             },
+                             get_value=function( ...) {
+                               as.character(tclvalue(t_var))
+                             },
+                             set_value=function(value, ...) {
+                               ## should we check file.exists?
+                               tclvalue(t_var) <<- value
+                               invisible(notify_observers(signal=change_signal))
+                             }
+                             ))
+

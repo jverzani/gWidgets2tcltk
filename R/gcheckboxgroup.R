@@ -127,9 +127,10 @@ GCheckboxGroup <- setRefClass("GCheckboxGroup",
                             i <- seq_along(items)
                           if(missing(compound))
                             compound <- "left"
-                          sapply(i, function(j) {
-                            tkconfigure(widgets[[j]], image=value[j], compound=match.arg(compound))
-                          })
+                          compound <- match.arg(compound,
+                                                c('text', 'image','center','top','bottom','left','right','none'))
+                          f <- function(widget, image) tkconfigure(widget, image=image, compound=compound)
+                          mapply(f, widgets, value)
                         }
                         ))
 

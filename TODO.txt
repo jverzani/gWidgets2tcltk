@@ -3,18 +3,18 @@ DONE GContainer.R
 DONE GWidget.R
 DONE gWidgets2RGtk2-package.R
 
-dialogs.R 
+DONE dialogs.R 
 
 DONE gaction.R
 DONE  gbutton.R
 DONE gcalendar.R
 DONE gcheckbox.R
-* gcheckboxgroup.R: use.table needed
+DONE gcheckboxgroup.R
 DONE gcombobox.R
-gdf.R
+DONE gdf.R: needs rownames
 gdfnotebook.R
 * gedit.R: [<-; validation
-gfile.R
+DONE gfile.R
 XXX ggraphics.R
 DONE gimage.R
 DONE glabel.R

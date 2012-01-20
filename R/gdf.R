@@ -7,7 +7,7 @@ NULL
 ##'
 ##' @inheritParams gWidgets2::gdf
 ##' @export
-##' @rdname gWidgets2tcltk-undocumentedX
+##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gdf guiWidgetsToolkittcltk
 ##' @S3method .gdf guiWidgetsToolkittcltk
 .gdf.guiWidgetsToolkittcltk <-  function(toolkit,
@@ -19,7 +19,24 @@ NULL
 }
 
 
-
+##' Class to provide means to edit data frames
+##'
+##' The \code{GDf} class provides a means to edit a data frame. Unlike
+##' \pkg{RGtk2} and \pkg{qtbase}, there is no editable table widget
+##' include in \pkg{tctlk}. What to do? Well, the add-on \pkg{tktable}
+##' package could be used, and was. However, that never really seemed
+##' that usable. As such, we try implementing a case-by-case editor
+##' here, allowing fairly convenient row editing.
+##'
+##' Simply click on a row and the editor pops up as a modal
+##' dialog. The shortcut Shift+Enter will go onto the next case,
+##' saving changes provided the auto save featuer is employed.
+##'
+##' There is no undo/redo support here. There is no support for
+##' editing rownames (just lazy at the moment, holler if you would
+##' like that). No support to change the dimensions of the data frame
+##' or edit factors, ...
+##' @rdname gWidgets2tcltk-package
 GDf <- setRefClass("GDf",
                    contains="BaseTableClass",
                     fields=list(
@@ -58,8 +75,9 @@ GDf <- setRefClass("GDf",
                           if(length(ind))
                             make_row_editor(ind)
                         }) 
-                        ## what is handler here?
-                        ## handler_id <<- add_handler_changed(handler, action)
+
+                        ## change handler is row updated
+                        handler_id <<- add_handler_changed(handler, action)
                         
                         callSuper(toolkit)
                       },
@@ -67,9 +85,10 @@ GDf <- setRefClass("GDf",
                         m <- get_data()
                         m[i,j, ...]
                       },
-                      set_page=function(i) {
-                        set_index(i)
-                      },
+                      replace_row_data=function(i, value) {
+                        callSuper(i, value)
+                        invoke_change_handler()
+                      },                        
                       make_row_editor=function(ind=1) {
                         w <- gwindow(gettext("Case editor"), visible=FALSE, parent=block)
                         g <- ggroup(cont=w, horizontal=FALSE)
@@ -93,11 +112,12 @@ GDf <- setRefClass("GDf",
                         save_btn$set_enabled(FALSE)
                         gbutton("dismiss", cont=button_group, handler=function(h,...) {
                           ed$save_values()
+                          w$set_modal(FALSE)
                           w$dispose_window()
                         })
                         w$set_visible(TRUE)
                         tkbind(w$block, "<Shift-Return>", function() paging_bar$next_page())
-                        ##w$set_modal(TRUE)
+                        w$set_modal(TRUE)
                       }
                       ))
 
@@ -178,6 +198,7 @@ Editor <- setRefClass("Editor",
                         values <- DF$get_items(i)
                         f=function(editor, value) editor$set_value(value)
                         mapply(f, editors, values)
+                        DF$scroll_to(i)
                       },
                       save_values=function() {
                         "save values into DF"
@@ -281,36 +302,3 @@ PagingBar <- setRefClass("PagingBar",
                             
                               ))
                                 
-
-
-## m <- data.frame(numeric=rnorm(4), logical=c(T,T,F,F), factor=state.name[1:4], integer=as.integer(1:4))
-## rnames <- mutaframe(rownames(m))
-## m <- mutaframe(m)
-
-## add_listener(rnames, function(i, j) {
-##   if(length(i))
-##     cat("Change name", i, "\n")
-## })
-## add_listener(m, function(i, j) {
-##   if(length(i))
-##     cat("Changed value", i, j, m[i,j], "\n")
-## })
-
-## w <- gwindow("XXX use parent as transient, make modal", visible=FALSE)
-## g <- ggroup(cont=w, horizontal=FALSE)
-
-## DF <- Test$new(m, rnames, g)
-
-## paging_bar <- PagingBar$new(DF=DF, parent=g$widget)
-## tkpack(paging_bar$gp, side="top", fill="x")
-
-## gseparator(cont=g)
-## button_group <- ggroup(cont=g, horizontal=TRUE)
-## gbutton("dismiss", cont=button_group, handler=function(h,...) {
-##   if(DF$dirty) {
-##     print("last value unsaved. Save?")
-##   }
-## })
-
-
-#w$set_visible(TRUE)

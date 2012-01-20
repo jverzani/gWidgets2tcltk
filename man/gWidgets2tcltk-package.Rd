@@ -4,6 +4,7 @@
 \alias{GButton}
 \alias{GComponent}
 \alias{GContainer}
+\alias{GDf}
 \alias{GLabel}
 \alias{GTimer}
 \alias{GWidget}
@@ -45,6 +46,25 @@
 
   The main reference methods \code{GTimer} are
   \code{start_timer} and \code{stop_timer}
+
+  The \code{GDf} class provides a means to edit a data
+  frame. Unlike \pkg{RGtk2} and \pkg{qtbase}, there is no
+  editable table widget include in \pkg{tctlk}. What to do?
+  Well, the add-on \pkg{tktable} package could be used, and
+  was. However, that never really seemed that usable. As
+  such, we try implementing a case-by-case editor here,
+  allowing fairly convenient row editing.
+}
+\details{
+  Simply click on a row and the editor pops up as a modal
+  dialog. The shortcut Shift+Enter will go onto the next
+  case, saving changes provided the auto save featuer is
+  employed.
+
+  There is no undo/redo support here. There is no support
+  for editing rownames (just lazy at the moment, holler if
+  you would like that). No support to change the dimensions
+  of the data frame or edit factors, ...
 }
 \author{
   John Verzani \email{jverzani@gmail.com}

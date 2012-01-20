@@ -25,7 +25,7 @@ NULL
             title = title,
             type="ok")
   if(length(msg) > 1)
-    l$detail=gettext(msg[2])
+    l$detail <- gettext(msg[2])
             
   if(!is.null(parent))
     l$parent <- getWidget(parent)
@@ -58,7 +58,7 @@ NULL
             type="yesno")
   
   if(length(msg) > 1)
-    l$detail=gettext(msg[2])
+    l$detail <- gettext(msg[2])
   
   if(!is.null(parent))
     l$parent <- getWidget(parent)
@@ -155,7 +155,8 @@ GBasicDialog <- setRefClass("GBasicDialog",
                     contains="GContainer",
                     fields=list(
                       handler="ANY",
-                      action="ANY"
+                      action="ANY",
+                      toplevel="ANY"
                       ),
                     methods=list(
                       initialize=function(toolkit=NULL,
@@ -165,102 +166,42 @@ GBasicDialog <- setRefClass("GBasicDialog",
                         handler = NULL,
                         action = NULL,
                         ...) {
-                        
-                        widget <<- gtkHBox() 
-                        
-                        ## parent
-                        .parent <- parent
-                        if(!is.null(.parent)) {
-                          .parent <- getBlock(.parent)
-                          if(!is(.parent,"GtkWindow"))
-                            .parent <- .parent$GetWindow()
-                          if(!is(.parent,"GtkWindow"))
-                            .parent <- NULL          # give up
-                        } else {
-                          .parent <- gtkWindowNew(show=FALSE)
-                        }
-            
 
-                        buttons <- c("ok", "cancel")
+                        ## use a modal gwindow with visible method
+                        w <- gwindow(title, parent=parent)
+                        toplevel <<- w
+                        g <- ggroup(horizontal=FALSE, cont=w)
+                        content_area <- ggroup(horizontal=FALSE, cont=g, expand=TRUE, fill="both")
 
-                        ## can override, though not included here
-                        buttonMap <- function(name) {
-                          if(name == "ok")
-                            list("gtk-ok", GtkResponseType["ok"])
-                          else if(name =="yes")
-                            list("gtk-yes", GtkResponseType["ok"])
-                          else if(name == "cancel")
-                            list("gtk-cancel", GtkResponseType["cancel"])
-                          else if(name == "close")
-                            list("gtk-close", GtkResponseType["close"])
-                          else if(name =="no")
-                            list("gtk-no", GtkResponseType["cancel"])
-                          else
-                            list("gtk-yes", GtkResponseType["ok"])
-                        }
-                        
-                        l <- list(title=title, parent=.parent, flags=c("modal"), show=FALSE)
-                        for(i in buttons) {
-                          m <- buttonMap(i)
-                          l[[length(l) + 1]] <- m[[1]]
-                          l[[length(l) + 1]] <- m[[2]]
-                        }
-                        
-                        ## do buttons?
+                        widget <<- content_area$widget
+                        block <<- widget
+
                         if(do.buttons) {
-                          dlg <- do.call("gtkDialog", l)
-                        } else {
-                          dlg <- gtkDialogNew(show=FALSE)
-                          ## hide separator and button box. Uses internals -- bad idea if widget changes
-                          sapply(dlg$getChildren()[[1]]$getChildren(), gtkWidgetHide)
+                          button_group <- ggroup(cont=g, horizontal=TRUE)
+                          f <- function(h, ...) {
+                            toplevel$set_modal(FALSE)
+                            if(!is.null(handler))
+                              handler(list(obj=NULL, action=h$action))
+                            toplevel$dispose_window()
+                          }
+                          ok_button <- gbutton("ok", cont=button_group, handler=f)
+                          cancel_button <- gbutton("cancel", cont=button_group, handler=function(...) {
+                            dispose_window()
+                          })
                         }
-                        dlg$setTransientFor(.parent)
-                        
-                        dlg$SetTitle(title)
-                        dlg$setDefaultResponse(GtkResponseType["ok"])
-                        dlg$getVbox()$PackStart(widget)
-                        dlg$grabFocus()
-                        
-                                
-                        initFields(block=dlg,
-                                   handler=handler,
-                                   action=action
-                                   )
-
-                        callSuper(toolkit)
                       },
                       add_child=function(child, ...) {
-                        widget$packStart(getBlock(child), expand=TRUE, fill=TRUE)
-                        child_bookkeeping(child)
+                        tkpack(child$block, side="top", expand=TRUE, fill="both")
                       },
-                      dispose=function() {
-                        block$destroy()
+                      dispose_window=function() {
+                        toplevel$set_modal(FALSE)
+                        toplevel$dispose_window()
                       },
-                      set_visible=function(...) {
-                        block$show()
-                        response <- block$run()
-
-                        h <- list(obj=.self, action=action)
-                        if(response == GtkResponseType["cancel"] ||
-                           response == GtkResponseType["close"] ||
-                           response == GtkResponseType["delete-event"]) {
-                          ## cancel action
-                          ret <- FALSE
-                        } else if(response == GtkResponseType["ok"]) {
-                          if(!is.null(handler))
-                            handler(h)
-                          ret <- TRUE              # was widget, but TRUE now
-                        } else if(response == GtkResponseType["delete-event"]) {
-                          ## window manager close
-                          ret <- FALSE
-                        } else if(response == GtkResponseType["none"]) {
-                          ## dispose() call
-                          ret <- FALSE
-                        } else {
-                          ret <- FALSE
-                        }
-                        block$Destroy()
-                        return(invisible(ret))
+                      set_visible=function(value) {
+                        if(value) {
+                          toplevel$set_visible(TRUE)
+                          toplevel$set_modal(TRUE)
+                        } 
                       }
                       ))
 

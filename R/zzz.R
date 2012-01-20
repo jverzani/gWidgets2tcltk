@@ -28,7 +28,7 @@ NULL
   ## load in tcl packages
   ## from tcltk2 we have this
   tclRequire("autoscroll")
-  tclRequire("tooltips")
+  tclRequire("tooltip")
 
   ## Icons
   tcltkStockIcons$load_gWidgets_icons()

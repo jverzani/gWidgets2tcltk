@@ -54,3 +54,4 @@ Collate:
     'gcalendar.R'
     'dialogs.R'
     'gdf.R'
+    'gfile.R'

@@ -16,6 +16,7 @@ NULL
 GWindow <- setRefClass("GWindow",
                             contains="GContainer",
                             fields=list(
+                              frame="ANY",
                               menubar_area="ANY",
                               toolbar_area="ANY",
                               infobar_area="ANY",
@@ -35,6 +36,9 @@ GWindow <- setRefClass("GWindow",
                                 set_value(title)
                                 tkwm.state(block,"withdrawn")
 
+
+                                frame <<- ttkframe(block)
+                                
                                 
                                 if(is.null(width))
                                   width <- 400L
@@ -51,7 +55,9 @@ GWindow <- setRefClass("GWindow",
                                            menubar_area=ttkframe(block),
                                            toolbar_area=ttkframe(block),
                                            infobar_area=ttkframe(block),
-                                           content_area=ttkframe(block, padding=c(3,3,12,12)),
+                                           content_area=ttkframe(block,
+                                             padding=ifelse(is_aqua(), c(0, 6, 14, 4), c(0,6, 0, 4))
+                                             ),
                                            statusbar_area=ttkframe(block),
                                            modal_flag=tclVar(FALSE)
                                            )
@@ -60,8 +66,10 @@ GWindow <- setRefClass("GWindow",
                                 tkconfigure(statusbar_area, borderwidth = 1, relief="sunken")
                                 ## add areas to widget. For now we have simple
                                 layout_widget()
+                                tkbind(block, "<Unmap>", function() tkgrab.release(block))
                                 
                                 add_handler_changed(handler, action)
+
 
                                 tclServiceMode(TRUE)
                                 set_visible(visible)
@@ -105,19 +113,15 @@ GWindow <- setRefClass("GWindow",
                                 }
                               },
                               set_modal=function(value) {
-                                "If TRUE, set modal, if FALSE release"
-
-                                tkwm.protocol(block, "WM_DELETE_WINDOW", function() {
-                                  tclvalue(modal_flag) <<- "FALSE"
-                                  TRUE
-                                })
-
-                                
-                                if(as.logical(value)) {
-                                  tclvalue(modal_flag) <<- TRUE
-                                  tkwait.variable(modal_flag)
+                                "Set or release modal"
+                                if(value) {
+                                  tkwm.protocol(block, "WM_DELETE_WINDOW", function() {
+                                    tkgrab.release(block)
+                                    dispose_window()
+                                  })
+                                  tkgrab(block)
                                 } else {
-                                  tclvalue(modal_flag) <<- FALSE
+                                  tkgrab.release(block)
                                 }
                               },
                               get_value = function(...) as.character(tktitle(block)),

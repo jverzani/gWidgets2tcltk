@@ -36,6 +36,6 @@ xyToAnchor = function(anchor) {
   return(anchor)
 }
 
-isMac <- function() {
+is_aqua <- function() {
   as.character(tcl("tk","windowingsystem")) == "aqua"
 }

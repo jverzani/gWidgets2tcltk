@@ -14,6 +14,8 @@
 \alias{.getStockIconByName.guiWidgetsToolkittcltk}
 \alias{.getStockIcons.guiWidgetsToolkittcltk}
 \alias{.gexpandgroup.guiWidgetsToolkittcltk}
+\alias{.gfile.guiWidgetsToolkittcltk}
+\alias{.gfilebrowse.guiWidgetsToolkittcltk}
 \alias{.gframe.guiWidgetsToolkittcltk}
 \alias{.ggroup.guiWidgetsToolkittcltk}
 \alias{.gimage.guiWidgetsToolkittcltk}
@@ -166,6 +168,16 @@
   \method{.gdf}{guiWidgetsToolkittcltk} (toolkit, items =
   NULL, handler = NULL, action = NULL, container = NULL,
   ...)
+
+  \method{.gfile}{guiWidgetsToolkittcltk} (toolkit, text =
+  "", type = c("open", "save", "selectdir"),
+  initial.filename = NULL, filter = list(), multi = FALSE,
+  ...)
+
+  \method{.gfilebrowse}{guiWidgetsToolkittcltk} (toolkit,
+  text = "", type = c("open", "save", "selectdir"),
+  initial.filename = NULL, filter = list(), quote = TRUE,
+  handler = NULL, action = NULL, container = NULL, ...)
 }
 \arguments{
   \item{initial.msg}{initial.msg}
@@ -341,6 +353,23 @@
 
   \item{do.buttons}{FALSE to suppress buttons when no
   parent}
+
+  \item{type}{type of browser: to open a file, to save a
+  file or to select a directory}
+
+  \item{initial.filename}{Suggested file name}
+
+  \item{filter}{A filter specifiation. This is toolkit
+  specific. Here are some examples: \itemize{ \item{RGtk2}{
+  Something like \preformatted{ list("All files" =
+  list(patterns = c("*")), "R files" = list(patterns =
+  c("*.R", "*.Rdata")), "text files" = list(mime.types =
+  c("text/plain")) ) } } \item{tcltk}{} \item{Qt}{} }}
+
+  \item{multi}{Logical. Allow multiple files to be
+  selected?}
+
+  \item{quote}{quote output}
 }
 \value{
   NULL
@@ -413,6 +442,10 @@
   toolkit implementation
 
   toolkit implementation of galert
+
+  Toolkit constructor
+
+  Toolkit implementation
 
   Toolkit constructor
 }

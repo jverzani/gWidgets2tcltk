@@ -259,27 +259,11 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                     tcl(widget, "selection", "set", paste(child_ids[ind], collapse=" "))
                                   }
                                 },
-                                get_value=function(drop=TRUE, ...) {
-                                  "Get selected values by value (or character(0))"
-                                  vals <- get_items(drop=FALSE)[get_selection(), , drop=FALSE]
-                                  if(getWithDefault(drop, TRUE))
-                                    vals[, chosen_col, drop=TRUE]
-                                  else
-                                    vals
+                                scroll_to=function(i) {
+                                  id <- child_ids[i]
+                                  tcl(widget, "see", id)
                                 },
-                                set_value=function(value, ...) {
-                                  "Set selected values by vector matching chosen.col, unless an integer"
-                                  block_handlers()
-                                  vals <- get_value(drop=TRUE)
-                                  if(is.numeric(value) && !is.numeric(vals))
-                                    ind <- value
-                                  else
-                                    ind <- match(value, get_value(drop=TRUE))
-                                  if(length(ind) == 1 && is.na(ind))
-                                    return() ## no match
-                                  set_index(ind)
-                                  unblock_handlers()                          
-                                },
+                                ## GWidgets methods
                                 get_index = function(...) {
                                   "Get index of selected rows or integer(0)"
                                   get_selection()
@@ -439,5 +423,27 @@ GTable <- setRefClass("GTable",
                           ind <- c(icon_col, tooltip_col)
                           if(is.null(ind)) ind <- integer(0)
                           ind
+                        },
+                        get_value=function(drop=TRUE, ...) {
+                          "Get selected values by value (or character(0))"
+                          vals <- get_items(drop=FALSE)[get_selection(), , drop=FALSE]
+                          if(getWithDefault(drop, TRUE))
+                            vals[, chosen_col, drop=TRUE]
+                          else
+                            vals
+                        },
+                        set_value=function(value, ...) {
+                          "Set selected values by vector matching chosen.col, unless an integer"
+                          block_handlers()
+                          vals <- get_value(drop=TRUE)
+                          if(is.numeric(value) && !is.numeric(vals))
+                            ind <- value
+                          else
+                            ind <- match(value, get_value(drop=TRUE))
+                          if(length(ind) == 1 && is.na(ind))
+                            return() ## no match
+                                  set_index(ind)
+                          unblock_handlers()                          
                         }
+                        
                         ))
