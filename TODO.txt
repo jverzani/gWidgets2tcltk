@@ -24,7 +24,7 @@ DONE gseparator.R
 DONE gslider.R
 DONE gspinbutton.R
 DONE gstatusbar.R
-gtable.R: decorator for column click to pass back column
+DONE gtable.R
 gtext.R
 DONE gtimer.R
 DONE gtoolbar.R
