@@ -33,12 +33,14 @@ NULL
   ## different things depending on type
   if(type == "open") {
     ## the filter is a named list of patters, possibly more than one
-    ## theFilter <- list(
-    ##                   "R"=list(patterns=c(".R", ".Rdata")),
-    ##                   "images"=list(patterns=c(".gif", ".jpg", ".jpeg", ".png")),
-    ##                   "data"=list(patterns=c(".csv", ".txt", ".dcf", ".fwf"))
-    ##                   )
-
+    ## fb <- gfilebrowse(cont=g, filter=list(
+    ##                         "R"=list(patterns=c(".R", ".Rdata")),
+    ##                         "images"=list(patterns=c(".gif", ".jpg", ".jpeg", ".png")),
+    ##                         "data"=list(patterns=c(".csv", ".txt", ".dcf", ".fwf")),
+    ##                         "All files"=list(patterns="*")
+    ##                         ))
+    ## The mimetypes components are ignored in gWidgets2tcltk
+    
     l <- list(title=text,  multiple=multi)
 
     the_filter <- filter
