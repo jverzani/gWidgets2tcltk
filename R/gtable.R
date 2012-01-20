@@ -342,13 +342,15 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                   callSuper(value, ...)
                                 },
                                 add_handler_column_clicked=function(handler, action=NULL) {
-                                  ## have to do this had way
+                                  "Column clicked passed back column index in column component"
+                                  ## have to do this the hard way
                                   signal <- "ColumnClicked"
+                                  
                                   if(is.null(connected_signals[[signal, exact=TRUE]])) {
                                     ## apply to each column the command
                                     f <- function(col) {
                                       tcl(widget, "heading", col, command=function() {
-                                        .self$notify_observers(signal=signal, extra.args=list(column=col))
+                                        .self$notify_observers(signal=signal, extra_args=list(column=col))
                                       })
                                     }
                                     sapply(seq_len(get_length()), f)
