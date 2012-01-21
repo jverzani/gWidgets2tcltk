@@ -28,18 +28,19 @@ NULL
 }
 
 
+## must export -- why?
+gwidgets2_tcltk_format_to_char <- function(x) UseMethod("gwidgets2_tcltk_format_to_char")
+gwidgets2_tcltk_format_to_char.default <- function(x) as.character(x)
+gwidgets2_tcltk_format_to_char.factor <- function(x) as.character(x)
+gwidgets2_tcltk_format_to_char.integer <- function(x) format(x, justify="right")
+gwidgets2_tcltk_format_to_char.numeric <- function(x) format(x, trim=TRUE)
+gwidgets2_tcltk_format_to_char.Date <- function(x) format(x, format="%d-%m-%Y")
+gwidgets2_tcltk_format_to_char.data.frame <- function(x) sapply(x, gwidgets2_tcltk_format_to_char)
 
-format_to_char <- function(x) UseMethod("format_to_char")
-format_to_char.default <- function(x) as.character(x)
-format_to_char.integer <- function(x) format(x, justify="right")
-format_to_char.numeric <- function(x) format(x, trim=TRUE)
-format_to_char.Date <- function(x) format(x, format="%d-%m-%Y")
-format_to_char.data.frame <- function(x) sapply(x, format_to_char)
-
-column_alignment <- function(x) UseMethod("column_alignment")
-column_alignment.default <- function(x) "w"
-column_alignment.numeric <- function(x) "e"
-column_alignment.logical <- function(x) "c"
+gwidgets2_tcltk_column_alignment <- function(x) UseMethod("gwidgets2_tcltk_column_alignment")
+gwidgets2_tcltk_column_alignment.default <- function(x) "w"
+gwidgets2_tcltk_column_alignment.numeric <- function(x) "e"
+gwidgets2_tcltk_column_alignment.logical <- function(x) "c"
 
 
 
@@ -100,7 +101,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                 set_column_widths=function(widths, data) {
                                   "Set widths from widths, or from data frame passed in via data"
                                   if(!missing(data)) {
-                                    m <- format_to_char(data)
+                                    m <- gWidgets2tcltk:::gwidgets2_tcltk_format_to_char(data)
                                     chars <- apply(m, 2, function(x) max(nchar(x)))
                                     widths <- ceiling(1.4 * widthOfChar * pmax(4, chars))
                                   }
@@ -115,7 +116,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                 },
                                 set_column_alignment=function(aligns) {
                                   if(missing(aligns)) 
-                                    aligns <- sapply(get_data(), column_alignment)
+                                    aligns <- sapply(get_data(), gWidgets2tcltk:::gwidgets2_tcltk_column_alignment)
 
                                   if(length(aligns) != n) {
                                     message(sprintf("Wrong length. Expecting %s, got %s.", n, length(aligns)))
@@ -169,14 +170,14 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                 ## rows
                                 append_row=function(values) {
                                   ## values a list or vector
-                                  values <- sapply(values, format_to_char)
+                                  values <- sapply(values, gWidgets2tcltk:::gwidgets2_tcltk_format_to_char)
                                   id <- tcl(widget, "insert", "", "end", values=values)
                                   as.character(id)
                                 },
                                 replace_row_data=function(i, values) {
                                   "Replace row data. @param i row index, @param values a vector or list of values"
                                   DF[i, ] <<- values
-                                  values <- sapply(values, format_to_char)
+                                  values <- sapply(values, gWidgets2tcltk:::gwidgets2_tcltk_format_to_char)
                                   tcl(widget, "item", child_ids[i], values=values)
                                 },
                                 insert_row=function(i, values) {},

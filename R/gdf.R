@@ -126,8 +126,7 @@ GDf <- setRefClass("GDf",
 make_editors <- function(x, i, nm, lyt) UseMethod("make_editors")
 make_editors.numeric <- function(x, i, nm, lyt) {
   lyt[i, 1] <- nm
-  lyt[i, 2] <- (out <- gedit("", cont=lyt, coerce.with=as.numeric))
-  out
+  lyt[i, 2] <- gedit("", cont=lyt, coerce.with=as.numeric)
 }
 make_editors.integer <- function(x, i, nm, lyt) {
   lyt[i, 1] <- nm
@@ -136,7 +135,6 @@ make_editors.integer <- function(x, i, nm, lyt) {
 make_editors.character <- function(x, i, nm, lyt) {
   lyt[i, 1] <- nm
   lyt[i, 2] <- gedit("", cont=lyt)
-  out
 }
 make_editors.logical <- function(x, i, nm, lyt) {
   lyt[i,1] <- nm

@@ -12,6 +12,7 @@
   toolbars.
 }
 \examples{
+\dontrun{
 w <- gwindow("having fun?")
 sb <- gstatusbar("Your message here...", cont=w)
 g <- ggroup(cont=w, horizontal=FALSE)
@@ -27,5 +28,6 @@ sep=gseparator(vertical=TRUE),
 )
 mlist <- list(File=l)
 mb <- gmenu(mlist, cont=w)
+}
 }
 

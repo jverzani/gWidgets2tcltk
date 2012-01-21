@@ -39,3 +39,13 @@ xyToAnchor = function(anchor) {
 is_aqua <- function() {
   as.character(tcl("tk","windowingsystem")) == "aqua"
 }
+
+## merge two lists
+merge_list <- function(x, y, overwrite=TRUE) {
+  if(missing(y) || is.null(y))
+    return(x)
+  for(i in names(y))
+    if((is.logical(overwrite) && overwrite) || !(i %in% names(x)))
+      x[[i]] <- y[[i]]
+  x
+}

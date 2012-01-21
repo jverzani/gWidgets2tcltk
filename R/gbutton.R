@@ -45,10 +45,6 @@ GButton <- setRefClass("GButton",
                                   tkconfigure(widget, image=value, compound="left")
                                 }
                               },
-                              set_font = function(value) {
-                                XXX("Is this right")
-                               callSuper(value)
-                              },
                               ## Handler: changed -> clicked
                               add_handler_clicked=function(handler, action=NULL, ...) {
                                 add_handler_changed(handler, action, ...)

@@ -127,7 +127,85 @@ GComponent <- setRefClass("GComponent",
                                  },
                                  ## font
                                  set_font = function(value) {
-                                   XXX("implement font<-")
+                                   ## We use styles if ttk else a font
+                                   value <- as.list(value)
+                                   if(is_ttkwidget()) {
+                                     set_font_ttk(value)
+                                   } else {
+                                     set_font_tk(value)
+                                   }
+                                 },
+                                 set_font_ttk = function(value) {
+                                   ## we create a style
+                                   color <- value$color
+                                   spec <- map_font_to_spec(value)
+                                   kls <- as.character(tkwinfo("class", get_widget()))
+                                   style_name <- sprintf("%s.%s", gsub(" ", "", spec), kls)
+                                   if(is.null(color))
+                                     tcl("ttk::style", "configure", style_name, font=spec)
+                                   else
+                                     tcl("ttk::style", "configure", style_name, font=spec, foreground=color)
+                                   tkconfigure(get_widget(), style=style_name)
+                                 },
+                                 set_font_tk=function(value) {
+                                   color <- value$color
+                                   spec <- map_font_to_spec(value)
+                                   ## just try it?
+                                   tkconfigure(get_widget(), font=spec)
+                                   if(!is.null(color))
+                                     tkconfigure(get_widget(), color=color)
+                                 },
+                                 map_font_to_spec = function(markup) {
+                                   fontList <- list()
+                                   if(!is.null(markup$family))
+                                     fontList <- merge_list(fontList, list(family=switch(markup$family,
+                                                                        "normal"="times",
+                                                                        "sans" = "helvetica",
+                                                                        "serif" = "times",
+                                                                        "monospace"="courier",
+                                                                        markup$family)))
+                                   else
+                                     fontList$family <- "helvetica"
+                                   
+                                   if(!is.null(markup$style))
+                                     fontList <- merge_list(fontList, list(slant=switch(markup$style,
+                                                                        "normal"="roman",
+                                                                        "oblique"="roman",
+                                                                        "italic"="italic",
+                                                                        "roman")))
+                                   if(!is.null(markup$weight))
+                                     fontList <- merge_list(fontList, list(weight=switch(markup$weight,
+                                                                        "heavy"="bold",
+                                                                        "ultra-bold"="bold",
+                                                                        "bold"="bold",
+                                                                        "normal"="normal",
+                                                                        "light"="normal",
+                                                                        "ultra-light" = "normal",
+                                                                        "normal")))
+                                   
+                                   if(!is.null(markup$size))
+                                     if(is.numeric(markup$size))
+                                       fontList <- merge_list(fontList, list(size=markup$size))
+                                     else
+                                       fontList <- merge_list(fontList,list(size = switch(markup$size,
+                                                                         "xxx-large"=24,
+                                                                         "xx-large"=20,
+                                                                         "x-large"=18,
+                                                                         "large"=16,
+                                                                         "medium"=12,
+                                                                         "small"=10,
+                                                                         "x-small"=8,
+                                                                         "xx-small"=6,
+                                                                         as.integer(markup$size))))
+
+                                   ## return name [size [options]]
+                                   if(!is.null(fontList$slant) || !is.null(fontList$weight))
+                                     fontList$size <- 12
+
+                                   paste(fontList$family, fontList$size, fontList$weight, fontList$slant)
+                                   
+
+                                   
                                  },
                                  ## tag
                                  get_attr = function(key) {

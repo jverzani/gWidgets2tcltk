@@ -34,6 +34,7 @@ NULL
 ##' specify the parent container. Such items can also be shared with
 ##' toolbars.
 ##' @examples
+##' \dontrun{
 ##' w <- gwindow("having fun?")
 ##' sb <- gstatusbar("Your message here...", cont=w)
 ##' g <- ggroup(cont=w, horizontal=FALSE)
@@ -49,6 +50,7 @@ NULL
 ##'           )
 ##' mlist <- list(File=l)
 ##' mb <- gmenu(mlist, cont=w)
+##' }
 GMenuBar <- setRefClass("GMenuBar",
                      contains="GWidget",
                      fields=list(
