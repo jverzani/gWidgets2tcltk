@@ -1,4 +1,5 @@
 ##' @include tcltk-misc.R
+##' @include dnd.R
 NULL
 
 
@@ -56,6 +57,14 @@ GComponent <- setRefClass("GComponent",
                                  is_tkwidget=function() {
                                    "Is widget older style widget"
                                    !is_ttkwidget()
+                                 },
+                                 get_tk_id=function() {
+                                   "Return tk ID"
+                                   block$ID
+                                 },
+                                 get_toplevel_tk_id=function() {
+                                   "return id of toplevel"
+                                   as.character(tkwinfo("toplevel", get_block()))
                                  },
                                  show = function() {
                                    cat(sprintf("Object of class %s\n", class(.self)[1]))
@@ -155,7 +164,7 @@ GComponent <- setRefClass("GComponent",
                                    if(!is.null(color))
                                      tkconfigure(get_widget(), color=color)
                                  },
-                                 map_font_to_spec = function(markup) {
+                                 map_font_to_spec = function(markup, return_list=FALSE) {
                                    fontList <- list()
                                    if(!is.null(markup$family))
                                      fontList <- merge_list(fontList, list(family=switch(markup$family,
@@ -198,14 +207,15 @@ GComponent <- setRefClass("GComponent",
                                                                          "xx-small"=6,
                                                                          as.integer(markup$size))))
 
-                                   ## return name [size [options]]
-                                   if(!is.null(fontList$slant) || !is.null(fontList$weight))
-                                     fontList$size <- 12
+                                   if(return_list) {
+                                     fontList
+                                   } else {
+                                     ## return "name [size [options]]"
+                                     if(!is.null(fontList$slant) || !is.null(fontList$weight))
+                                       fontList$size <- 12
 
-                                   paste(fontList$family, fontList$size, fontList$weight, fontList$slant)
-                                   
-
-                                   
+                                     paste(fontList$family, fontList$size, fontList$weight, fontList$slant)
+                                   }
                                  },
                                  ## tag
                                  get_attr = function(key) {
@@ -287,16 +297,22 @@ GComponent <- setRefClass("GComponent",
                                  ##
                                  ## Drag and drop
                                  ##
-                                 add_drop_source=function(handler, action=NULL, data.type="text", ...) {
+                                 add_drag_source=function(handler, action=NULL, data.type="text", ..., connect) {
                                    "Specify widget is a drag source"
-                                   XXX("implement me")
+                                   add_handler("<<DragRequest>>", handler, action, connect=FALSE, ...) 
+                                   ..dnd..$add_drag_source(.self)
                                  },
-                                 add_drop_target=function(handler, action=NULL, ...) {
+                                 add_drop_target=function(handler, action=NULL, ..., connect) {
                                    "Specify that widget is a drop target"
-                                   XXX("impleente me")
+                                   add_handler("<<DropEvent>>", handler, action, connect=FALSE, ...) 
+                                   ..dnd..$add_drop_target(.self)
+                                 },
+                                 is_dragging=function() {
+                                   ..dnd..$is_dragging()
                                  },
                                  add_drag_motion=function(handler, action=NULL, ...) {
                                    "Called when motion over widget occurs"
+                                   ## How to implement: bind to motion and use decorator to check if draggable
                                    XXX("implement me")
                                  }
                                  ))
@@ -361,12 +377,13 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                       ## calls the notify observer
                                       ## method when the widget
                                       ## actualy emits the signal
-                                      add_handler=function(signal, handler, action=NULL, decorator, emitter=handler_widget(), ...) {
+                                      add_handler=function(signal, handler, action=NULL, decorator, emitter=handler_widget(), connect=TRUE, ...) {
                                         "Uses Observable framework for events. Adds observer, then call connect signal method. Override last if done elsewhere"
                                         if(is_handler(handler)) {
                                           o <- gWidgets2:::observer(.self, handler, action)
                                           invisible(add_observer(o, signal))
-                                          connect_to_toolkit_signal(signal, decorator=decorator, emitter=emitter, ...)
+                                          if(connect)
+                                            connect_to_toolkit_signal(signal, decorator=decorator, emitter=emitter, ...)
                                         }
                                       },
                                       connect_to_toolkit_signal=function(

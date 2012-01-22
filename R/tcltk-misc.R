@@ -42,6 +42,7 @@ is_aqua <- function() {
 
 ## merge two lists
 merge_list <- function(x, y, overwrite=TRUE) {
+  x <- as.list(x)
   if(missing(y) || is.null(y))
     return(x)
   for(i in names(y))

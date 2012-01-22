@@ -33,6 +33,7 @@
 \alias{.gstackwidget.guiWidgetsToolkittcltk}
 \alias{.gstatusbar.guiWidgetsToolkittcltk}
 \alias{.gtable.guiWidgetsToolkittcltk}
+\alias{.gtext.guiWidgetsToolkittcltk}
 \alias{.gtimer.guiWidgetsToolkittcltk}
 \alias{.gtoolbar.guiWidgetsToolkittcltk}
 \alias{.gwindow.guiWidgetsToolkittcltk}
@@ -178,6 +179,11 @@
   text = "", type = c("open", "save", "selectdir"),
   initial.filename = NULL, filter = list(), quote = TRUE,
   handler = NULL, action = NULL, container = NULL, ...)
+
+  \method{.gtext}{guiWidgetsToolkittcltk} (toolkit, text =
+  NULL, width = NULL, height = 300, font.attr = NULL, wrap
+  = TRUE, handler = NULL, action = NULL, container = NULL,
+  ...)
 }
 \arguments{
   \item{initial.msg}{initial.msg}
@@ -370,6 +376,20 @@
   selected?}
 
   \item{quote}{quote output}
+
+  \item{font.attr}{font attributes for text buffer. One can
+  also specify font attributes for insertion. The font
+  attributes are specified with a named vector or list,
+  with names and values coming from: \describe{
+  \item{weight}{ in c("light", "normal", "bold", "heavy")}
+  \item{style}{inc("normal", "oblique", "italic")}
+  \item{family}{in c("sans", "helvetica", "times",
+  "monospace")} \item{size}{in c("xx-small", "x-small",
+  "small", "medium", "large", "x-large", "xx-large")}
+  \item{foreground}{a value in colors()}
+  \item{background}{a value in colors()} }}
+
+  \item{wrap}{logical do lines wrap}
 }
 \value{
   NULL
@@ -448,6 +468,8 @@
   Toolkit implementation
 
   Toolkit constructor
+
+  toolkit implementation
 }
 \seealso{
   The documentation for this is found at

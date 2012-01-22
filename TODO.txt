@@ -29,7 +29,7 @@ DONE gslider.R
 DONE gspinbutton.R
 DONE gstatusbar.R
 DONE gtable.R
-gtext.R
+DONE gtext.R
 DONE gtimer.R
 DONE gtoolbar.R
 gtree.R

@@ -10,6 +10,7 @@ Depends:
     gWidgets2,
     tcltk(>= 2.7.0),
     digest,
+    memoise,
     tcltk2
 Description: Port of the gWidgets2 API to the tcltk
     package.
@@ -21,6 +22,7 @@ Collate:
     'List.R'
     'misc.R'
     'tcltk-misc.R'
+    'dnd.R'
     'GComponent.R'
     'GContainer.R'
     'GWidget.R'
@@ -55,3 +57,4 @@ Collate:
     'dialogs.R'
     'gdf.R'
     'gfile.R'
+    'gtext.R'

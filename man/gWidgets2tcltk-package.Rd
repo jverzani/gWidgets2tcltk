@@ -1,6 +1,7 @@
 \docType{package}
 \name{gWidgets2tcltk-package}
 \alias{"gWidgets2tcltk-package"}
+\alias{DND}
 \alias{GButton}
 \alias{GComponent}
 \alias{GContainer}
@@ -21,6 +22,13 @@
   the graphical libraries. This package provides the
   implementation to interface with the underlying
   \pkg{tcltk} package.
+
+  Drag and drop in \pkg{tcltk} is not supported by any
+  underlying toolkit functionality. As such, in
+  \pkg{gWidgets2tcltk} we roll our own. The result is a
+  little limited: a) you can't drop values from other
+  applications b) drop targets aren't allowed to be picky
+  about what they receive (not by mime-type anyways).
 
   GComponent is a parent class for both GContainer and
   GWidget and inherits its primary interface from
@@ -56,6 +64,25 @@
   allowing fairly convenient row editing.
 }
 \details{
+  To implement drag and drop, we bind to the toplevel
+  window the events: button1, motion and button1 release.
+  The binding occurs not to to widget, but to the toplevel
+  window containing the widget. This has some advantages,
+  most imporantly it is unlikely the binding will be
+  overwritten by usual gWidgets2tcltk programs. (Recall
+  tkbind will only allow one binding per widget per
+  signal).
+
+  The gWidgets2 way of doing drag and drop is implemented
+  here. You add a drop source with a handler that returns
+  the value of what you want to pass via the dnd process.
+  Then you specify a widget as a drop target and give a
+  handler. This handler receives the data through the
+  \code{dropdata} component of the "\code{h}" argument.
+  Here, the value is generated when the drop occurs, not
+  when the drag initiates. Not sure this makes any
+  difference, but it might.
+
   Simply click on a row and the editor pops up as a modal
   dialog. The shortcut Shift+Enter will go onto the next
   case, saving changes provided the auto save featuer is
