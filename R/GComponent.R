@@ -327,41 +327,19 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                     methods=list(
                                       ## Some decorators for handlers
                                       ## these wrap the handler to satisfy or fill the h object or return value
-                                      event_decorator=function(handler) {
+                                      event_decorator=function(f) {
                                         "Decorator for basic event"
-                                        f <- function(h, ...) {
-                                          out <- handler(h, ...)
-                                          if(is.atomic(out) && is.logical(out) && out[1])
-                                            out[1]
-                                          else
-                                            FALSE # need logical
+                                        force(f) # impt to get proper f from within connect_to_toolkit
+                                        FUN <- function(W) {
+                                          f(extra_args=list())
                                         }
-                                        f
                                       },
-                                      key_release_decorator=function(handler) {
-                                        f <- function(w, k, K, N, s, x, y, X, Y, ...) {
-                                          h <- list(obj=d$obj,action=d$action)
-                                          h$key <- event$getString() # XXX This is bad -- no locale, ...
-                                          state <- event$getState()
-                                          if(state == 0)
-                                            h$modifier <- NULL
-                                          else
-                                            h$modifier <- gsub("-mask", "", names(which(state == GdkModifierType)))
-                                          handler(h,widget, event,...)
+                                      key_release_decorator=function(f) {
+                                        force(f)
+                                        FUN <- function(w, k, K, N, s, x, y, X, Y, ...) {
+                                          f(extra_args=list(key=k, Key=K, x=x, y=y, X=X, Y=Y))
                                         }
-                                        event_decorator(f)
-                                      },
-                                      button_press_decorator = function(handler) {
-                                        "Add in position information to 'h' component"
-                                        f <- function(h, widget, event, ...) {
-                                          ## stuff in some event information
-                                          h$x <- event$getX(); h$X <- event$getXRoot()
-                                          h$y <- event$getY(); h$Y <- event$getYRoot()
-                                          h$state <- gsub("-mask", "", names(which(event$getState() == GdkModifierType)))
-                                          h$button <- event$getButton()
-                                          handler(h, widget, event, ...)
-                                        }
-                                        event_decorator(f)
+                                        FUN
                                       },
                                       ## code for integrating observable interface with RGtk2
                                       handler_widget = function() widget, # allow override for block (e.g., glabel)
@@ -458,9 +436,14 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                       ## Basic event handlers
                                       ## Define decorators here
                                       click_decorator=function(f) {
+                                        force(f)
                                         FUN <- function(W, x, y, X, Y) {
-                                          args <- sapply(c("x","y","X","Y"), as.numeric, simplify=FALSE)
-                                          f(extra_args=args)
+                                          f(extra_args=list(
+                                              x=as.numeric(x),
+                                              y=as.numeric(y),
+                                              X=as.numeric(X),
+                                              Y=as.numeric(Y)
+                                              ))
                                         }
                                       },
                                       add_handler_clicked = function(handler, action=NULL, ...) {
@@ -478,24 +461,16 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                       add_handler_blur=function(handler, action=NULL, ...) {
                                         add_handler("<FocusOut>", handler, action, event_decorator, ...)
                                       },
-                                      ## Decorator for keystrokes. See bind man page
-                                      keystroke_decorator=function(handler) {
-                                        f <- function(w, k, K, N, s, x, y, X, Y, ...) {
-                                          ## ??? consult state via s?
-                                          handler(h, key=k, x=x, X=X, y=y, Y=Y)
-                                        }
-                                        f
-                                      },
                                       add_handler_keystroke=function(handler, action=NULL, ...) {
                                         "Keystroke handler."
-                                        add_handler("<KeyRelease>", handler, action, decorator=key_release_decorator, ...)
+                                        add_handler("<KeyRelease>", handler, action, decorator=.self$key_release_decorator, ...)
                                       },
-                                      motion_decorator=function(handler) {
-                                        f <- function(w, s, x, y, X, Y, ...) {
+                                      motion_decorator=function(f) {
+                                        force(f)
+                                        FUN <- function(W, s, x, y, X, Y, ...) {
                                           ## ??? consult state via s?
-                                          handler(h,  x=x, X=X, y=y, Y=Y)
+                                          f(extra_args = list(x=x, X=X, y=y, Y=Y))
                                         }
-                                        f
                                       },
                                       add_handler_mousemotion=function(handler, action=NULL, ...) {
                                         "Keystroke handler."
