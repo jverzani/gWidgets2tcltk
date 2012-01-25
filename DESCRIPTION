@@ -58,3 +58,4 @@ Collate:
     'gdf.R'
     'gfile.R'
     'gtext.R'
+    'gtree.R'
