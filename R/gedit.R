@@ -53,7 +53,7 @@ GEdit <- setRefClass("GEdit",
                                            )
                                 set_coerce_with(coerce.with)
                                 init_popup()
-
+                                make_styles()
                                 ## initFields(block=widget,
                                 ##            coerce_with=coerce.with,
                                 ##            init_msg=initial.msg,
@@ -71,7 +71,7 @@ GEdit <- setRefClass("GEdit",
                                   tkbind(widget, "<FocusIn>", clear_init_txt)
                                 }
 
-                                
+
                                 add_to_parent(container, .self, ...)
 
                                 
@@ -286,11 +286,38 @@ GEdit <- setRefClass("GEdit",
                               },
                               set_error = function(msg) {
                                 "Add error state and message to widget"
+                                tkconfigure(widget, style="Error.TEntry")
                                 set_tooltip(msg)
                               },
                               clear_error = function() {
                                 "Clear error message"
+                                tkconfigure(widget, style="TEntry")
                                 set_tooltip("")
+
+                              },
+                              make_styles=function() {
+                                "Create tcl styles"
+                                
+                                plain_style <- "
+ttk::style layout Plain.TEntry {
+    Entry.field -sticky nswe -border 0 -children {
+        Entry.border -sticky nswe -border 1 -children {
+            Entry.padding -sticky nswe -children {
+                Entry.plain.background -sticky nswe -children {
+                    Entry.textarea -sticky nswe
+                }
+            }
+        }
+    }
+}
+"
+.Tcl(plain_style)
+
+                                error_style <- "
+ttk::style configure Error.Plain.TEntry -background red -padding 0 -borderwidth 2
+"
+                                .Tcl(error_style)
                               }
+
                               ))
 

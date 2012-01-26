@@ -231,9 +231,9 @@ GComponent <- setRefClass("GComponent",
                                  ## still there?
                                  is_extant = function() {
                                    "Is widget still available?"
-                                    as.logical(as.numeric(tkwinfo("exists", w)))
+                                    as.logical(as.numeric(tkwinfo("exists", get_widget())))
                                  },
-                                 ## size
+                                 ## sizer
                                  get_size=function(...) {
                                    width <- tclvalue(tkwinfo("width", get_block()))
                                    height <- tclvalue(tkwinfo("height", get_block()))

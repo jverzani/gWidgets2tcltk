@@ -23,6 +23,8 @@ NULL
 }
 
 
+## XXX There is alot of repeated code here. Need to think about factoring out (set_value, set_index...)
+
 GTree <- setRefClass("GTree",
                      contains="GWidget",
                      fields=list(
@@ -170,6 +172,23 @@ GTree <- setRefClass("GTree",
                          
                          return(path)
                        },
+                       id_from_index=function(idx=c()) {
+                         get_next_id <- function(id, idx) {
+                           if(length(idx) == 0) 
+                             return(id)
+                           child_ids <- as.character(tcl(widget, "children", id))
+                           id <- child_ids[idx[1]]
+                           if(length(idx[-1]))
+                             id <- get_next_id(id, idx[-1])
+
+                           return(id)
+                         }
+
+                         if(length(idx) == 0)
+                           return("")
+                         else
+                           get_next_id("", idx)
+                       },
                        get_offspring_icons_tooltips=function(path) {
                          "Return list with items, has_offspring icons, tooltip (possible NULL)"
                          
@@ -217,7 +236,6 @@ GTree <- setRefClass("GTree",
                          id <- tcl(widget, "insert", node, "end", text=text, values=values)
                          tcl(widget, "item", id, image=icon)
                          if(has_offspring) {
-                           print("add offspring")
                            tcl(widget,"insert", id, "end", text="")
                          }
                          as.character(id)
@@ -260,16 +278,16 @@ GTree <- setRefClass("GTree",
                        get_index = function(...) {
                          "get path index as integer vector"
                           ## return index from selection (see get__tree_path)
-                         sel <- as.character(tcl(tr,"selection"))
+                         sel <- as.character(tcl(widget,"selection"))
                          if(is.null(sel))
                            return(integer(0))
 
-                         path <- as.numeric(tcl(tr,"index",sel))
-                         tparent <- tclvalue(tcl(tr,"parent",sel))
+                         path <- as.numeric(tcl(widget,"index",sel))
+                         tparent <- tclvalue(tcl(widget,"parent",sel))
                          while(tparent != "") {
-                           cur_index <- as.numeric(tcl(tr,"index", tparent))
+                           cur_index <- as.numeric(tcl(widget,"index", tparent))
                            path <- c(cur_index, path)
-                           tparent <- tclvalue(tcl(tr,"parent", tparent))
+                           tparent <- tclvalue(tcl(widget,"parent", tparent))
                          }
                          path <- path + 1L # 1-based
                          return(path)
@@ -309,29 +327,42 @@ GTree <- setRefClass("GTree",
                        },
                        update_widget=function(...) {
                          "Update base of widget, reopen selected paths if possible"
-                         ## block_observers()
-                         ## cur_sel <- get_index()
-                         ## widget$collapseAll()
 
-                         ## ## clear base
-                         ## model <- widget$getModel()$getModel()
-                         ## n <- model$IterNChildren(NULL)
-                         ## if(n >= 1) {
-                         ##   for(i in 0:(n-1)) {
-                         ##     child_iter <- model$IterChildren(NULL)
-                         ##     if(child_iter$retval)
-                         ##       model$Remove(child_iter$iter)
-                         ##   }
+                         cur_value <- get_value()
+                         cur_index <- get_index()
+                         print(cur_value)
+                         ## block
+                         block_observers()                         
+                         tclServiceMode(FALSE)
+                         on.exit({
+                           unblock_observers();
+                           tclServiceMode(TRUE)
+                         })
+
+                         ## remove items
+                         child_items <- as.character(tcl(widget, "children", ""))
+                         sapply(child_items, function(id) tcl(widget, "delete", id))
+
+                         ## add back one child at a time
+                         add_offspring("", c())
+
+                         ## XXX This isn't correct. Fix me.
+                         ## if(length(cur_value) == 0)
+                         ##   return()
+                         
+                         ## for(i in 1:length(cur_value)) {
+                         ##   id <- id_from_index(cur_index[1:i])
+                         ##   print(id)
+                         ##   add_offspring(parent_node=id, cur_value[1:i])
+                         ##   tcl(widget, "item", id, open=TRUE)
                          ## }
-                         ## ## repopulate
-                         ## items <- offspring(c(), offspring_data)
-                         ## add_child_items(items, NULL)
-                         ## set_index(cur_sel)
-                         ## unblock_observers()                         
+                         ## ## move
+                         ## tcl(widget, "see", id_from_index(tail(cur_index,n=1)))
+                         
                        },
                        ## Some extra methods
                        clear_selection=function() {
-
+                         tcl(widget, "selection", "set", "")
                        }
                        ))
 

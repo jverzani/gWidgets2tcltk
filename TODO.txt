@@ -17,7 +17,7 @@ DONE gcheckboxgroup.R
 DONE gcombobox.R
 DONE gdf.R: needs rownames
 gdfnotebook.R
-* gedit.R: [<-; validation
+DONE gedit.R:validation
 DONE gfile.R
 XXX ggraphics.R
 DONE gimage.R
@@ -32,7 +32,7 @@ DONE gtable.R
 DONE gtext.R
 DONE gtimer.R
 DONE gtoolbar.R
-gtree.R
+DONE gtree.R: update_widget needs writing
 gvarbrowser.R
 DONE gwindow.R: 
 DONE icons.R
