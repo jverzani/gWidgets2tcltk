@@ -48,7 +48,8 @@ GEdit <- setRefClass("GEdit",
                                            init_msg_flag=FALSE,
                                            change_signal="<<Changed>>",
                                            max.words=20L,
-                                           lindex=0
+                                           lindex=0,
+                                           words=character(0)
                                            
                                            )
                                 set_coerce_with(coerce.with)
@@ -135,7 +136,7 @@ GEdit <- setRefClass("GEdit",
                                 tcl("wm","attributes", popup, "alpha"=0.8)
                                 tkwm.deiconify(popup)
                                 tcl("raise", popup)
-                                highlightWordList()
+                                highlight_word_list()
                               },
                               hide_word_list = function(...) {
                                 tcl("wm","attributes", popup, "topmost"=FALSE) # not working!
@@ -252,8 +253,10 @@ GEdit <- setRefClass("GEdit",
                               ## type ahead
                               get_items=function(i, j, ..., drop=TRUE) {
                                 "i for index"
+                                words[i]
                               },
                               set_items=function(value, i, j, ...) {
+                                set_words(value)
                               },
                               get_visible = function() {
                                 ## visibility is whether password character is being used
@@ -286,7 +289,7 @@ GEdit <- setRefClass("GEdit",
                               },
                               set_error = function(msg) {
                                 "Add error state and message to widget"
-                                tkconfigure(widget, style="Error.TEntry")
+                                tkconfigure(widget, style="Error.Plain.TEntry")
                                 set_tooltip(msg)
                               },
                               clear_error = function() {
@@ -295,13 +298,13 @@ GEdit <- setRefClass("GEdit",
                                 set_tooltip("")
 
                               },
-                              make_styles=function() {
-                                "Create tcl styles"
+                              make_styles=function(bg="#ff6622") {
+                                "Create tcl styles, cf http://paste.tclers.tk/506"
                                 
                                 plain_style <- "
 ttk::style layout Plain.TEntry {
     Entry.field -sticky nswe -border 0 -children {
-        Entry.border -sticky nswe -border 1 -children {
+        Entry.border -sticky nswe -border 0 -children {
             Entry.padding -sticky nswe -children {
                 Entry.plain.background -sticky nswe -children {
                     Entry.textarea -sticky nswe
@@ -313,9 +316,10 @@ ttk::style layout Plain.TEntry {
 "
 .Tcl(plain_style)
 
-                                error_style <- "
-ttk::style configure Error.Plain.TEntry -background red -padding 0 -borderwidth 2
-"
+                                ## error styles
+                                error_style <- sprintf("
+ttk::style configure Error.Plain.TEntry -background %s -padding 0 -borderwidth 2
+", bg)
                                 .Tcl(error_style)
                               }
 
