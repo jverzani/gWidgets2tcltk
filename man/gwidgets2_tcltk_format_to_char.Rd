@@ -1,0 +1,46 @@
+\name{gwidgets2_tcltk_format_to_char}
+\alias{gwidgets2_tcltk_format_to_char}
+\alias{gwidgets2_tcltk_format_to_char.data.frame}
+\alias{gwidgets2_tcltk_format_to_char.Date}
+\alias{gwidgets2_tcltk_format_to_char.default}
+\alias{gwidgets2_tcltk_format_to_char.factor}
+\alias{gwidgets2_tcltk_format_to_char.integer}
+\alias{gwidgets2_tcltk_format_to_char.numeric}
+\title{Format object to character class for inclusion in a table}
+\usage{
+  gwidgets2_tcltk_format_to_char(x)
+
+  \method{gwidgets2_tcltk_format_to_char}{default} (x)
+
+  \method{gwidgets2_tcltk_format_to_char}{factor} (x)
+
+  \method{gwidgets2_tcltk_format_to_char}{integer} (x)
+
+  \method{gwidgets2_tcltk_format_to_char}{numeric} (x)
+
+  \method{gwidgets2_tcltk_format_to_char}{Date} (x)
+
+  \method{gwidgets2_tcltk_format_to_char}{data.frame} (x)
+}
+\arguments{
+  \item{x}{object to format to character class}
+}
+\value{
+  object of character class with possible formatting.
+}
+\description{
+  Gives chance to do more than \code{as.character}
+
+  method for generic
+
+  method for generic
+
+  method for generic
+
+  method for generic
+
+  method for generic
+
+  method for generic
+}
+

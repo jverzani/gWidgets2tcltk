@@ -29,17 +29,103 @@ NULL
 
 
 ## must export -- why?
+
+##' Format object to character class for inclusion in a table
+##'
+##' Gives chance to do more than \code{as.character}
+##' @param x object to format to character class
+##' @return object of character class with possible formatting.
+##' @export
 gwidgets2_tcltk_format_to_char <- function(x) UseMethod("gwidgets2_tcltk_format_to_char")
+
+##' method for generic
+##'
+##' @inheritParams gwidgets2_tcltk_format_to_char
+##' @export
+##' @rdname gwidgets2_tcltk_format_to_char
+##' @method gwidgets2_tcltk_format_to_char default
+##' @S3method gwidgets2_tcltk_format_to_char default
 gwidgets2_tcltk_format_to_char.default <- function(x) as.character(x)
+
+##' method for generic
+##'
+##' @inheritParams gwidgets2_tcltk_format_to_char
+##' @export
+##' @rdname gwidgets2_tcltk_format_to_char
+##' @method gwidgets2_tcltk_format_to_char factor
+##' @S3method gwidgets2_tcltk_format_to_char factor
 gwidgets2_tcltk_format_to_char.factor <- function(x) as.character(x)
+
+##' method for generic
+##'
+##' @inheritParams gwidgets2_tcltk_format_to_char
+##' @export
+##' @rdname gwidgets2_tcltk_format_to_char
+##' @method gwidgets2_tcltk_format_to_char integer
+##' @S3method gwidgets2_tcltk_format_to_char integer
 gwidgets2_tcltk_format_to_char.integer <- function(x) format(x, justify="right")
+
+##' method for generic
+##'
+##' @inheritParams gwidgets2_tcltk_format_to_char
+##' @export
+##' @rdname gwidgets2_tcltk_format_to_char
+##' @method gwidgets2_tcltk_format_to_char numeric
+##' @S3method gwidgets2_tcltk_format_to_char numeric
 gwidgets2_tcltk_format_to_char.numeric <- function(x) format(x, trim=TRUE)
+
+##' method for generic
+##'
+##' @inheritParams gwidgets2_tcltk_format_to_char
+##' @export
+##' @rdname gwidgets2_tcltk_format_to_char
+##' @method gwidgets2_tcltk_format_to_char Date
+##' @S3method gwidgets2_tcltk_format_to_char Date
 gwidgets2_tcltk_format_to_char.Date <- function(x) format(x, format="%d-%m-%Y")
+
+##' method for generic
+##'
+##' @inheritParams gwidgets2_tcltk_format_to_char
+##' @export
+##' @rdname gwidgets2_tcltk_format_to_char
+##' @method gwidgets2_tcltk_format_to_char data.frame
+##' @S3method gwidgets2_tcltk_format_to_char data.frame
 gwidgets2_tcltk_format_to_char.data.frame <- function(x) sapply(x, gwidgets2_tcltk_format_to_char)
 
+
+##' align a column based on the class of the content
+##'
+##' Gives visual difference to data based on its class
+##' @param x column data to align
+##' @return anchor string
+##' @export
 gwidgets2_tcltk_column_alignment <- function(x) UseMethod("gwidgets2_tcltk_column_alignment")
+
+##' method for generic
+##'
+##' @inheritParams gwidgets2_tcltk_column_alignment
+##' @export
+##' @rdname gwidgets2_tcltk_column_alignment
+##' @method gwidgets2_tcltk_column_alignment default
+##' @S3method gwidgets2_tcltk_column_alignment default
 gwidgets2_tcltk_column_alignment.default <- function(x) "w"
+
+##' method for generic
+##'
+##' @inheritParams gwidgets2_tcltk_column_alignment
+##' @export
+##' @rdname gwidgets2_tcltk_column_alignment
+##' @method gwidgets2_tcltk_column_alignment numeric
+##' @S3method gwidgets2_tcltk_column_alignment numeric
 gwidgets2_tcltk_column_alignment.numeric <- function(x) "e"
+
+##' method for generic
+##'
+##' @inheritParams gwidgets2_tcltk_column_alignment
+##' @export
+##' @rdname gwidgets2_tcltk_column_alignment
+##' @method gwidgets2_tcltk_column_alignment logical
+##' @S3method gwidgets2_tcltk_column_alignment logical
 gwidgets2_tcltk_column_alignment.logical <- function(x) "c"
 
 

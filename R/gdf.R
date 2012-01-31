@@ -50,7 +50,7 @@ GDf <- setRefClass("GDf",
                         ...) {
 
                         ## what is 
-                        initFields=list(change_signal="<<TreeviewSelect>>")
+                        initFields(change_signal="<<TreeviewSelect>>")
                         
                         init_widget(container$get_widget(), ...)
 
@@ -71,9 +71,10 @@ GDf <- setRefClass("GDf",
                         ## bind to button-1 to open editor
                         tkbind(widget, "<Button-1>", function(W, x, y) {
                           row <- as.character(tcl(W, "identify", "row", x, y))
+                          column <- as.numeric(gsub("^#", "", as.character(tcl(W, "identify", "cell", x, y))))
                           ind <- match(row, child_ids)
                           if(length(ind))
-                            make_row_editor(ind)
+                            make_row_editor(ind, column)
                         }) 
 
                         ## change handler is row updated
@@ -89,12 +90,12 @@ GDf <- setRefClass("GDf",
                         callSuper(i, value)
                         invoke_change_handler()
                       },                        
-                      make_row_editor=function(ind=1) {
+                      make_row_editor=function(ind=1, column=NULL) {
                         w <- gwindow(gettext("Case editor"), visible=FALSE, parent=block)
                         g <- ggroup(cont=w, horizontal=FALSE)
 
                         use.scrollwindow <- get_dim()[1] > 20
-                        ed <- Editor$new(.self, rownames=NULL, ind=ind, container=g, use.scrollwindow=use.scrollwindow)
+                        ed <- Editor$new(.self, rownames=NULL, ind=ind, column=column, container=g, use.scrollwindow=use.scrollwindow)
                         ed$dirty <- FALSE
                         
                         paging_bar <- PagingBar$new(ed=ed, cur_page=ind, parent=g$widget)
@@ -157,7 +158,7 @@ Editor <- setRefClass("Editor",
                       save_on_page_change="logical"
                       ),
                     methods=list(
-                      initialize=function(DF, rownames, ind=1, container, use.scrollwindow=FALSE) {
+                      initialize=function(DF, rownames, ind=1, column=NULL, container, use.scrollwindow=FALSE) {
                         initFields(DF=DF,
                                    rownames=rownames,
                                    save_on_page_change=TRUE,
@@ -176,14 +177,14 @@ Editor <- setRefClass("Editor",
                         })
                         names(editors) <<- nms
                         lapply(editors, addHandlerChanged, function(...) {print("set dirty"); dirty <<- TRUE})
-                        
-                        set_page(ind)
+
+                        set_page(ind, column)
 
                       },
                       total_pages=function() {
                         DF$get_dim()[1]
                       },
-                      set_page=function(i) {
+                      set_page=function(i, column) {
                         "initialize values from row i"
                         if(cur_page > 0 &&
                            (save_on_page_change ||
@@ -196,6 +197,8 @@ Editor <- setRefClass("Editor",
                         values <- DF$get_items(i)
                         f=function(editor, value) editor$set_value(value)
                         mapply(f, editors, values)
+                        if(!missing(column) && !is.null(column))
+                          editors[[column]]$set_focus(TRUE)
                         DF$scroll_to(i)
                       },
                       save_values=function() {

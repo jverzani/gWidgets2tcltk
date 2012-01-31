@@ -36,6 +36,7 @@
 \alias{.gtext.guiWidgetsToolkittcltk}
 \alias{.gtimer.guiWidgetsToolkittcltk}
 \alias{.gtoolbar.guiWidgetsToolkittcltk}
+\alias{.gtree.guiWidgetsToolkittcltk}
 \alias{.gwindow.guiWidgetsToolkittcltk}
 \title{toolkit constructor for gwindow}
 \usage{
@@ -184,6 +185,12 @@
   NULL, width = NULL, height = 300, font.attr = NULL, wrap
   = TRUE, handler = NULL, action = NULL, container = NULL,
   ...)
+
+  \method{.gtree}{guiWidgetsToolkittcltk} (toolkit,
+  offspring = NULL, offspring.data = NULL, chosen.col = 1,
+  offspring.col = 2, icon.col = NULL, tooltip.col = NULL,
+  multiple = FALSE, handler = NULL, action = NULL,
+  container = NULL, ...)
 }
 \arguments{
   \item{initial.msg}{initial.msg}
@@ -390,6 +397,20 @@
   \item{background}{a value in colors()} }}
 
   \item{wrap}{logical do lines wrap}
+
+  \item{offspring}{function. A function passed values
+  \code{path} and \code{data}, the latter from
+  \code{offspring.data}. The path is the current position
+  of the parent item using the named keys from the chosen
+  column.}
+
+  \item{offspring.data}{Passed to second argument of
+  \code{offspring} function. Used to parameterize a
+  function call.}
+
+  \item{offspring.col}{integer or column name. Points to
+  column containing logical values indicating if a row has
+  offspring.}
 }
 \value{
   NULL
@@ -469,7 +490,9 @@
 
   Toolkit constructor
 
-  toolkit implementation
+  toolkit implementation of gtext
+
+  Toolkit constructor
 }
 \seealso{
   The documentation for this is found at
