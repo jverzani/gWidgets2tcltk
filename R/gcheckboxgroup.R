@@ -89,7 +89,8 @@ GCheckboxGroup <- setRefClass("GCheckboxGroup",
                             tclServiceMode(FALSE)
                             ## new values
                             values <- unique(value) # make unique
-                            items <<- values
+                            items <<- as.character(values)
+                            
                             widgets <<- lapply(items, function(i) {
                               text_var <- tclVar(0) # 0 unchecked
                               btn <- ttkcheckbutton(widget, text=as.character(i),
@@ -108,7 +109,7 @@ GCheckboxGroup <- setRefClass("GCheckboxGroup",
                           } else {
                             ## update label values for i
                             if(min(i) < 1 || max(i) > get_length()) {
-                              
+                              ## XXX what goes here?
                             }
 
                             
