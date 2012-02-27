@@ -35,7 +35,7 @@ GComponent <- setRefClass("GComponent",
                                  .e="environment" # for tag
                                  ),
                                methods=list(
-                                 initialize=function(toolkit=guiToolkit(), ...) {
+                                 initialize=function(toolkit=guiToolkit(), ..., expand, fill, anchor, label) {
                                    initFields(toolkit=toolkit,
                                               .e=new.env()
                                               )
@@ -84,7 +84,7 @@ GComponent <- setRefClass("GComponent",
                                  },
                                  ## visible
                                  get_visible = function()  {
-                                   as.logicalt(tkwinfo("viewable", get_widget()))
+                                   as.logical(tkwinfo("viewable", get_widget()))
                                  },
                                  set_visible = function(value) {
                                    message("Default visible<- method is not implemented")
