@@ -83,7 +83,7 @@ GRadio <- setRefClass("GRadio",
                             sapply(widgets, tkpack.forget)
                             ## new values
                             values <- unique(value) # make unique
-                            items <<- values
+                            items <<- as.character(values)
                             tclServiceMode(FALSE)
                             widgets <<- lapply(items, function(i) {
                               btn <- ttkradiobutton(widget, variable=state_var,
