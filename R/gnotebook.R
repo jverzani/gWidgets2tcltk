@@ -72,6 +72,8 @@ GNotebook <- setRefClass("GNotebook",
                               },
                               set_names = function(value, i, ...) {
                                 f <- function(i,x) tcl(widget, "tab", i-1, text=x)
+                                if(missing(i))
+                                  i <- seq_len(get_length())
                                 mapply(f, i=i, x=value)
                                 invisible()
                               },
