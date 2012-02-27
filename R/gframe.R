@@ -19,7 +19,7 @@ GFrame <- setRefClass("GFrame",
                         markup="logical"
                         ),
                       methods=list(
-                        initialize=function(toolkit=NULL, text="", markup=FALSE, pos=3, horizontal=TRUE, spacing=5, container=NULL, ...) {
+                        initialize=function(toolkit=NULL, text="", markup=FALSE, pos=3, horizontal=TRUE, spacing=5, container=NULL, ..., use.scrollwindow=FALSE) {
 
                           initFields(horizontal=horizontal)
                           set_spacing(spacing)
