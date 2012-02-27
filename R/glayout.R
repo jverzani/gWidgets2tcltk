@@ -73,7 +73,10 @@ GLayout <- setRefClass("GLayout",
                                child_positions[[ii]]$child
                            })
                            widgets <- matrix(widgets, ncol=d[2])
-                           widgets[i,j, drop=drop]
+                           out <- widgets[i,j, drop=drop]
+                           if(length(out) == 1)
+                             out <- out[[1]]
+                           out
                          },
                          set_items = function(value, i, j, expand=FALSE, fill=FALSE, anchor=NULL) {
                            "Main method to add children"
