@@ -186,6 +186,7 @@ GEdit <- setRefClass("GEdit",
                                     hide_word_list()
                                     if(lindex > 0) {
                                       set_value(get_current_word())
+                                      invoke_change_handler()
                                     } else {
                                       invoke_change_handler()
                                     }
