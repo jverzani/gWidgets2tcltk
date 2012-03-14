@@ -1,4 +1,4 @@
-##' @include GTable.R
+##' @include gtable.R
 NULL
 
 ##' Toolkit constructor
