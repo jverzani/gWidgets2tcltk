@@ -59,3 +59,4 @@ Collate:
     'gfile.R'
     'gtext.R'
     'gtree.R'
+    'gformlayout.R'
