@@ -3,13 +3,14 @@ NULL
 
 ## Basic functions for tcltk objects
 
-## return tk object
-getWidget <- function(obj) {
-  if(is(obj, "GComponent"))
-    obj$get_widget()
-  else
-    obj
-}
+##' method for getWidget defined in gWidgets2
+##'
+##' @inheritParams gWidgets2:::getWidget
+##' @export
+##' @method getWidget tkwin
+##' @S3method getWidget tkwin
+getWidget.tkwin <- function(obj) obj
+
 
 getBlock <- function(obj) {
   if(is(obj, "GComponent"))

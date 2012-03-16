@@ -47,6 +47,12 @@ GLayout <- setRefClass("GLayout",
                            ## we don't add child, but do the bookkeeping here
                            children <<- c(children, child)
                          },
+                         remove_child=function(child) {
+                           ## remove from GUI
+                           tkgrid.forget(child$get_block())
+                           ## remove from children list
+                           children <<- Filter(function(i) !identical(i, child), children)
+                         },
                          get_dim=function(...) {
                            "current size of table"
                            d <- rev(as.numeric(tcl("grid","size", widget)))
