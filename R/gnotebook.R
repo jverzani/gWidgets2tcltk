@@ -111,7 +111,7 @@ GNotebook <- setRefClass("GNotebook",
                               change_page_decorator=function(f) {
                                 FUN <- function(W) {
                                   ind <- as.integer(tcl(W, "index", "current")) + 1
-                                  f(extra_args=list(pageno=ind))
+                                  f(extra_args=list(page.no=ind))
                                 }
                               },
                               add_handler_changed=function(handler, action=NULL, ...) {
