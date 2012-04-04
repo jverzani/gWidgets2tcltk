@@ -81,6 +81,7 @@ findIcon <- function(stockname) tcltkStockIcons$find_icon(stockname)
 
 ##' Returns list of stock ids
 ##'
+##' @inheritParams gWidgets2::getStockIcons
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .getStockIcons guiWidgetsToolkittcltk
@@ -91,6 +92,7 @@ findIcon <- function(stockname) tcltkStockIcons$find_icon(stockname)
 
 ##' return stock id
 ##'
+##' @param name name of icon
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .getStockIconByName guiWidgetsToolkittcltk
@@ -105,11 +107,12 @@ findIcon <- function(stockname) tcltkStockIcons$find_icon(stockname)
 
 ##' return stock id from object
 ##'
+##' @param obj obj to get icon from
 ##' @export
-##' @rdname gWidgets2RGtk2-undocumented
-##' @method .stockIconFromObject guiWidgetsToolkitRGtk2
-##' @S3method .stockIconFromObject guiWidgetsToolkitRGtk2
-.stockIconFromObject.guiWidgetsToolkitRGtk2 <- function(toolkit, obj, ...) {
+##' @rdname gWidgets2tcltk-undocumented
+##' @method .stockIconFromObject guiWidgetsToolkittcltk
+##' @S3method .stockIconFromObject guiWidgetsToolkittcltk
+.stockIconFromObject.guiWidgetsToolkittcltk <- function(toolkit, obj, ...) {
   icon_for_object <- function(x) UseMethod("icon_for_object")
   icon_for_object.default <- function(x) "symbol_dot"
   icon_for_object.numeric <- function(x) "numeric"
