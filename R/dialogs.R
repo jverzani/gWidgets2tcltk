@@ -1,12 +1,12 @@
 ##' @include GWidget.R
+##' @include GContainer.R
 NULL
 
 
 
 ##' toolkit implementation for gmessage
 ##'
-##' @inheritParams gWidgets2::ginput
-##' @return NULL
+##' @inheritParams gWidgets2::gmessage
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gmessage guiWidgetsToolkittcltk
@@ -38,7 +38,7 @@ NULL
 
 ##' toolkit implementation for gconfirm
 ##'
-##' @inheritParams gWidgets2::ginput
+##' @inheritParams gWidgets2::gconfirm
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gconfirm guiWidgetsToolkittcltk
@@ -67,6 +67,8 @@ NULL
   
   return(val)
 }
+
+
 
 
 ##' toolkit implmentation of ginput
