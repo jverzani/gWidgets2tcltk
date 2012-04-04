@@ -34,11 +34,6 @@
   GWidget and inherits its primary interface from
   gWidgets2::BasicToolkitInterface.
 
-  GContainer is the base class for container objects. The
-  main method is \code{add_child}, but there is also
-  book-keepingn code to keep track of the child components
-  of the container
-
   GWidget is the Base class for widget objects
 
   GWidgetWithItems is Base class for selection widgets
@@ -46,14 +41,14 @@
   apply to each item, but the handler is assigned to the
   class member.
 
+  GContainer is the base class for container objects. The
+  main method is \code{add_child}, but there is also
+  book-keepingn code to keep track of the child components
+  of the container
+
   For RGtk2, the GButton class has the extra reference
   method \code{set_border}. The \code{border} argument has
   been deprecated.
-
-  label class for tcltk
-
-  The main reference methods \code{GTimer} are
-  \code{start_timer} and \code{stop_timer}
 
   The \code{GDf} class provides a means to edit a data
   frame. Unlike \pkg{RGtk2} and \pkg{qtbase}, there is no
@@ -62,6 +57,11 @@
   was. However, that never really seemed that usable. As
   such, we try implementing a case-by-case editor here,
   allowing fairly convenient row editing.
+
+  label class for tcltk
+
+  The main reference methods \code{GTimer} are
+  \code{start_timer} and \code{stop_timer}
 }
 \details{
   To implement drag and drop, we bind to the toplevel
