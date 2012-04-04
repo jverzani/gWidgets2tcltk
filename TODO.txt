@@ -1,7 +1,7 @@
 drag-and-drop (framework!)
-DONE fonts (styles, fonts objects)
 popup menus
 
+DONE fonts (styles, fonts objects)
 DONE GComponent.R
 DONE GContainer.R
 DONE GWidget.R
