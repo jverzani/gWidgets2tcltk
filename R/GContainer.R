@@ -112,7 +112,7 @@ GBoxContainer <- setRefClass("GBoxContainer",
                                  do.call(l_tkpack, l)
                                },
                                add_space=function(value) {
-                                 l <- list(widget=ttklabel(get_widget(), text=""),
+                                 l <- list(ttklabel(get_widget(), text=""),
                                            side=ifelse(horizontal, "left", "top")
                                            )
                                  if(horizontal)
