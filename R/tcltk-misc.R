@@ -5,7 +5,7 @@ NULL
 
 ##' method for getWidget defined in gWidgets2
 ##'
-##' @inheritParams gWidgets2:::getWidget
+##' @param obj object
 ##' @export
 ##' @method getWidget tkwin
 ##' @S3method getWidget tkwin
@@ -27,7 +27,7 @@ getBlock <- function(obj) {
 ## CONSTANTS
 widthOfChar <- ceiling(as.numeric(tclvalue(tcl("font","measure","TkTextFont","0"))))
 heightOfChar <-  as.numeric(as.character(tcl("font","metrics","TkTextFont"))[6])
-xyToAnchor = function(anchor) {
+xyToAnchor <- function(anchor) {
   m = rbind(
     c("nw","n","ne"),
     c("w","center","e"),
