@@ -24,7 +24,6 @@ GImage <- setRefClass("GImage",
                         "image_name"="ANY" # name (filename or stock)
                         ),
                       methods=list(
-                        ## stock.id, size ignored,
                         ## handler is click handler
                         initialize=function(toolkit=NULL,
                           filename = "", dirname = "", stock.id=NULL, size = "",
@@ -33,12 +32,12 @@ GImage <- setRefClass("GImage",
                           widget <<- ttklabel(container$get_widget(), text="", compound="image")
                           initFields(block=widget)
 
-                          ## do we have a stock value?
-                          if(filename != "") {
-                            if(getStockIconByName(filename) == "" &&
-                               !(dirname %in% c("", "stock"))) {
+                          ## what kind of file is it? stock or a file
+                          if(!is.null(stock.id)) {
+                            set_image(getStockIconByName(stock.id))
+                          } else {
+                            if(dirname != "")
                               filename <- sprintf("%s%s%s", dirname, .Platform$file.sep, filename)
-                            }
                             set_value(filename)
                           }
                           ## Can we find the right size
