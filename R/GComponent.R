@@ -337,7 +337,7 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                       key_release_decorator=function(f) {
                                         force(f)
                                         FUN <- function(w, k, K, N, s, x, y, X, Y, ...) {
-                                          f(extra_args=list(key=k, Key=K, x=x, y=y, X=X, Y=Y))
+                                          f(extra_args=list(key=K, Key=k, x=x, y=y, X=X, Y=Y))
                                         }
                                         FUN
                                       },
