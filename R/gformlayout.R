@@ -72,9 +72,12 @@ GFormLayout <- setRefClass("GFormLayout",
                                ## bookkeeping
                                if(is(child, "GComponent"))
                                  child$set_parent(.self)
+
+                               nms <- names(children)
                                children <<- c(children, child)
-                               
+                               names(children) <<- c(nms, label)
                              },
+                             get_value=function(...) sapply(children, svalue, simplify=FALSE),
                              get_dim=function() {
                                d <- rev(as.numeric(tcl("grid","size", widget)))
                                setNames(d, c("nrow", "ncol"))
