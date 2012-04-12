@@ -77,7 +77,8 @@ GExpandGroup <- setRefClass("GExpandGroup",
                                   width <- as.numeric(tkwinfo("width", widget))
                                   tkpack("propagate", widget, FALSE)
                                   ## configure height but not width!!!
-                                  tkconfigure(widget, "height"=1, width=width)
+                                  tkpack.forget(widget)
+#                                  tkconfigure(widget, "height"=1, width=width)
                                   ..visible <<- FALSE
                                 }
 
