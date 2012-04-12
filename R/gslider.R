@@ -53,7 +53,7 @@ GSlider <- setRefClass("GSlider",
                            
                            handler_id <<- add_handler_changed(handler, action)
                            
-                           callSuper(toolkit)
+                           callSuper(toolkit, ...)
                          },
                          get_value=function(drop=TRUE, ...) {
                            items[get_index()]
