@@ -132,15 +132,19 @@ GBoxContainer <- setRefClass("GBoxContainer",
                                    out
                                },
                                
-                               ## svalue (borderwidth, spacing -- which is it...)
+                               ## svalue (borderwidth, spacing)
                                get_value=function(...) {
                                  spacing
                                },
                                set_value=function(value, ...) {
+                                 "We can't really adjust spacing between children after they have been positioned."
                                  set_spacing(value)
-                                 sapply(children, function(i) {
-                                   tkconfigure(i$get_widget(), padx=spacing[1], pady=spacing[2])
-                                 })
+                                 warning(gettext("In gWidgetstcltk, setting spacing value only effects children added after spacing is set"))
+                               },
+                               set_borderwidth=function(value, ...) {
+                                 "Set borderwidth argument of parent frame"
+                                 tkconfigure(widget, borderwidth=value[1])
                                }
+                               
                         ))
 
