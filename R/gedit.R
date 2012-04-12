@@ -96,7 +96,7 @@ GEdit <- setRefClass("GEdit",
                               },
                               find_match = function(x) {
                                 "Find match in word list"
-                                ind <- grepl(sprintf("^%s", tolower(x)), tolower(words))
+                                ind <- grepl(sprintf("%s", tolower(x)), tolower(words), fixed=TRUE)
                                 words[ind]
                               },
                               show_word_list = function(str=get_value()) {
