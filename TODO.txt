@@ -1,5 +1,7 @@
 drag-and-drop (framework!)
+- put warning message when no icon matches stock icon
 popup menus
+- gtable and tooltips; gtable and icons (cf ex-selection-widgets.R)
 
 DONE fonts (styles, fonts objects)
 DONE GComponent.R
@@ -10,7 +12,7 @@ DONE gWidgets2RGtk2-package.R
 DONE dialogs.R 
 
 DONE gaction.R
-DONE  gbutton.R
+DONE gbutton.R
 DONE gcalendar.R
 DONE gcheckbox.R
 DONE gcheckboxgroup.R

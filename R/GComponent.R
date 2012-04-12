@@ -479,10 +479,10 @@ GComponentObservable <- setRefClass("GComponentObservable",
 
                                       ## XXX add stibs for others
                                       ##
-                                      add_popup_menu = function(menulist, action=NULL, ...) {
+                                      add_popup_menu = function(mb, action=NULL, ...) {
                                         XXX("do me")
                                       },
-                                      add_3rd_mouse_popup_menu=function(menulist, action=NULL, ...) {
+                                      add_3rd_mouse_popup_menu=function(mb, action=NULL, ...) {
                                         XXX("Do me")
                                       }
 

@@ -3,7 +3,7 @@ Version: 0.0-1
 Title: Toolkit implementation of gWidgets2 for tcltk
     package
 Author: John Verzani
-Maintainer: John Verzani <gwidgetsrgtk@gmail.com>
+Maintainer: John Verzani <jverzani@gmail.com>
 Depends:
     R (>= 2.12.0),
     methods,
