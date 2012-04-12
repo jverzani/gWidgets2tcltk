@@ -69,7 +69,6 @@ GEdit <- setRefClass("GEdit",
                                   set_value(text)
                                 } else if(nchar(initial.msg) > 0) {
                                   set_init_txt(initial.msg)
-                                  tkbind(widget, "<FocusIn>", clear_init_txt)
                                 }
 
 
@@ -201,10 +200,15 @@ GEdit <- setRefClass("GEdit",
                                 tkbind(tcl("winfo", "toplevel", widget), "<Configure>", hide_word_list)
                                 add_handler("<Destroy>", hide_word_list)
                                 add_handler("<FocusIn>", clear_init_txt)
-                                add_handler("<FocusOut>", hide_word_list)
+                                add_handler("<FocusOut>", function(...) {
+                                  hide_word_list()
+                                })
                                 add_handler("<FocusOut>", function(...) {
                                   if(nchar(get_value()) == 0 && nchar(init_msg) > 0)
-                                    show_init_msg()
+                                    set_init_txt(init_msg)
+                                })
+                                add_handler("<FocusOut>", function(...) {
+                                  invoke_change_handler()
                                 })
                                 add_handler("<Unmap>", hide_word_list)
                                 
@@ -228,7 +232,8 @@ GEdit <- setRefClass("GEdit",
                                 })
                               },
                               set_value=function(value,  drop=TRUE, ...) {
-                                clear_init_txt()
+                                if(init_msg_flag)
+                                  clear_init_txt()
                                 callSuper(value)
                               },
                               get_value=function(...) {
@@ -241,14 +246,14 @@ GEdit <- setRefClass("GEdit",
                               set_init_txt=function(msg) {
                                 "set initial text, gray out"
                                 tkconfigure(widget, foreground="gray")
-                                set_value(msg)
+                                tclvalue(t_var) <<- msg
                                 init_msg_flag <<- TRUE
                               },
                               clear_init_txt=function(...) {
                                 "clear out init text, set back to black"
-                                 tkconfigure(widget, foreground="black")
+                                tkconfigure(widget, foreground="black")
                                 if(init_msg_flag)
-                                  widget$setText("")
+                                  tclvalue(t_var) <<- ""
                                 init_msg_flag <<- FALSE
                               },
                               ## type ahead
@@ -288,10 +293,18 @@ GEdit <- setRefClass("GEdit",
                                 else 
                                   validator(get_value())
                               },
+                              set_invalid=function(value, msg) {
+                                if(value)
+                                  set_error(msg)
+                                else
+                                  clear_error()
+                              },
                               set_error = function(msg) {
                                 "Add error state and message to widget"
-                                tkconfigure(widget, style="Error.Plain.TEntry")
-                                set_tooltip(msg)
+                                if(!missing(msg) && !is.null(msg)) {
+                                  tkconfigure(widget, style="Error.Plain.TEntry")
+                                  set_tooltip(msg)
+                                }
                               },
                               clear_error = function() {
                                 "Clear error message"
