@@ -90,7 +90,7 @@ gwidgets2_tcltk_format_to_char.Date <- function(x) format(x, format="%d-%m-%Y")
 ##' @rdname gwidgets2_tcltk_format_to_char
 ##' @method gwidgets2_tcltk_format_to_char data.frame
 ##' @S3method gwidgets2_tcltk_format_to_char data.frame
-gwidgets2_tcltk_format_to_char.data.frame <- function(x) sapply(x, gwidgets2_tcltk_format_to_char)
+gwidgets2_tcltk_format_to_char.data.frame <- function(x) as.data.frame(sapply(x, gwidgets2_tcltk_format_to_char))
 
 
 ##' align a column based on the class of the content
@@ -212,7 +212,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                   mapply(f, seq_along(aligns), aligns)
                                 },
                                 ## icon column
-                                configure_icon_column=function(width=20L) {
+                                configure_icon_column=function(width=32L) {
                                   "Put in configuration for icons"
                                   tkconfigure(widget,
                                               displaycolumns="#all",
@@ -220,7 +220,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                               )
                                   set_icon_width(width)
                                 },
-                                set_icon_width=function(width=20L) {
+                                set_icon_width=function(width=32L) {
                                   "Set width for icon column"
                                   tcl(widget, "column", "#0", width=width, anchor="w", stretch=FALSE)
                                 },
@@ -287,7 +287,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                 get_data = function() {
                                   "Helper: Return DF less and special columns. Meant to help in subclass"
                                   if(length(get_hidden_columns()))
-                                    DF[,-get_hidden_columns()]
+                                    DF[,-get_hidden_columns(), drop=FALSE]
                                   else
                                     DF
                                 },
