@@ -228,6 +228,8 @@ GComponent <- setRefClass("GComponent",
                                    tmp <- .e
                                    attr(tmp, key) <- value
                                  },
+                                 ##
+                                 set_invalid=function(value, msg) {},
                                  ## still there?
                                  is_extant = function() {
                                    "Is widget still available?"
@@ -355,13 +357,12 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                       ## calls the notify observer
                                       ## method when the widget
                                       ## actualy emits the signal
-                                      add_handler=function(signal, handler, action=NULL, decorator, emitter=handler_widget(), connect=TRUE, ...) {
+                                      add_handler=function(signal, handler, action=NULL, decorator, emitter=handler_widget(), ...) {
                                         "Uses Observable framework for events. Adds observer, then call connect signal method. Override last if done elsewhere"
                                         if(is_handler(handler)) {
                                           o <- gWidgets2:::observer(.self, handler, action)
                                           invisible(add_observer(o, signal))
-                                          if(connect)
-                                            connect_to_toolkit_signal(signal, decorator=decorator, emitter=emitter, ...)
+                                          connect_to_toolkit_signal(signal, decorator=decorator, emitter=emitter, ...)
                                         }
                                       },
                                       connect_to_toolkit_signal=function(
