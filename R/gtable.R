@@ -186,6 +186,8 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                 },
                                 set_column_widths=function(widths, data) {
                                   "Set widths from widths, or from data frame passed in via data"
+
+                                  
                                   if(!missing(data)) {
                                     m <- gWidgets2tcltk:::gwidgets2_tcltk_format_to_char(data)
                                     chars <- apply(m, 2, function(x) max(nchar(x)))
@@ -479,7 +481,8 @@ GTable <- setRefClass("GTable",
                               init_widget(container$get_widget(), ...)
 
                               items <- as.data.frame(items)
-                              n <<- ncol(items) - !is.null(icon_col) - !is.null(tooltip_col)
+                              n <<- ncol(items) - length(list(icon.col, tooltip.col)) 
+
                               tkconfigure(widget, columns=1:n)
                               ## icons?
                               if(!is.null(icon.col))
