@@ -95,7 +95,6 @@ GMenuBar <- setRefClass("GMenuBar",
                          item$add_menu_item_proxy(.self, index)
                        },
                        add_gseparator_menuitem=function(sub_menu, item, index) {
-                         return()
                          tkadd(sub_menu, "separator")
                        },
                        add_radio_menuitem=function(sub_menu, item, index) {
