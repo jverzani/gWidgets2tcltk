@@ -50,7 +50,7 @@ GCalendar <- setRefClass("GCalendar",
                              initFields(format=format,
                                         change_signal="<<Changed>>"
                                         )
-
+                             set_value(text)
 
                              add_to_parent(container, .self, ...)
                              handler_id <<- add_handler_changed(handler, action)
@@ -62,16 +62,19 @@ GCalendar <- setRefClass("GCalendar",
                                cur_date <- Sys.Date()
                              makeCalendar(date_var, widget, cur_date, format)
                            },
-                           get_value=function( ...) {
+                           get_value=function(drop=TRUE, ...) {
                              val <- as.character(tclvalue(date_var))
-                             
-                             cur_date <- try(as.Date(val, format=format))
-                             if(inherits(cur_date,"try-error"))
-                               val <- NA
+
+                             cur_date <- try(as.Date(val, format="%Y-%m-%d"))
+                             if(is.na(cur_date)) 
+                               cur_date <- as.Date(NA)
+                             if(missing(drop) || is.null(drop) || drop)
+                               format(cur_date, format=format)
                              else
-                               val <- as.character(cur_date)
+                               cur_date
                            },
                            set_value=function(value, ...) {
+                             if(value == "") return()
                              d <- as.Date(value, format=format)
                              tclvalue(date_var) <<- format(d)
                              invoke_change_handler()
