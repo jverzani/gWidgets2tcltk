@@ -45,14 +45,15 @@ GComboBox <- setRefClass("GComboBox",
                            get_value=function(...) {
                              val <- as.character(tclvalue(t_var))
                              if(nchar(val) == 0)
-                               val <- character(0) # ??
+                               val <- get_items(integer(0)) # 0-length object with same class as items
                              val
                            },
                            ## set value in subclass
                            get_index = function(...) {
-                             ind <- match(get_value(), items)
-                             if(is.na(ind))
-                               ind <- 0
+                             val <- get_value()
+                             if(length(val) == 0)
+                               return(0L)
+                             ind <- match(val, items)
                              ind
                            },
                            set_index = function(value,...) {
@@ -174,10 +175,8 @@ GComboBoxWithEntry <- setRefClass("GComboBoxWithEntry",
                                     set_value=function(value, ...) {
                                       if(length(value) == 0)
                                         value <- ""
-                                      if(value %in% items || value == "") {
-                                        tmp <- t_var
-                                        tclvalue(tmp) <- value
-                                      } 
+                                      tmp <- t_var
+                                      tclvalue(tmp) <- value
                                     },
                                     ## if editable, allow us to toggle
                                     get_editable=function(...) {
