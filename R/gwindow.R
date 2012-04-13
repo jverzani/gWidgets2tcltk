@@ -124,7 +124,7 @@ GWindow <- setRefClass("GWindow",
                                   tkgrab.release(block)
                                 }
                               },
-                              get_value = function(...) as.character(tktitle(block)),
+                              get_value = function(...) tclvalue(tktitle(block)),
                               set_value = function(value, ...) {
                                 tktitle(block) <<- paste(value, collapse=" ")
                               },
