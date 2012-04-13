@@ -127,23 +127,23 @@ GDf <- setRefClass("GDf",
 make_editors <- function(x, i, nm, lyt) UseMethod("make_editors")
 make_editors.numeric <- function(x, i, nm, lyt) {
   lyt[i, 1] <- nm
-  lyt[i, 2] <- gedit("", cont=lyt, coerce.with=as.numeric)
+  lyt[i, 2] <- gedit("", container=lyt, coerce.with=as.numeric)
 }
 make_editors.integer <- function(x, i, nm, lyt) {
   lyt[i, 1] <- nm
-  lyt[i, 2] <- gedit("", cont=lyt, coerce.with=as.integer)
+  lyt[i, 2] <- gedit("", container=lyt, coerce.with=as.integer)
 }
 make_editors.character <- function(x, i, nm, lyt) {
   lyt[i, 1] <- nm
-  lyt[i, 2] <- gedit("", cont=lyt)
+  lyt[i, 2] <- gedit("", container=lyt)
 }
 make_editors.logical <- function(x, i, nm, lyt) {
   lyt[i,1] <- nm
-  lyt[i,2] <- gcheckbox("", cont=lyt)
+  lyt[i,2] <- gcheckbox("", container=lyt)
 }
 make_editors.factor <- function(x, i, nm, lyt) {
   lyt[i,1] <- nm
-  lyt[i,2] <- gcombobox(levels(x), cont=lyt)
+  lyt[i,2] <- gcombobox(levels(x), container=lyt)
 }
   
 
