@@ -54,6 +54,7 @@ GNotebook <- setRefClass("GNotebook",
                                   tcl(widget, "add", child$get_block())
                                 }
                                 set_names(label, index)
+                                set_index(index)
                               },
                               get_value=function( ...) {
                                 get_index()
@@ -67,7 +68,7 @@ GNotebook <- setRefClass("GNotebook",
                               },
                               get_names = function(...) {
                                 sapply(seq_len(get_length()), function(i) {
-                                  as.character(tcl(widget, "tab", i-1, "-text"))
+                                  tclvalue(tcl(widget, "tab", i-1, "-text"))
                                 })
                               },
                               set_names = function(value, i, ...) {
