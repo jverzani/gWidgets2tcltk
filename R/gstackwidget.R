@@ -47,6 +47,8 @@ GStackWidget <- setRefClass("GStackWidget",
                                 }
                                 set_index(index + 1)
                               },
+                              get_value=function(...) get_index(),
+                              set_value=function(value, ...) set_index(value),
                               set_index=function(ind) {
                                 tclServiceMode(TRUE)
                                 ## remove child
@@ -67,6 +69,25 @@ GStackWidget <- setRefClass("GStackWidget",
                               },
                               get_length=function() {
                                 length(children)
+                              },
+                              remove_current_page=function() {
+                                remove_page(get_index())
+                              },
+                              remove_page=function(idx) {
+                                if(! (1 <= idx && idx <= get_length())) return()
+                                
+                                
+                                child <- children[[idx]]
+                                ## remove from GUI, then from children
+                                if(idx == get_index()) {
+                                  if(idx > 1) set_index(idx - 1)
+                                  if(idx == 1 && get_length() > 1) set_index(idx + 1)
+                                  if(idx == 1 && get_length() == 1) {
+                                    warning(gettext("Removing last page"))
+                                    tkpack.forget(getBlock(child))
+                                  }
+                                }
+                                children[[idx]] <<- NULL
                               }
                               ))
 
