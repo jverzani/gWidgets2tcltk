@@ -31,8 +31,10 @@ GLabel <- setRefClass("GLabel",
                               initialize=function(toolkit=NULL, text, markup=FALSE, editable=FALSE, handler, action, container, ...) {
 
                                 ## no markup
-                                if(markup)
-                                  message("No markup is available for labels in tcltk. Use font<- instead.")
+                                if(markup) {
+                                  message("No markup is available for labels in tcltk. Use font<- instead. Stripping tags.")
+                                  text <-  gsub("<[^>]*>","",text)
+                                }
 
                                 t_var <<- tclVar("")
                                 widget <<- ttklabel(container$get_widget(), textvariable=t_var)
