@@ -1,6 +1,5 @@
 \docType{package}
 \name{gWidgets2tcltk-package}
-\alias{"gWidgets2tcltk-package"}
 \alias{DND}
 \alias{GButton}
 \alias{GComponent}

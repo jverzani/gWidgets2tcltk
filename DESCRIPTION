@@ -7,11 +7,12 @@ Maintainer: John Verzani <jverzani@gmail.com>
 Depends:
     R (>= 2.12.0),
     methods,
-    gWidgets2,
-    tcltk(>= 2.7.0),
     digest,
     memoise,
-    tcltk2
+    tcltk(>= 2.7.0),
+    tcltk2,
+    gWidgets2,
+    testthat
 Description: Port of the gWidgets2 API to the tcltk
     package.
 License: GPL (>= 2)
