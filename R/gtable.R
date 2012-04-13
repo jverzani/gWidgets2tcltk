@@ -481,7 +481,9 @@ GTable <- setRefClass("GTable",
                               init_widget(container$get_widget(), ...)
 
                               items <- as.data.frame(items)
-                              n <<- ncol(items) - length(list(icon.col, tooltip.col)) 
+
+                              ## stupid way to count NULLs
+                              n <<- ncol(items) - length(unlist(list(icon.col, tooltip.col)))
 
                               tkconfigure(widget, columns=1:n)
                               ## icons?
