@@ -95,7 +95,7 @@ NULL
   GImage$new(file=icon, dir="stock", cont=g, expand=FALSE)
   g1 <- GGroup$new(cont=g, horizontal=FALSE, expand=TRUE, fill="both")
   GLabel$new(text=msg[1], cont=g1)
-  ed <- GEdit$new(initial.msg=text, cont=g1)
+  ed <- GEdit$new(text=text, cont=g1)
   bg <- GGroup$new(cont=g1, horizontal=TRUE)
   ok <- GButtonNoAction$new(text="ok", cont=bg, action=NULL, handler=function(h,...) {
     confirmed <<- TRUE

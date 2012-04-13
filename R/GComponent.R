@@ -229,7 +229,6 @@ GComponent <- setRefClass("GComponent",
                                    attr(tmp, key) <- value
                                  },
                                  ##
-                                 set_invalid=function(value, msg) {},
                                  ## still there?
                                  is_extant = function() {
                                    "Is widget still available?"
