@@ -388,9 +388,13 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                       replace_row_data(i, vals)
                                     })
                                   } else {
+                                    ## XXX need to work on dim of value
                                     sapply(seq_along(i), function(ii) {
                                       vals <- DF[i[ii], ]
-                                      vals[j] <- value[i[ii], ]
+                                      if(is.vector(value))
+                                        vals[j] <- value[i[ii]]
+                                      else
+                                        vals[j] <- value[i[ii], ]
                                       replace_row_data(i[ii], vals)
                                     })
                                   }
