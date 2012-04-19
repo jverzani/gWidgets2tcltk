@@ -2,7 +2,14 @@
 \alias{GMenuBar}
 \title{Toplevel menu bar}
 \description{
-  The \code{GMenuBar} class provides functionality for a top-level menubar. In \pkg{tlctk} the menubars can show either \code{gaction} items (proxied as buttons), \code{gradio} items or \code{gcheckbox} items. In the latter two cases, one uses the \code{parent} argument -- not the \code{container} argument -- to specify the parent container. Such items can also be shared with toolbars.
+  The \code{GMenuBar} class provides functionality for a
+  top-level menubar. In \pkg{tlctk} the menubars can show
+  either \code{gaction} items (proxied as buttons),
+  \code{gradio} items or \code{gcheckbox} items. In the
+  latter two cases, one uses the \code{parent} argument --
+  not the \code{container} argument -- to specify the
+  parent container. Such items can also be shared with
+  toolbars.
 }
 \examples{
 \dontrun{

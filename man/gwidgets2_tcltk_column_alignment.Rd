@@ -7,11 +7,11 @@
 \usage{
   gwidgets2_tcltk_column_alignment(x)
 
-  \method{gwidgets2_tcltk_column_alignment}{default} (x)
+  \method{gwidgets2_tcltk_column_alignment}{default}(x)
 
-  \method{gwidgets2_tcltk_column_alignment}{numeric} (x)
+  \method{gwidgets2_tcltk_column_alignment}{numeric}(x)
 
-  \method{gwidgets2_tcltk_column_alignment}{logical} (x)
+  \method{gwidgets2_tcltk_column_alignment}{logical}(x)
 }
 \arguments{
   \item{x}{column data to align}
