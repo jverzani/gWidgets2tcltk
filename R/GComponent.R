@@ -106,11 +106,7 @@ GComponent <- setRefClass("GComponent",
                                  set_focus = function(value) {
                                    "Focus widget if TRUE"
                                    if(value) {
-                                     if(is_ttkwidget()) {
-                                       tcl(get_widget(), "state", "focus")
-                                     } else {
-                                       tkfocus(get_widget())
-                                     }
+                                     tkfocus(get_widget()) ## of is it set focus state?
                                    }
                                  },
                                  ## enabled 
@@ -149,7 +145,7 @@ GComponent <- setRefClass("GComponent",
                                    color <- value$color
                                    spec <- map_font_to_spec(value)
                                    kls <- as.character(tkwinfo("class", get_widget()))
-                                   style_name <- sprintf("%s.%s", gsub(" ", "", spec), kls)
+                                   style_name <- sprintf("%s_%s.%s", gsub(" ", "", spec), ifelse(is.null(color), "black", color), kls)
                                    if(is.null(color))
                                      tcl("ttk::style", "configure", style_name, font=spec)
                                    else
@@ -254,6 +250,22 @@ GComponent <- setRefClass("GComponent",
                                  get_block=function() {
                                    "Return surround block"
                                    block
+                                 },
+                                 set_invalid=function(value, msg) {
+                                   "Set widget as invalid or not"
+                                   if(as.logical(value)) {
+                                     ..invalid <<- TRUE
+                                     ..invalid_reason <<- msg
+                                   } else {
+                                     ..invalid <<- FALSE
+                                     ..invalid_reason <<- ""
+                                   }
+                                 },
+                                 is_invalid=function(...) {
+                                   "Is widget in an invalid state"
+                                   if(length(..invalid) == 0)
+                                     ..invalid <<- FALSE
+                                   ..invalid
                                  },
                                  ##
                                  ## Work with containers
