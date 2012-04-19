@@ -74,8 +74,8 @@ GEdit <- setRefClass("GEdit",
 
                                 add_to_parent(container, .self, ...)
 
-                                
                                 handler_id <<- add_handler_changed(handler, action)
+                                add_handler_blur(function(h,...) invoke_change_handler())
 
                                 callSuper(toolkit)
                               },
@@ -298,6 +298,7 @@ GEdit <- setRefClass("GEdit",
                                   set_error(msg)
                                 else
                                   clear_error()
+                                callSuper(value, msg)
                               },
                               set_error = function(msg) {
                                 "Add error state and message to widget"
