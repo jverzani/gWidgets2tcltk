@@ -72,8 +72,13 @@ GButtonNoAction <- setRefClass("GButtonNoAction",
                                       )
                            
 
+                           
+                           
                            add_to_parent(container, .self, ...)
                            add_handler_changed(handler, action)
+                           ## invoke button on Return or Enter key
+                           tkbind(widget, "<Return>", function(W) tkinvoke(W))
+                           
                            callSuper(toolkit)
                          }
                          ))
