@@ -27,7 +27,9 @@ GText <- setRefClass("GText",
                      contains="GWidget",
                      fields=list(
                        buffer="ANY",
-                       tag_table="ANY"
+                       tag_table="ANY",
+                       xscr="ANY",
+                       yscr="ANY"
                        ),
                      methods=list(
                        initialize=function(toolkit=NULL,
@@ -62,15 +64,17 @@ GText <- setRefClass("GText",
                        init_widget=function(container) {
                          ## set up block and widget with scrollbars
                          block <<- ttkframe(container$get_widget())
-                         widget <<- tktext(block,
-                                           xscrollcommand=function(...)tkset(xscr,...),
-                                           yscrollcommand=function(...)tkset(yscr,...))
+                         widget <<- tktext(block)
 
-                         xscr <- ttkscrollbar(block, orient="horizontal",
+                         xscr <<- ttkscrollbar(block, orient="horizontal",
                                               command=function(...)tkxview(widget,...))
-                         yscr <- ttkscrollbar(block, 
+                         yscr <<- ttkscrollbar(block, 
                                               command=function(...)tkyview(widget,...))
-                         
+                         tkconfigure(widget,
+                                     xscrollcommand=function(...)tkset(xscr,...),
+                                     yscrollcommand=function(...)tkset(yscr,...)
+                                     )
+
                          ## pack into a grid
                          ## see tkFAQ 10.1 -- makes for automatic resizing
                          tkgrid(widget,row=0,column=0, sticky="news")
@@ -151,7 +155,7 @@ GText <- setRefClass("GText",
                            value = paste(value,"\n",sep="")
 
                          ## Handle markup here
-                         if(!is.null(font.attr)) {
+                         if(!is.null(font.attr) && length(font.attr) > 0) {
                            ## bit of a hack to set font
                            fname <- paste(as.character(date()),rnorm(1), sep="") ## some random string
                            
