@@ -173,6 +173,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                   DF <<- as.data.frame(items)
                                   ..visible <<- rep(TRUE, nrow(DF))
                                   populate_view()
+                                  set_column_headings(names(get_data()))
                                 },
                                 ## headings
                                 set_column_headings=function(nms) {
@@ -197,10 +198,9 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                     message(sprintf("Widths are not the correct length. Expecting %s, got %s", n, length(widths)))
                                     return()
                                   }
-                                  f <- function(col, width) tcl(widget, "column", col, width=width, stretch=FALSE)
-                                  mapply(f, seq_along(widths), widths)
-
-                                  tcl(widget, "column", ncol(m), stretch=TRUE)
+                                  f <- function(col, width, stretch) tcl(widget, "column", col, width=width, stretch=stretch)
+                                  stretch <- rep(FALSE, ncol(m)); stretch[ncol(m)] <- TRUE
+                                  mapply(f, seq_along(widths), widths, stretch)
                                 },
                                 set_column_alignment=function(aligns) {
                                   if(missing(aligns)) 
@@ -499,7 +499,7 @@ GTable <- setRefClass("GTable",
 
                               ## populate
                               set_DF(items)
-                              set_column_headings(names(get_data()))
+
 
                               ## icons/tooltips
                               tooltips <- get_col(tooltip_col)
