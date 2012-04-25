@@ -58,6 +58,7 @@ GTimer <- setRefClass("GTimer",
                         },
                         start_timer = function() {
                           "Start the timer"
+                          again <<- TRUE
                           tcl("after", interval, FUN_wrapper)
                         },
                         stop_timer = function() {

@@ -43,12 +43,9 @@ GTree <- setRefClass("GTree",
                          chosen.col = 1, offspring.col=2, icon.col=NULL, tooltip.col=NULL,
                          multiple = FALSE,
                          handler=NULL, action=NULL, container=NULL, ...) {
-
-
+                         
                          init_widget(container$get_widget())
                          set_selection_mode(c("browse", "extended")[1 + as.logical(multiple)])
-
-                         
                          
                          initFields(offspring=offspring,
                                     offspring_data=offspring.data,
@@ -58,10 +55,9 @@ GTree <- setRefClass("GTree",
                                     tooltip_col=tooltip.col,
                                     change_signal="<TreeviewExpand>"
                                     )
-
-
+                         
+                         
                          items <- get_offspring_icons_tooltips(c())$items
-                         print(items)
                          no_columns <<- ncol(items)
                          configure_columns(items)
                          set_names(items)
@@ -76,21 +72,25 @@ GTree <- setRefClass("GTree",
                          
                          callSuper(toolkit)
                        },
+
                        init_widget=function(parent, ...) {
                          
                          block <<- ttkframe(parent)
-                         xscr <- ttkscrollbar(block, orient="horizontal",
-                                              command=function(...) tkxview(widget,...))
-                         yscr <- ttkscrollbar(block, orient="vertical",
-                                              command=function(...) tkyview(widget,...))
                          
                          ## child needs to configure columns, displaycolumns, show
                          widget <<- ttktreeview(block,
                                                 show="tree headings",
-                                                displaycolumns="#all",
-                                                xscrollcommand=function(...) tkset(xscr,...),
-                                                yscrollcommand=function(...) tkset(yscr,...)
+                                                displaycolumns="#all"
                                                 )
+
+                         xscr <- ttkscrollbar(block, orient="horizontal",
+                                              command=function(...) tkxview(widget,...))
+                         yscr <- ttkscrollbar(block, orient="vertical",
+                                              command=function(...) tkyview(widget,...))
+
+                         tkconfigure(widget,
+                                     xscrollcommand=function(...) tkset(xscr,...),
+                                     yscrollcommand=function(...) tkset(yscr,...))
                          
                          tkgrid(widget, row=0, column=0, sticky="news")
                          tkgrid(yscr, row=0, column=1, sticky="ns")
@@ -102,6 +102,27 @@ GTree <- setRefClass("GTree",
                          tcl("autoscroll::autoscroll", yscr)
                          
                        },
+                       add_tree_bindings=function() {
+                         ## Main configuration respond to open event, close event by populating 
+                         tkbind(widget, "<<TreeviewOpen>>",function(W, x,y) {
+                           ## selection
+                           sel <- as.character(tcl(W,"selection"))
+                           
+                           ## check if  children, if not return
+                           children <- as.character(tcl(W,"children",sel))
+                           if(length(children) == 0)
+                             return()
+
+                           ## clear out any children
+                           lapply(children, function(i) tcl(W,"delete",i))
+
+                           ## add new
+                           add_offspring(parent_node=sel, get_tree_path(W))
+                         })
+                         
+
+                       },
+
                        set_selection_mode=function(mode=c("none", "browse", "extended")) {
                          "Helper: Set the selection mode"
                          tkconfigure(widget, selectmode=match.arg(mode))
@@ -109,6 +130,8 @@ GTree <- setRefClass("GTree",
                        configure_columns=function(items) {
                          "Make columns, already got rid of non-shown columns"
                          no_cols <- ncol(items)
+                         if(no_cols ==0)
+                           return()
                          if(no_cols == 1)
                            tkconfigure(widget, columns=1)
                          else
@@ -133,26 +156,6 @@ GTree <- setRefClass("GTree",
                          
                          ## do icon column, unlike gtable, here we want to strecth
                          tcl(widget, "column", "#0", width=50L, anchor="w", stretch=TRUE)                         
-                       },
-                       add_tree_bindings=function() {
-                         ## Main configuration respond to open event, close event by populating 
-                         tkbind(widget, "<<TreeviewOpen>>",function(W, x,y) {
-                           ## selection
-                           sel <- as.character(tcl(W,"selection"))
-                           
-                           ## check if  children, if not return
-                           children <- as.character(tcl(W,"children",sel))
-                           if(length(children) == 0)
-                             return()
-
-                           ## clear out any children
-                           lapply(children, function(i) tcl(W,"delete",i))
-
-                           ## add new
-                           add_offspring(parent_node=sel, get_tree_path(W))
-                         })
-                         
-
                        },
                        ## tree methods
                        get_tree_path=function(tr) {
@@ -189,6 +192,21 @@ GTree <- setRefClass("GTree",
                          else
                            get_next_id("", idx)
                        },
+                       configure_row=function(node, text, values, has_offspring, icon) {
+                         if(is.factor(values))
+                           values <- as.character(values)
+                         if(length(values) == 1)
+                           values <- sprintf("{%s}", values)
+                         if(length(values) > 0)
+                           id <- tcl(widget, "insert", node, "end", text=text, values=unlist(values))
+                         else
+                           id <- tcl(widget, "insert", node, "end", text=text)
+                         tcl(widget, "item", id, image=icon)
+                         if(has_offspring) {
+                           tcl(widget,"insert", id, "end", text="")
+                         }
+                         as.character(id)
+                       },
                        get_offspring_icons_tooltips=function(path) {
                          "Return list with items, has_offspring icons, tooltip (possible NULL)"
                          
@@ -214,6 +232,7 @@ GTree <- setRefClass("GTree",
                            tooltips <- items[, tooltip_col]
                          else
                            tooltips <- rep("", nrow(items))
+                         
                          ind <- unlist(list(chosen_col, offspring_col, icon_col, tooltip_col))
                          if(!is.null(ind))
                            items <- items[, -ind, drop=FALSE]
@@ -221,6 +240,7 @@ GTree <- setRefClass("GTree",
                          return(list(items=items, chosen_vals=chosen_vals, has_offspring=has_offspring, icons=icons, tooltips=tooltips))
                        },
                        add_offspring=function(parent_node, path) {
+                         
                          ## add in children
                          lst <- get_offspring_icons_tooltips(path)
                          
@@ -228,18 +248,45 @@ GTree <- setRefClass("GTree",
                          ## are icons "", NA, filename or stockname?
                          icons <- sapply(lst$icons, getStockIconByName)
                          items <- gwidgets2_tcltk_format_to_char(lst$items)
-                         
-                         for(i in seq_len(nrow(items))) 
+
+                         for(i in seq_along(lst$chosen_vals)) # items may be null
                            configure_row(parent_node, lst$chosen_vals[i], items[i,], lst$has_offspring[i], icons[i])
                        },
-                       configure_row=function(node, text, values, has_offspring, icon) {
-                         id <- tcl(widget, "insert", node, "end", text=text, values=values)
-                         tcl(widget, "item", id, image=icon)
-                         if(has_offspring) {
-                           tcl(widget,"insert", id, "end", text="")
-                         }
-                         as.character(id)
+                       update_widget=function(...) {
+                         "Update base of widget, reopen selected paths if possible"
+
+                         cur_value <- get_value()
+                         cur_index <- get_index()
+                         ## block
+                         block_observers()                         
+                         tclServiceMode(FALSE)
+                         on.exit({
+                           unblock_observers();
+                           tclServiceMode(TRUE)
+                         })
+
+                         ## remove items
+                         child_items <- as.character(tcl(widget, "children", ""))
+                         sapply(child_items, function(id) tcl(widget, "delete", id))
+
+                         ## add back one child at a time
+                         add_offspring("", c())
+
+                         ## XXX This isn't correct. Fix me.
+                         ## if(length(cur_value) == 0)
+                         ##   return()
+                         
+                         ## for(i in 1:length(cur_value)) {
+                         ##   id <- id_from_index(cur_index[1:i])
+                         ##   print(id)
+                         ##   add_offspring(parent_node=id, cur_value[1:i])
+                         ##   tcl(widget, "item", id, open=TRUE)
+                         ## }
+                         ## ## move
+                         ## tcl(widget, "see", id_from_index(tail(cur_index,n=1)))
+                         
                        },
+                       
                        ## main gWidgets methods
                        get_value=function(i, drop=TRUE,...) {
                          "Return path (by chosen col)"
@@ -299,10 +346,19 @@ GTree <- setRefClass("GTree",
                          clear_selection()
                          item_id <- ""  # root node
                          get_children <- function(node) as.character(tcl(widget, "children", node))
-                         for(i in value) {
+                         is_open <- function(node) {
+                           out <- tclvalue(tcl(widget, "item", node, "-open"))
+                           ifelse(out == "true", TRUE, FALSE)
+                         }
+                         path <- character(0)
+                         for(i in seq_along(value)) {
                            kids <- get_children(item_id)
                            if(length(kids)) {
-                             item_id <- kids[i]
+                             item_id <- kids[value[i]]
+                             if(i < length(value) && !is_open(item_id)) {
+                               warning(gettext("Can't open unopened child"))
+                               return()
+                             }
                            } else {
                              warning(gettext("No node matching index"))
                              return()
@@ -325,44 +381,12 @@ GTree <- setRefClass("GTree",
                          f <- function(col, value) tcl(widget, "heading", col, text=value)
                          mapply(f, seq_along(nms), nms)
                        },
-                       update_widget=function(...) {
-                         "Update base of widget, reopen selected paths if possible"
-
-                         cur_value <- get_value()
-                         cur_index <- get_index()
-                         print(cur_value)
-                         ## block
-                         block_observers()                         
-                         tclServiceMode(FALSE)
-                         on.exit({
-                           unblock_observers();
-                           tclServiceMode(TRUE)
-                         })
-
-                         ## remove items
-                         child_items <- as.character(tcl(widget, "children", ""))
-                         sapply(child_items, function(id) tcl(widget, "delete", id))
-
-                         ## add back one child at a time
-                         add_offspring("", c())
-
-                         ## XXX This isn't correct. Fix me.
-                         ## if(length(cur_value) == 0)
-                         ##   return()
-                         
-                         ## for(i in 1:length(cur_value)) {
-                         ##   id <- id_from_index(cur_index[1:i])
-                         ##   print(id)
-                         ##   add_offspring(parent_node=id, cur_value[1:i])
-                         ##   tcl(widget, "item", id, open=TRUE)
-                         ## }
-                         ## ## move
-                         ## tcl(widget, "see", id_from_index(tail(cur_index,n=1)))
-                         
-                       },
                        ## Some extra methods
                        clear_selection=function() {
                          tcl(widget, "selection", "set", "")
                        }
                        ))
+
+
+
 

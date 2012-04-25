@@ -38,6 +38,7 @@
 \alias{.gtimer.guiWidgetsToolkittcltk}
 \alias{.gtoolbar.guiWidgetsToolkittcltk}
 \alias{.gtree.guiWidgetsToolkittcltk}
+\alias{.gvarbrowser.guiWidgetsToolkittcltk}
 \alias{.gwindow.guiWidgetsToolkittcltk}
 \alias{.stockIconFromObject.guiWidgetsToolkittcltk}
 \title{toolkit implementation for gmessage}
@@ -207,6 +208,10 @@
 
   \method{.stockIconFromObject}{guiWidgetsToolkittcltk}(toolkit,
     obj, ...)
+
+  \method{.gvarbrowser}{guiWidgetsToolkittcltk}(toolkit,
+    handler = NULL, action = "summary", container = NULL,
+    ...)
 }
 \arguments{
   \item{delay}{delay}
@@ -265,15 +270,15 @@
   (For some toolkits this is not optional, e.g.
   \pkg{gWidgets2tcltk} or \pkg{gWidgets2WWW2}.)}
 
+  \item{value}{a list or menu bar specifying the new men
+  ubar}
+
   \item{format}{Date format}
 
   \item{checked}{is button selected}
 
   \item{use.togglebutton}{Use a toggle button (shows
   depressed) not a check box}
-
-  \item{value}{typically an array-like \R object of a
-  similar class as \code{x}.}
 
   \item{items}{data.frame specifies items for selection.
   May be a vector, matrix or data frame}
@@ -509,6 +514,8 @@
   return stock id
 
   return stock id from object
+
+  Toolkit constructor
 }
 \seealso{
   The documentation for this is found at
