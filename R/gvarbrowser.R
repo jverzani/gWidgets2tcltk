@@ -22,6 +22,7 @@ tk_icon.default <- function(x) "Put image here"
 
 
 ## Class for variable browser.
+## supports filtering too, see set_filter_name
 GVarBrowser <- setRefClass("GVarBrowser",
                             contains="GWidget",
                           fields=list(
