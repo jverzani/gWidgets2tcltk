@@ -205,6 +205,9 @@ GText <- setRefClass("GText",
                        add_handler_changed=function(handler, action=NULL, ...) {
                          add_handler_keystroke(handler, action=action, ...)
                        },
+                       add_handler_selection_changed=function(handler, action=NULL, ...) {
+                         add_handler("<<Selection>>", handler, action)
+                       },
                        undo=function() {
                          tcl(widget, "undo")
                        },
