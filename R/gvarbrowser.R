@@ -14,20 +14,6 @@ NULL
                   handler = handler,action = action, container = container, ...)
 }
 
-## S3 method. Could be in gWidgets2...
-description <- function(x) UseMethod("description")
-description.default <- function(x) sprintf("%s object", class(x)[1])
-description.numeric <- function(x) sprintf("Numeric object of length %s", length(x))
-description.integer <- function(x) sprintf("Integer of length %s", length(x))
-description.character <- function(x) sprintf("Character of length %s", length(x))
-description.logical <- function(x) sprintf("Logical of length %s", length(x))
-
-description.data.frame <- function(x) sprintf("Data frame %s by %s", nrow(x), ncol(x))
-description.matrix <- function(x) sprintf("Matrix %s by %s", nrow(x), ncol(x))
-description.list <- function(x) sprintf("List with %s component%s", length(x), ifelse(length(x) == 1, "", "s"))
-
-description.function <- function(x) sprintf("Function")
-description.lm <- function(x) sprintf("Model object")
 
 
 ## icon
@@ -39,46 +25,52 @@ tk_icon.default <- function(x) "Put image here"
 GVarBrowser <- setRefClass("GVarBrowser",
                             contains="GWidget",
                           fields=list(
-                             "ws_model"="ANY",
-                             "icon_classes"="list",
-                             "timer"= "ANY"
-                             ),
+                            "ws_model"="ANY",
+                            "filter_classes"="list",
+                            "other_label"="character",
+                            "filter_name"="character",
+                            "timer"= "ANY",
+                            "use_timer"="logical"
+                            ),
                             methods=list(
                               initialize=function(toolkit=NULL,
-                                handler=NULL, action=NULL, container=NULL, ..., fill=NULL) {
+                                handler=NULL, action=NULL, container=NULL, ..., fill="both") {
 
                                 ws_model <<- gWidgets2:::WSWatcherModel$new()
                                 o = gWidgets2:::Observer$new(function(self) {self$update_view()}, obj=.self)
                                 ws_model$add_observer(o)
-
 
                                 init_widget(container$get_widget())
                                 set_selection_mode("extended")
 
                                 
                                 
-                                ## set up drag source
-#                                add_drop_source(function(h,...) {
-#                                  path <- h$drag_data
-#                                  paste(path, collapse="$")
-#                                })
+                                ## set up drag-n-drop source
+                                add_drop_source(function(h,...) {
+                                  svalue(h$obj)
+                                })
 
-                                
-                                icon_classes <<- getWithDefault(getOption("gwidgets2:gvarbrowser_classes"),
-                                                                gWidgets2:::gvarbrowser_default_classes)
+                                initFields(filter_name="",
+                                           other_label=gettext("Other"),
+                                           filter_classes=gWidgets2:::gvarbrowser_default_classes,
+                                           use_timer=TRUE
+                                           )
                                 
                                 add_context_menu()
 
-
-                                
                                 add_to_parent(container, .self, ..., fill=fill)
 
                                 handler_id <<- add_handler_changed(handler, action)
 
                                 ## Try our own timer. Need to check in update view the size and slow down if too large
                                 timer <<- gtimer(1000, function(...) {.self$ws_model$update_state()})
+                                ## clean up after death
+                                tkbind(widget, "<Destroy>", function() {
+                                  message("stopping timer...")
+                                  timer$stop_timer()
+                                })
                                 
-                           populate_view() # initial
+                                populate_view() # initial
 
                                 
                                 callSuper(toolkit)
@@ -117,6 +109,7 @@ GVarBrowser <- setRefClass("GVarBrowser",
                                 
                               },
                               start_timer=function() {
+                                use_timer <<- TRUE
                                 timer$start_timer()
                               },
                               stop_timer=function() timer$stop_timer(),
@@ -128,10 +121,16 @@ GVarBrowser <- setRefClass("GVarBrowser",
                                 }
                                 timer$set_interval(ms)
                               },
-                              set_icon_classes=function(icon_classes) {
-                                icon_classes <<- icon_classes
+                              ##
+                              set_filter_name=function(value) {
+                                filter_name <<- as.character(value)[1]
                                 populate_view()
                               },
+                              set_filter_classes=function(filter_classes) {
+                                filter_classes <<- filter_classes
+                                populate_view()
+                              },
+                              ##
                               get_children=function(node) {
                                 "Return all children of the node"
                                 as.character(tcl(widget, "children", node))
@@ -145,97 +144,8 @@ GVarBrowser <- setRefClass("GVarBrowser",
                                   idx <- rev(idx)
                                 sapply(kids[idx], function(i) tcl(widget, "move", i, node, 0)) # move to top
                               },
-                              set_selection_mode=function(mode=c("none", "browse", "extended")) {
-                                "Helper: Set the selection mode"
-                                tkconfigure(widget, selectmode=match.arg(mode))
-                              },
-                              
-                              clear_items=function() {
-                                "Clear out tree"
-                                 kids <- get_children("")
-                                sapply(kids, function(i) tcl(widget, "delete", i))
-                              },
-                              
-                              add_item=function(varname, x, node) {
-                                "Add an item to tree at node"
-                                descr <- description(x)
-                                id <- tcl(widget, "insert", node, "end", text=varname, values=sprintf("{%s}",descr))
-                                if(is.recursive(x) && !is.null(names(x)))
-                                  sapply(names(x), function(comp) .self$add_component(comp, x, id))
-                              },
-                              add_component=function(varname, x, node) {
-                                "Add components to an item"
-                                y <- x[[varname]]
-                                descr <- description(y)
-                                id <- tcl(widget, "insert", node, "end", text=varname, values=sprintf("{%s}",descr))
-                              },
-                             populate_view=function() {
-                                "Populate view based on icon_classes"
-                                clear_items()
-                                for(i in names(icon_classes)) {
-                                  ## add header to root
-                                  node <- ""
-                                  node <- tcl(widget, "insert", node, "end", text=i, values="")
-                                  
-                                  items <- ws_model$get_by_class(icon_classes[[i]])
-                                  if(length(items))
-                                    mapply(.self$add_item, names(items), items, list(node))
-                                }
-                              },
-                              update_view=function() {
-                                ## names, need to put into icon classes
-                                stop_timer()
-                                on.exit({adjust_timer(); start_timer()})
-                                
-                                update_section <- function(node, nm) {
-                                  ## update a section given by `nm`
-                                  objs <- ws_model$get_by_class(icon_classes[[nm, exact=TRUE]])
-                                  nms <- names(objs)
-                                  
-                                  kids <- get_children(node)
-                                  for(id in kids) {
-                                    ## from tree
-                                    key <- as.character(tcl(widget, "item", id, "-text"))
-                                    val <- tclvalue(tcl(widget, "item", id, "-values"))
-                                    
-                                    ## from object
-                                    desc <- description(objs[[key]])
-                                    
-                                    old_tag <- paste(key, val, sep="") 
-                                    new_tag <- paste(key, "{", desc, "}", sep="")
-                                    
-                                    if(!key %in% names(objs)) {
-                                      tcl(widget, "delete", id)
-                                      
-                                    } else {
-                                      if(new_tag !=  old_tag) {
-                                        
-                                        x <- get(key, .GlobalEnv)
-                                        descr <- description(x)
-                                        tcl(widget, "item", id, values=sprintf("{%s}", descr))
-                                        
-                                      }
-                                      nms <- setdiff(nms, key)        #update nms
-                                    }
-                                  }
-                                  
-                                  if(length(nms)) {
-                                    ## add nms
-                                    for(nm in nms) {
-                                      descr <- description(objs[[nm, exact=TRUE]])
-                                      add_item(nm, objs[[nm, exact=TRUE]], node)
-                                    }
-                                    sort_node(node)
-                                  }
-                                }
-                                
-                                ## Now apply to each
-                                child_nodes <- get_children("")
-                                topics <- sapply(child_nodes, function(id) tclvalue(tcl(widget, "item", id, "-text")))
-                                mapply(update_section, child_nodes, topics)
-                              },
-                              get_object_name=function(node, collapse="$") {
-                                "Helper. March back tree to get object name, past with '$' if requested"
+                              get_object_name=function(node) {
+                                "Helper. March back tree to get object named"
                                 path <- tclvalue(tcl(widget, "item", node, "-text"))
                                 
                                 node <- tclvalue(tcl(widget, "parent", node))
@@ -243,29 +153,182 @@ GVarBrowser <- setRefClass("GVarBrowser",
                                   path <- c(tclvalue(tcl(widget, "item", node, "-text")), path)
                                   node <- tclvalue(tcl(widget, "parent", node))
                                 }
-                                path <- path[-1] # drop initial
-                                if(is.null(collapse))
-                                  path
-                                else
-                                  paste(path, collapse=collapse)
+                                if(nchar(filter_name) == 0)
+                                  path <- path[-1] # drop initial
+                                return(path)
                               },
+                              ## tree methods
+                              clear_items=function() {
+                                "Clear out tree"
+                                 kids <- get_children("")
+                                sapply(kids, function(i) tcl(widget, "delete", i))
+                              },
+                              set_selection_mode=function(mode=c("none", "browse", "extended")) {
+                                "Helper: Set the selection mode"
+                                tkconfigure(widget, selectmode=match.arg(mode))
+                              },
+                              ## add item, component, populate, update
+                              add_item=function(varname, x, node) {
+                                "Add an item to tree at node"
+                                descr <- short_summary(x)
+                                id <- tcl(widget, "insert", node, "end", text=varname, values=sprintf("{%s}",descr))
+                                if(is.recursive(x) && !is.null(names(x)))
+                                  sapply(names(x), function(comp) .self$add_component(comp, x, id))
+                              },
+                              add_component=function(varname, x, node) {
+                                "Add components to an item"
+                                y <- x[[varname]]
+                                descr <- short_summary(y)
+                                id <- tcl(widget, "insert", node, "end", text=varname, values=sprintf("{%s}",descr))
+                              },
+                              update_section = function(node, objs) {
+                                "update a section given with objs"
+                                  ## an ugly thing: removed, changed and added here
+
+                                nms <- names(objs)
+                                  
+                                kids <- get_children(node)
+                                ## Loop over each node of the tree
+                                for(id in kids) {
+                                  key <- as.character(tcl(widget, "item", id, "-text"))
+                                  val <- tclvalue(tcl(widget, "item", id, "-values"))
+                                  
+                                  if(!key %in% names(objs)) {
+                                    ## Delete if not there
+                                    tcl(widget, "delete", id)
+                                  } else {
+                                    ## compare objects, do we update?
+                                    new_val <- objs[[key]]
+                                    desc <- short_summary(new_val)
+                                    
+                                    old_tag <- paste(key, val, sep="") 
+                                    new_tag <- paste(key, "{", desc, "}", sep="")
+
+                                    if(new_tag !=  old_tag) {
+                                      descr <- short_summary(new_val)
+                                      tcl(widget, "item", id, values=sprintf("{%s}", descr))
+                                    }
+                                    nms <- setdiff(nms, key)        #update nms
+                                  }
+                                }
+                                ## what did we miss, not in tree so we add
+                                if(length(nms)) {
+                                  ## add nms
+                                  for(nm in nms) {
+                                    item <- objs[[nm]] #mget(nm, list2env(objs))[[1]]
+                                    descr <- short_summary(item)
+                                    add_item(nm, item, node)
+                                  }
+                                  sort_node(node)
+                                }
+                              },
+                             populate_view=function() {
+                                "Populate view based on filter_classes of filter_name"
+                                clear_items()
+
+                                ## do we do filter_classes or filter_name
+                                if(nchar(filter_name) > 0) {
+                                  f <- function(x) {force(filter_name); grepl(filter_name, x)}
+                                  items <- ws_model$filter_names(f)
+                                  node <- ""
+                                  if(length(items))
+                                    mapply(.self$add_item, names(items), items, list(node))
+                                  
+                                } else {
+                                  for(i in names(filter_classes)) {
+                                    ## add header to root
+                                    node <- ""
+                                    node <- tcl(widget, "insert", node, "end", text=i, values="")
+                                    
+                                    items <- ws_model$get_by_class(filter_classes[[i]])
+                                    if(length(items))
+                                      mapply(.self$add_item, names(items), items, list(node))
+                                  }
+
+                                  all_classes <- unlist(filter_classes)
+                                  f <- function(x) !Reduce("||", sapply(all_classes, is, object=x))
+                                  items <- ws_model$get_by_function(f)
+
+                                  node <- tcl(widget, "insert", "", "end", text=other_label, values="")
+                                  if(length(items))
+                                    mapply(.self$add_item, names(items), items, list(node))
+                                  
+                                  
+                                }
+                              },
+                              update_view=function() {
+                                ## names, need to put into icon classes
+                                stop_timer()
+                                on.exit({
+                                  if(use_timer) {
+                                    adjust_timer(); start_timer()
+                                  }
+                                })
+                                
+                               
+                                ## now work
+                                ## filter_name or icon classes
+                                if(nchar(filter_name)) {
+                                  objs <- ws_model$filter_names(function(x) {
+                                    force(filter_name)
+                                    grepl(filter_name, x)
+                                  })
+                                  update_section("", objs)
+                                  
+                                } else {                                
+                                  ## Now apply to each
+                                  child_nodes <- get_children("")
+                                  n <- length(child_nodes)
+                                  other_node <- child_nodes[n]; child_nodes <- child_nodes[-n]
+                                  
+                                  topics <- sapply(child_nodes, function(id) tclvalue(tcl(widget, "item", id, "-text")))
+                                  topics <- lapply(topics, function(nm) ws_model$get_by_class(filter_classes[[nm, exact=TRUE]]))
+                                  mapply(update_section, child_nodes, topics)
+
+
+                                  all_classes <- unlist(filter_classes)
+                                  f <- function(x) !Reduce("||", sapply(all_classes, is, object=x))
+                                  items <- ws_model$get_by_function(f)
+                                  update_section(other_node, items)
+                                }
+                              },
+                              ## gWidgets2 methods
                               get_value=function(drop=TRUE, ...) {
-                                "Get selected values as names. A value may be 'name' or 'lst$name1$name2'"
+                                "Get selected values as names. For recursive object return with '$'. If drop=FALSE, return objects"
                                 sel <- as.character(tcl(widget,"selection"))
                                 if(is.null(sel))
-                                  return(integer(0))
+                                  return(character(0))
 
-                                if(is.null(drop)) drop <- TRUE
-                                lst <- lapply(sel, .self$get_object_name, collapse=ifelse(drop, "$", NULL))
-                                lst <- Filter(function(i) !(length(i) == 0 || i == ""), lst)
-                                if(length(lst) == 1)
-                                  lst[[1]]
-                                else
-                                  lst
+                                objs <- lapply(sel, .self$get_object_name)
+                                ## quote if needed for "$"
+                                nms <- lapply(objs, function(x) {
+                                  sapply(x, function(i) ifelse(grepl("\\s", i),
+                                                               sprintf("'%s'", i),
+                                                               i))
+                                })
+                                nms <- sapply(nms, paste, collapse="$", USE.NAMES=FALSE)
+                                names(objs) <- nms
+
+                                ## trim out headers, they are ""
+                                nms <- Filter(nchar, nms)
+                                objs <- objs[nms]
+
+                                ## Okay, what to return, names or objects?
+                                
+                                if(is.null(drop) || drop) {
+                                  return(nms)
+                                } else {
+                                  out <- lapply(objs, gWidgets2:::get_object_from_string)
+                                  if(length(out) == 1) out[[1]] else out
+                                }
                               },
-
                               set_value=function(value, ...) {
                                 "Select and open value given."
+                                ## no method to set the selected value. Could be useful to open categories
+                              },
+                              update_widget=function(...) {
+                                "Update tree, by updating model and having it notify this view"
+                                ws_model$update_state()
                               },
                               ## context menu popup
                               add_context_menu=function() {
@@ -274,6 +337,7 @@ GVarBrowser <- setRefClass("GVarBrowser",
                                 ## make context sensitive menu. Requires identifying value of selected
                                
                               },
+                              ## add handlers
                               add_handler_changed=function(handler, action=NULL,...) {
                                 add_handler("<Double-ButtonPress-1>", handler, action=NULL, ...)
                               },
