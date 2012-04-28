@@ -93,11 +93,12 @@ GComponent <- setRefClass("GComponent",
                                  },
                                  ## focus
                                  get_focus = function() {
+                                   if(is.tkwin(widget))
+                                     x <- widget$ID
+                                   else
+                                     x <- get_widget()
+
                                    if(is_ttkwidget()) {
-                                     if(is.tkwin(widget))
-                                       x <- widget$ID
-                                     else
-                                       x <- get_widget()
                                      tl <- tkwinfo("toplevel", x)
                                      cur <- as.character(tcl("focus", displayof=tl))
                                      return(cur == x)
@@ -312,7 +313,7 @@ GComponent <- setRefClass("GComponent",
                                  ##
                                  ## Drag and drop
                                  ##
-                                 add_drag_source=function(handler, action=NULL, data.type="text", ..., connect) {
+                                 add_drop_source=function(handler, action=NULL, data.type="text", ..., connect) {
                                    "Specify widget is a drag source"
                                    add_handler("<<DragRequest>>", handler, action, connect=FALSE, ...) 
                                    ..dnd..$add_drag_source(.self)
