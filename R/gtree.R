@@ -25,54 +25,13 @@ NULL
 
 ## XXX There is alot of repeated code here. Need to think about factoring out (set_value, set_index...)
 
-GTree <- setRefClass("GTree",
+GTreeBase <- setRefClass("GTreeBase",
                      contains="GWidget",
                      fields=list(
-                       chosen_col="ANY",
-                       offspring_col="ANY",
-                       icon_col="ANY",
-                       tooltip_col="ANY",
-                       offspring_data="ANY",
-                       offspring="function",
                        no_columns="numeric",
                        multiple="logical"
                        ),
                      methods=list(
-                       initialize=function(toolkit=NULL,
-                         offspring = NULL, offspring.data = NULL,
-                         chosen.col = 1, offspring.col=2, icon.col=NULL, tooltip.col=NULL,
-                         multiple = FALSE,
-                         handler=NULL, action=NULL, container=NULL, ...) {
-                         
-                         init_widget(container$get_widget())
-                         set_selection_mode(c("browse", "extended")[1 + as.logical(multiple)])
-                         
-                         initFields(offspring=offspring,
-                                    offspring_data=offspring.data,
-                                    chosen_col=chosen.col,
-                                    offspring_col=offspring.col,
-                                    icon_col = icon.col,
-                                    tooltip_col=tooltip.col,
-                                    change_signal="<TreeviewExpand>"
-                                    )
-                         
-                         
-                         items <- get_offspring_icons_tooltips(c())$items
-                         no_columns <<- ncol(items)
-                         configure_columns(items)
-                         set_names(items)
-
-                         add_offspring("", c())
-                         add_tree_bindings()
-
-                         
-                         add_to_parent(container, .self, ...)
-                         
-                         handler_id <<- add_handler_changed(handler, action)
-                         
-                         callSuper(toolkit)
-                       },
-
                        init_widget=function(parent, ...) {
                          
                          block <<- ttkframe(parent)
@@ -102,27 +61,6 @@ GTree <- setRefClass("GTree",
                          tcl("autoscroll::autoscroll", yscr)
                          
                        },
-                       add_tree_bindings=function() {
-                         ## Main configuration respond to open event, close event by populating 
-                         tkbind(widget, "<<TreeviewOpen>>",function(W, x,y) {
-                           ## selection
-                           sel <- as.character(tcl(W,"selection"))
-                           
-                           ## check if  children, if not return
-                           children <- as.character(tcl(W,"children",sel))
-                           if(length(children) == 0)
-                             return()
-
-                           ## clear out any children
-                           lapply(children, function(i) tcl(W,"delete",i))
-
-                           ## add new
-                           add_offspring(parent_node=sel, get_tree_path(W))
-                         })
-                         
-
-                       },
-
                        set_selection_mode=function(mode=c("none", "browse", "extended")) {
                          "Helper: Set the selection mode"
                          tkconfigure(widget, selectmode=match.arg(mode))
@@ -191,6 +129,176 @@ GTree <- setRefClass("GTree",
                            return("")
                          else
                            get_next_id("", idx)
+                       },
+                       ## main gWidgets methods
+                       get_value=function(i, drop=TRUE,...) {
+                         "Return path (by chosen col)"
+                         get_tree_path(widget)[i, drop=drop]
+                       },
+                       set_value=function(value, ...) {
+                         "open path, set via match"
+                         value <- unlist(value)
+                         clear_selection()
+                         item_id <- ""  # root node
+                         get_children <- function(node) {
+                           kid_ids <- as.character(tcl(widget, "children", node))
+                           kid_labels <- sapply(kid_ids, function(id) as.character(tcl(widget, "item", id, "-text")))
+                           return(list(ids=kid_ids, labels=kid_labels))
+                         }
+                           
+                         for(i in value) {
+                           lst <- get_children(item_id)
+                           if(length(lst$ids)) {
+                             index <- match(i, lst$labels)
+                             if(is.na(index)) {
+                               warning(gettext("No node matching values"))
+                               return()
+                             }
+                             item_id <- lst$ids[index]
+                           } else {
+                             warning(gettext("No node matching index"))
+                             return()
+                           }
+                         }
+                         tcl(widget, "see", item_id)
+                         tcl(widget, "selection", "set", item_id)
+                         
+                         
+                       },
+                       get_index = function(...) {
+                         "get path index as integer vector"
+                          ## return index from selection (see get__tree_path)
+                         sel <- as.character(tcl(widget,"selection"))
+                         if(is.null(sel))
+                           return(integer(0))
+
+                         path <- as.numeric(tcl(widget,"index",sel))
+                         tparent <- tclvalue(tcl(widget,"parent",sel))
+                         while(tparent != "") {
+                           cur_index <- as.numeric(tcl(widget,"index", tparent))
+                           path <- c(cur_index, path)
+                           tparent <- tclvalue(tcl(widget,"parent", tparent))
+                         }
+                         path <- path + 1L # 1-based
+                         return(path)
+                       },
+                       set_index = function(value,...) {
+                         "open to specifed index, if possible"
+                         ## value may be a list
+                         value <- unlist(value)
+                         clear_selection()
+                         item_id <- ""  # root node
+                         get_children <- function(node) as.character(tcl(widget, "children", node))
+                         is_open <- function(node) {
+                           out <- tclvalue(tcl(widget, "item", node, "-open"))
+                           ifelse(out == "true", TRUE, FALSE)
+                         }
+                         path <- character(0)
+                         for(i in seq_along(value)) {
+                           kids <- get_children(item_id)
+                           if(length(kids)) {
+                             item_id <- kids[value[i]]
+                             if(i < length(value) && !is_open(item_id)) {
+                               warning(gettext("Can't open unopened child"))
+                               return()
+                             }
+                           } else {
+                             warning(gettext("No node matching index"))
+                             return()
+                           }
+                         }
+                         tcl(widget, "see", item_id)
+                         tcl(widget, "selection", "set", item_id)
+                       },
+                       get_items = function(i, j, ..., drop=TRUE) {
+                         "Get items in the selected row"
+                       },
+                       set_items = function(value, i, j, ...) {
+                         stop(gettext("One sets items at construction through the x argument of offspring function"))
+                       },
+                       get_names=function() {
+                         sapply(seq_len(no_columns), function(i) as.character(tcl(widget, "heading", i, "-text")))
+                       },
+                       set_names_from_items=function(items) {
+                         nms <- names(items)
+                         set_names(nms)
+                       },
+                       set_names=function(nms) {
+                         f <- function(col, value) tcl(widget, "heading", col, text=value)
+                         mapply(f, seq_along(nms), nms)
+                       },
+                       ## Some extra methods
+                       clear_selection=function() {
+                         tcl(widget, "selection", "set", "")
+                       }
+                       ))
+
+
+
+
+GTree <- setRefClass("GTree",
+                     contains="GTreeBase",
+                     fields=list(
+                       chosen_col="ANY",
+                       offspring_col="ANY",
+                       icon_col="ANY",
+                       tooltip_col="ANY",
+                       offspring_data="ANY",
+                       offspring="function"
+                       ),
+
+                     methods=list(
+                       initialize=function(toolkit=NULL,
+                         offspring = NULL, offspring.data = NULL,
+                         chosen.col = 1, offspring.col=2, icon.col=NULL, tooltip.col=NULL,
+                         multiple = FALSE,
+                         handler=NULL, action=NULL, container=NULL, ...) {
+                         
+                         init_widget(container$get_widget())
+                         set_selection_mode(c("browse", "extended")[1 + as.logical(multiple)])
+                         
+                         initFields(offspring=offspring,
+                                    offspring_data=offspring.data,
+                                    chosen_col=chosen.col,
+                                    offspring_col=offspring.col,
+                                    icon_col = icon.col,
+                                    tooltip_col=tooltip.col,
+                                    change_signal="<TreeviewExpand>"
+                                    )
+                         
+                         
+                         items <- get_offspring_icons_tooltips(c())$items
+                         no_columns <<- ncol(items)
+                         configure_columns(items)
+                         set_names_from_items(items)
+
+                         add_offspring("", c())
+                         add_tree_bindings()
+
+                         
+                         add_to_parent(container, .self, ...)
+                         
+                         handler_id <<- add_handler_changed(handler, action)
+                         
+                         callSuper(toolkit)
+                       },
+                       add_tree_bindings=function() {
+                         ## Main configuration respond to open event, close event by populating 
+                         tkbind(widget, "<<TreeviewOpen>>",function(W, x,y) {
+                           ## selection
+                           sel <- as.character(tcl(W,"selection"))
+                           
+                           ## check if  children, if not return
+                           children <- as.character(tcl(W,"children",sel))
+                           if(length(children) == 0)
+                             return()
+                           
+                           ## clear out any children
+                           lapply(children, function(i) tcl(W,"delete",i))
+                           
+                           ## add new
+                           add_offspring(parent_node=sel, get_tree_path(W))
+                         })
                        },
                        configure_row=function(node, text, values, has_offspring, icon) {
                          if(is.factor(values))
@@ -284,109 +392,74 @@ GTree <- setRefClass("GTree",
                          ## }
                          ## ## move
                          ## tcl(widget, "see", id_from_index(tail(cur_index,n=1)))
-                         
-                       },
-                       
-                       ## main gWidgets methods
-                       get_value=function(i, drop=TRUE,...) {
-                         "Return path (by chosen col)"
-                         get_tree_path(widget)[i, drop=drop]
-                       },
-                       set_value=function(value, ...) {
-                         "open path, set via match"
-                         value <- unlist(value)
-                         clear_selection()
-                         item_id <- ""  # root node
-                         get_children <- function(node) {
-                           kid_ids <- as.character(tcl(widget, "children", node))
-                           kid_labels <- sapply(kid_ids, function(id) as.character(tcl(widget, "item", id, "-text")))
-                           return(list(ids=kid_ids, labels=kid_labels))
-                         }
-                           
-                         for(i in value) {
-                           lst <- get_children(item_id)
-                           if(length(lst$ids)) {
-                             index <- match(i, lst$labels)
-                             if(is.na(index)) {
-                               warning(gettext("No node matching values"))
-                               return()
-                             }
-                             item_id <- lst$ids[index]
-                           } else {
-                             warning(gettext("No node matching index"))
-                             return()
-                           }
-                         }
-                         tcl(widget, "see", item_id)
-                         tcl(widget, "selection", "set", item_id)
-                         
-                         
-                       },
-                       get_index = function(...) {
-                         "get path index as integer vector"
-                          ## return index from selection (see get__tree_path)
-                         sel <- as.character(tcl(widget,"selection"))
-                         if(is.null(sel))
-                           return(integer(0))
-
-                         path <- as.numeric(tcl(widget,"index",sel))
-                         tparent <- tclvalue(tcl(widget,"parent",sel))
-                         while(tparent != "") {
-                           cur_index <- as.numeric(tcl(widget,"index", tparent))
-                           path <- c(cur_index, path)
-                           tparent <- tclvalue(tcl(widget,"parent", tparent))
-                         }
-                         path <- path + 1L # 1-based
-                         return(path)
-                       },
-                       set_index = function(value,...) {
-                         "open to specifed index, if possible"
-                         ## value may be a list
-                         value <- unlist(value)
-                         clear_selection()
-                         item_id <- ""  # root node
-                         get_children <- function(node) as.character(tcl(widget, "children", node))
-                         is_open <- function(node) {
-                           out <- tclvalue(tcl(widget, "item", node, "-open"))
-                           ifelse(out == "true", TRUE, FALSE)
-                         }
-                         path <- character(0)
-                         for(i in seq_along(value)) {
-                           kids <- get_children(item_id)
-                           if(length(kids)) {
-                             item_id <- kids[value[i]]
-                             if(i < length(value) && !is_open(item_id)) {
-                               warning(gettext("Can't open unopened child"))
-                               return()
-                             }
-                           } else {
-                             warning(gettext("No node matching index"))
-                             return()
-                           }
-                         }
-                         tcl(widget, "see", item_id)
-                         tcl(widget, "selection", "set", item_id)
-                       },
-                       get_items = function(i, j, ..., drop=TRUE) {
-                         "Get items in the selected row"
-                       },
-                       set_items = function(value, i, j, ...) {
-                         stop(gettext("One sets items at construction through the x argument of offspring function"))
-                       },
-                       get_names=function() {
-                         sapply(seq_len(no_columns), function(i) as.character(tcl(widget, "heading", i, "-text")))
-                       },
-                       set_names=function(items) {
-                         nms <- names(items)
-                         f <- function(col, value) tcl(widget, "heading", col, text=value)
-                         mapply(f, seq_along(nms), nms)
-                       },
-                       ## Some extra methods
-                       clear_selection=function() {
-                         tcl(widget, "selection", "set", "")
                        }
                        ))
+                       
 
 
+GTreeDataFrame <- setRefClass("GTreeDataFrame",
+                              contains="GTreeBase",
+                              fields=list(
+                                idx="numeric"
+                                ),
+                              methods=list(
+                                initialize=function(DF, INDICES,
+                                  multiple = FALSE,
+                                  handler=NULL, action=NULL, container=NULL, ...) {
+                                  
+                                  ## check that INDICES are numeric or in names
+                                  if(missing(INDICES))
+                                    stop(gettext("INDICES are required. May be of length 1 or more"))
+                                  if(is.numeric(INDICES)) {
+                                    INDICES <- as.integer(INDICES)
+                                  } else if(is.character(INDICES)) {
+                                    if(!all(INDICES %in% names(DF)))
+                                      stop(gettext("INDICES are numeric index or subset of names"))
+                                    INDICES <- match(INDICES, names(DF))
+                                  } else {
+                                    stop(gettext("INDICES are numeric index or subset of names"))
+                                  }
+                                  idx <<- as.integer(INDICES)
+                                  
+                                  ## make tree widget
+                                  init_widget(container$get_widget())
+                                  initFields(change_signal="<<TreeviewSelect>>")
+                                  
+                                  set_selection_mode(c("browse", "extended")[1 + as.logical(multiple)])
+                                  items <- DF[-idx]
+                                  no_columns <<- ncol(items)
+                                  configure_columns(items)
+                                  set_names_from_items(items)                                  
+                                  
+                                  populate_tree(DF, idx)
 
-
+                                  
+                                  add_to_parent(container, .self, ...)
+                         
+                                  handler_id <<- add_handler_changed(handler, action)
+                         
+                                  callSuper(toolkit)
+                                },
+                                populate_tree=function(DF, ind) {
+                                  l <- split(DF, DF[[ind[1]]])
+                                  mapply(.self$populate_level, names(l), l, list(ind[-1]), list(root_node()))
+                                },
+                                root_node=function() {
+                                  "Return root node"
+                                  ""
+                                },
+                                populate_level=function(nm, DF, ind, node) {
+                                  ## what to do. If ind has values, we recurse
+                                  if(length(ind) > 0) {
+                                    node <- tcl(widget, "insert", node, "end", text=nm)
+                                    lst <- split(DF, factor(DF[[ ind[1] ]]))
+                                    mapply(.self$populate_level, names(lst), lst, list(ind[-1]), list(node))
+                                  } else {
+                                    sapply(seq_len(nrow(DF)), function(i) {
+                                      values <- sapply(DF[i,-idx, drop=FALSE], as.character)
+                                      id <- tcl(widget, "insert", node, "end", text=nm, values=unlist(values))
+                                    })
+                                  } 
+                                }
+                                ))
+                                  
