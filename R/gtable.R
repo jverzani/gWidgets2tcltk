@@ -382,6 +382,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                       sapply(seq_along(i), function(i) replace_row_data(i, value[i,]))
                                     }
                                   } else if(missing(i)) {
+                                    value <- data.frame(value)
                                     sapply(seq_len(nrow(DF)), function(i) {
                                       vals <- DF[i,]
                                       vals[j] <- value[i,] # replace
