@@ -71,7 +71,7 @@ GDf <- setRefClass("GDf",
                         ## bind to button-1 to open editor
                         tkbind(widget, "<Button-1>", function(W, x, y) {
                           row <- as.character(tcl(W, "identify", "row", x, y))
-                          column <- as.numeric(gsub("^#", "", as.character(tcl(W, "identify", "cell", x, y))))
+                          column <- as.numeric(gsub("^#", "", as.character(tcl(W, "identify", "column", x, y))))
                           ind <- match(row, child_ids)
                           if(length(ind))
                             make_row_editor(ind, column)
@@ -176,7 +176,9 @@ Editor <- setRefClass("Editor",
                           make_editors(m[[i]], i, nms[i],  lyt)
                         })
                         names(editors) <<- nms
-                        lapply(editors, addHandlerChanged, function(...) {print("set dirty"); dirty <<- TRUE})
+                        lapply(editors, addHandlerChanged, function(...) {
+                          dirty <<- TRUE
+                        })
 
                         set_page(ind, column)
 
