@@ -259,6 +259,8 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                 append_row=function(values) {
                                   ## values a list or vector
                                   values <- sapply(values, gWidgets2tcltk:::gwidgets2_tcltk_format_to_char)
+                                  if(length(values) == 1)
+                                    values <- as.tclObj(values)
                                   id <- tcl(widget, "insert", "", "end", values=values)
                                   as.character(id)
                                 },
@@ -474,7 +476,7 @@ GTable <- setRefClass("GTable",
                                 icon.col = NULL,
                                 tooltip.col=NULL,
                                 handler = NULL, action = NULL,
-                                container = NULL, ...) {
+                                container = NULL, ..., fill) {
 
                               initFields(chosen_col=chosen.col,
                                          icon_col=icon.col,
@@ -509,7 +511,7 @@ GTable <- setRefClass("GTable",
                               icons <- get_col(icon_col)
                               set_icons(icons)
                               
-                              add_to_parent(container, .self, ...)
+                              add_to_parent(container, .self, ..., fill="both")
 
                               handler_id <<- add_handler_changed(handler, action)
                               
