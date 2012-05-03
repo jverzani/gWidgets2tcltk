@@ -155,6 +155,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                                          xscrollcommand=function(...) tkset(xscr,...),
                                                          yscrollcommand=function(...) tkset(yscr,...)
                                                          )
+                                  bind_select()
                                   
                                   tkgrid(widget, row=0, column=0, sticky="news")
                                   tkgrid(yscr, row=0, column=1, sticky="ns")
@@ -164,6 +165,16 @@ BaseTableClass <- setRefClass("BaseTableClass",
 
                                   tcl("autoscroll::autoscroll", xscr)
                                   tcl("autoscroll::autoscroll", yscr)
+
+                                },
+                                bind_select=function() {
+                                  "Select is double click or enter"
+                                  tkbind(widget, "<Double-Button-1>", function() {
+                                    .self$notify_observers(signal="<<SelectionMade>>")
+                                  })
+                                  tkbind(widget, "<Return>", function() {
+                                    .self$notify_observers(signal="<<SelectionMade>>")
+                                  })
 
                                 },
                                 ## DF is  adata frame
@@ -437,6 +448,16 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                   }
                                   callSuper(value, ...)
                                 },
+                                ## Handlers
+                                add_handler_changed=function(handler, action, ...) {
+                                  if(is_handler(handler)) {
+                                    o <- gWidgets2:::observer(.self, handler, action)
+                                    invisible(add_observer(o, "<<SelectionMade>>"))
+                                  }
+                                },
+                                add_handler_selection_changed=function(handler, action=NULL, ...) {
+                                  add_handler("<<TreeviewSelect>>", handler, action)
+                                },
                                 add_handler_column_clicked=function(handler, action=NULL) {
                                   "Column clicked passed back column index in column component"
                                   ## have to do this the hard way
@@ -481,8 +502,7 @@ GTable <- setRefClass("GTable",
                               initFields(chosen_col=chosen.col,
                                          icon_col=icon.col,
                                          tooltip_col=tooltip.col,
-                                         multiple=multiple,
-                                         change_signal="<<TreeviewSelect>>"
+                                         multiple=multiple
                                          )
 
                               init_widget(container$get_widget(), ...)
