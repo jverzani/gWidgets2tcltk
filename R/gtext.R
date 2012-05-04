@@ -186,7 +186,7 @@ GText <- setRefClass("GText",
                            fname <- paste(as.character(date()),rnorm(1), sep="") ## some random string
 
                            ## make font, tag in buffer, configure tag
-                           fontList <- map_font_to_spec(font.attr, TRUE)
+                           fontList <- map_font_to_spec(value, TRUE)
                            do.call("tkfont.create", merge_list(fname, fontList))
                            tktag.add(widget, fname, selected[1], selected[2])
                            tktag.configure(widget, fname, font=fname)
@@ -197,9 +197,9 @@ GText <- setRefClass("GText",
                            tagNames <- as.character(tktag.names(widget))
                            sapply(tagNames, function(i) tktag.delete(widget, i))
                            ## set selection to entire buffer
-                           tcl(widget, "tag", "add", "sel", "0,0", "end")
+                           tcl(widget, "tag", "add", "sel", "0.0", "end")
                            set_font(value)
-                           tcl(widget, "tag", "remove", "sel")  ## clear selection
+                           tcl(widget, "tag", "remove", "sel", "0.0", "end")  ## clear selection
                          }
                        },
                        add_handler_changed=function(handler, action=NULL, ...) {
