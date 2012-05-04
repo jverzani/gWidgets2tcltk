@@ -174,8 +174,11 @@ GCheckboxGroupTable <- setRefClass("GCheckboxGroupTable",
                                        toggle_handler <- function(W, x, y) {
                                          row <- as.character(tcl(W, "identify", "row", x, y))
                                          ind <- match(row, child_ids)
-                                         if(length(ind)) 
+                                         if(length(ind)) {
                                            toggle_state(ind)
+                                           invoke_change_handler()
+                                         }
+
                                        }
                                        tkbind(widget, "<Button-1>", toggle_handler)
 
@@ -197,7 +200,14 @@ GCheckboxGroupTable <- setRefClass("GCheckboxGroupTable",
                                        
                                        callSuper(...)
                                      },
-                                     
+                                     add_handler_changed=function(handler, action=NULL, ...) {
+                                       if(is_handler(handler)) {
+
+                                         o <- gWidgets2:::observer(.self, handler, action)
+                                         invisible(add_observer(o, change_signal))
+                                       }
+
+                                     },
                                      set_DF=function(items) {
                                        items <- data.frame(items, stringsAsFactors=FALSE)
                                        ..selected <<- rep(TRUE, nrow(items))
@@ -216,12 +226,13 @@ GCheckboxGroupTable <- setRefClass("GCheckboxGroupTable",
                                        sapply(ind, function(i) {
                                          tcl(widget, "item", child_ids[i], image=on_off_icons[2 - as.numeric(..selected[i])])
                                        })
+                                      
                                      },
                                      ### gWidgets inteface
-                                     get_value=function() {
+                                     get_value=function(...) {
                                        get_items()[get_index()]
                                      },
-                                     get_index=function() {
+                                     get_index=function(...) {
                                        which(..selected)
                                      },
                                      set_value=function(value, ...) {
