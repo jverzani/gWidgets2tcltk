@@ -487,7 +487,7 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                           f(extra_args = list(x=x, X=X, y=y, Y=Y))
                                         }
                                       },
-                                      add_handler_mousemotion=function(handler, action=NULL, ...) {
+                                      add_handler_mouse_motion=function(handler, action=NULL, ...) {
                                         "Keystroke handler."
                                         add_handler("<Motion>", handler, action, decorator=motion_decorator, ...)
                                       },
