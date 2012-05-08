@@ -182,7 +182,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                   "Set data and populate the view"
                                   ## DF is just items by default
                                   DF <<- as.data.frame(items)
-                                  ..visible <<- rep(TRUE, nrow(DF))
+                                  ..visible <<- rep(TRUE, nrow(.self$DF))
                                   populate_view()
                                   set_column_headings(names(get_data()))
                                 },
@@ -292,7 +292,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                 clear_view=function() {
                                   "clear out widget and reset ..visible and child_ids"
                                   tcl(widget, "delete", tcl(widget, "children", "")) # clear widget
-                                  ..visible <<- rep(TRUE, nrow(DF))
+                                  ..visible <<- rep(TRUE, nrow(.self$DF))
                                   child_ids <<- list()
                                 },
                                 get_col = function(i) {
@@ -507,29 +507,23 @@ GTable <- setRefClass("GTable",
 
                               init_widget(container$get_widget(), ...)
 
-                              items <- as.data.frame(items)
-
-                              ## stupid way to count NULLs
-                              n <<- ncol(items) - length(unlist(list(icon.col, tooltip.col)))
-
-                              tkconfigure(widget, columns=1:n)
-                              ## icons?
-                              if(!is.null(icon.col))
-                                configure_icon_column()
                               
-                              selectmode <- ifelse(multiple, "extended", "browse")
-                              set_selectmode(selectmode)
 
-                              ## populate
+                              
                               set_DF(items)
-
 
                               ## icons/tooltips
                               tooltips <- get_col(tooltip_col)
                               set_tooltips(tooltips)
 
+                              ## icons?
+                              if(!is.null(icon.col))
+                                configure_icon_column()
                               icons <- get_col(icon_col)
                               set_icons(icons)
+
+                              
+                              set_selectmode(ifelse(multiple, "extended", "browse"))
                               
                               add_to_parent(container, .self, ..., fill="both")
 
@@ -539,6 +533,17 @@ GTable <- setRefClass("GTable",
 
                               
                             },
+                        set_DF=function(items) {
+                          items <<- as.data.frame(items)
+                          ## stupid way to count NULLs
+                          n <<- ncol(items) - length(unlist(list(icon_col, tooltip_col )))
+                          configure_size()
+                          callSuper(items)
+                        },
+                        configure_size=function() {
+                          "Configure size of data"
+                          tkconfigure(widget, columns=1:n)
+                        },
                         get_hidden_columns=function() {
                           ## for get_data
                           ind <- c(icon_col, tooltip_col)
@@ -565,6 +570,15 @@ GTable <- setRefClass("GTable",
                             return() ## no match
                                   set_index(ind)
                           unblock_handlers()                          
+                        },
+                        set_items = function(value, i, j, ...) {
+                          if(missing(i) && missing(j)) {
+                            ## replace data frame
+                            value <- as.data.frame(value)
+                            set_DF(value)
+                          } else {
+                            callSuper(value, i, j, ...)
+                          }
                         }
                         
                         ))
