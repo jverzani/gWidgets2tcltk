@@ -81,8 +81,17 @@ GBoxContainer <- setRefClass("GBoxContainer",
                                  padx <- spacing[1]
                                  pady <- spacing[2]
 
-                                 tkpack(toolkit_child, side=side,expand=expand, fill=fill, anchor=anchor,
+                                 tkpack(toolkit_child,
+                                        side=side,
+                                        expand=expand,
+                                        fill=fill,
+                                        anchor=anchor,
                                         padx=padx, pady=pady)
+                                 ## anchor likes this better than
+                                 ## being in the tkpack call. Go figure
+                                 ## we wrap in try, as we can't query if widget
+                                 ## supports an anchor argument...
+                                 try(tkconfigure(toolkit_child, anchor=anchor), silent=TRUE)
 
                                  child_bookkeeping(child)
                                },
