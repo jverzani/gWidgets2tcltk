@@ -82,6 +82,10 @@ GDf <- setRefClass("GDf",
                         
                         callSuper(toolkit)
                       },
+                      save_data=function(nm) {
+                        "Save data set"
+                        assign(make.names(nm), get_items(), .GlobalEnv)
+                      },
                       get_items=function(i, j, ...) {
                         m <- get_data()
                         m[i,j, ...]
