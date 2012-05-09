@@ -75,7 +75,9 @@ GEdit <- setRefClass("GEdit",
                                 add_to_parent(container, .self, ...)
 
                                 handler_id <<- add_handler_changed(handler, action)
+                                ## change on blur or return
                                 add_handler_blur(function(h,...) invoke_change_handler())
+                                add_handler_keystroke(function(h,...) if(h$key == "Return") invoke_change_handler())
 
                                 callSuper(toolkit)
                               },
