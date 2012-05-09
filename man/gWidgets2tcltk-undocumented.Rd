@@ -43,173 +43,173 @@
 \alias{.stockIconFromObject.guiWidgetsToolkittcltk}
 \title{toolkit implementation for gmessage}
 \usage{
-  \method{.gmessage}{guiWidgetsToolkittcltk}(toolkit, msg,
+  \method{.gmessage}{guiWidgetsToolkittcltk} (toolkit, msg,
     title = "message",
     icon = c("info", "warning", "error", "question"),
     parent = NULL, ...)
 
-  \method{.gconfirm}{guiWidgetsToolkittcltk}(toolkit, msg,
+  \method{.gconfirm}{guiWidgetsToolkittcltk} (toolkit, msg,
     title = "Confirm",
     icon = c("info", "warning", "error", "question"),
     parent = NULL, ...)
 
-  \method{.ginput}{guiWidgetsToolkittcltk}(toolkit, msg,
+  \method{.ginput}{guiWidgetsToolkittcltk} (toolkit, msg,
     text = "", title = "Input",
     icon = c("info", "warning", "error", "question"),
     parent = NULL, ...)
 
-  \method{.gbasicdialog}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gbasicdialog}{guiWidgetsToolkittcltk} (toolkit,
     title = "Dialog", parent = NULL, do.buttons = TRUE,
     handler = NULL, action = NULL, ...)
 
-  \method{.galert}{guiWidgetsToolkittcltk}(toolkit, msg,
+  \method{.galert}{guiWidgetsToolkittcltk} (toolkit, msg,
     title = "message", delay = 3, parent = NULL, ...)
 
-  \method{.gmenu}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gmenu}{guiWidgetsToolkittcltk} (toolkit,
     menu.list = list(), popup = FALSE, container = NULL,
     ...)
 
-  \method{.gaction}{guiWidgetsToolkittcltk}(toolkit, label,
-    tooltip = NULL, icon = NULL, key.accel = NULL,
+  \method{.gaction}{guiWidgetsToolkittcltk} (toolkit,
+    label, tooltip = NULL, icon = NULL, key.accel = NULL,
     handler = NULL, action = NULL, parent = NULL, ...)
 
-  \method{.gbutton}{guiWidgetsToolkittcltk}(toolkit, text,
+  \method{.gbutton}{guiWidgetsToolkittcltk} (toolkit, text,
     handler, action, container, ...)
 
-  \method{.gcalendar}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gcalendar}{guiWidgetsToolkittcltk} (toolkit,
     text = "", format = "\%Y-\%m-\%d", handler = NULL,
     action = NULL, container = NULL, ...)
 
-  \method{.gcheckbox}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gcheckbox}{guiWidgetsToolkittcltk} (toolkit,
     text, checked = FALSE, use.togglebutton = FALSE,
     handler = NULL, action = NULL, container = NULL, ...)
 
-  \method{.gtable}{guiWidgetsToolkittcltk}(toolkit, items,
+  \method{.gtable}{guiWidgetsToolkittcltk} (toolkit, items,
     multiple = FALSE, chosen.col = 1, icon.col = NULL,
     tooltip.col = NULL, handler = NULL, action = NULL,
     container = NULL, ...)
 
-  \method{.gcheckboxgroup}{guiWidgetsToolkittcltk}(toolkit = NULL,
-    items, checked = FALSE, horizontal = FALSE,
-    use.table = FALSE, handler = NULL, action = NULL,
-    container = NULL, ...)
+  \method{.gcheckboxgroup}{guiWidgetsToolkittcltk}
+    (toolkit = NULL, items, checked = FALSE,
+    horizontal = FALSE, use.table = FALSE, handler = NULL,
+    action = NULL, container = NULL, ...)
 
-  \method{.gcombobox}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gcombobox}{guiWidgetsToolkittcltk} (toolkit,
     items, selected = 1, editable = FALSE,
     coerce.with = NULL, handler = NULL, action = NULL,
     container = NULL, ...)
 
-  \method{.gdf}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gdf}{guiWidgetsToolkittcltk} (toolkit,
     items = NULL, handler = NULL, action = NULL,
     container = NULL, ...)
 
-  \method{.gedit}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gedit}{guiWidgetsToolkittcltk} (toolkit,
     text = "", width = 25, coerce.with = NULL,
     initial.msg = initial.msg, handler = NULL,
     action = NULL, container = NULL, ...)
 
-  \method{.gexpandgroup}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gexpandgroup}{guiWidgetsToolkittcltk} (toolkit,
     text, markup, horizontal = TRUE, handler = NULL,
     action = NULL, container = NULL, ...)
 
-  \method{.gfile}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gfile}{guiWidgetsToolkittcltk} (toolkit,
     text = "", type = c("open", "save", "selectdir"),
     initial.filename = NULL, filter = list(),
     multi = FALSE, ...)
 
-  \method{.gfilebrowse}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gfilebrowse}{guiWidgetsToolkittcltk} (toolkit,
     text = "", type = c("open", "save", "selectdir"),
     initial.filename = NULL, filter = list(), quote = TRUE,
     handler = NULL, action = NULL, container = NULL, ...)
 
-  \method{.gformlayout}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gformlayout}{guiWidgetsToolkittcltk} (toolkit,
     align = "left", spacing = 5, container = NULL, ...)
 
-  \method{.ggroup}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.ggroup}{guiWidgetsToolkittcltk} (toolkit,
     horizontal = TRUE, spacing = 5,
     use.scrollwindow = FALSE, container = NULL, ...)
 
-  \method{.gframe}{guiWidgetsToolkittcltk}(toolkit, text,
+  \method{.gframe}{guiWidgetsToolkittcltk} (toolkit, text,
     markup, pos, horizontal = TRUE, spacing = 5,
     container = NULL, ...)
 
-  \method{.gimage}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gimage}{guiWidgetsToolkittcltk} (toolkit,
     filename = "", dirname = "", stock.id = NULL,
     size = "", handler = NULL, action = NULL,
     container = NULL, ...)
 
-  \method{.glabel}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.glabel}{guiWidgetsToolkittcltk} (toolkit,
     text = "", markup = FALSE, editable = FALSE,
     handler = NULL, action = NULL, container = NULL, ...)
 
-  \method{.glayout}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.glayout}{guiWidgetsToolkittcltk} (toolkit,
     homogeneous = FALSE, spacing = 10, container = NULL,
     ...)
 
-  \method{.gnotebook}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gnotebook}{guiWidgetsToolkittcltk} (toolkit,
     tab.pos = 3, container = NULL, ...)
 
-  \method{.gpanedgroup}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gpanedgroup}{guiWidgetsToolkittcltk} (toolkit,
     horizontal = TRUE, container = NULL, ...)
 
-  \method{.gradio}{guiWidgetsToolkittcltk}(toolkit, items,
+  \method{.gradio}{guiWidgetsToolkittcltk} (toolkit, items,
     selected = 1, horizontal = FALSE, handler = NULL,
     action = NULL, container = NULL, ...)
 
-  \method{.gseparator}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gseparator}{guiWidgetsToolkittcltk} (toolkit,
     horizontal = TRUE, container = NULL, ...)
 
-  \method{.gslider}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gslider}{guiWidgetsToolkittcltk} (toolkit,
     from = 0, to = 100, by = 1, value = from,
     horizontal = TRUE, handler = NULL, action = NULL,
     container = NULL, ...)
 
-  \method{.gspinbutton}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gspinbutton}{guiWidgetsToolkittcltk} (toolkit,
     from = 0, to = 10, by = 1, value = from, digits = 0,
     handler = NULL, action = NULL, container = NULL, ...)
 
-  \method{.gstackwidget}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gstackwidget}{guiWidgetsToolkittcltk} (toolkit,
     container = NULL, ...)
 
-  \method{.gstatusbar}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gstatusbar}{guiWidgetsToolkittcltk} (toolkit,
     text = "", container = NULL, ...)
 
-  \method{.gtext}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gtext}{guiWidgetsToolkittcltk} (toolkit,
     text = NULL, width = NULL, height = 300,
     font.attr = NULL, wrap = TRUE, handler = NULL,
     action = NULL, container = NULL, ...)
 
-  \method{.gtimer}{guiWidgetsToolkittcltk}(toolkit, ms,
+  \method{.gtimer}{guiWidgetsToolkittcltk} (toolkit, ms,
     FUN, data = NULL, one.shot = FALSE, start = TRUE)
 
-  \method{.gtoolbar}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gtoolbar}{guiWidgetsToolkittcltk} (toolkit,
     toolbar.list = list(),
     style = c("both", "icons", "text", "both-horiz"),
     container = NULL, ...)
 
-  \method{.gtree}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gtree}{guiWidgetsToolkittcltk} (toolkit,
     offspring = NULL, offspring.data = NULL,
     chosen.col = 1, offspring.col = 2, icon.col = NULL,
     tooltip.col = NULL, multiple = FALSE, handler = NULL,
     action = NULL, container = NULL, ...)
 
-  \method{.gwindow}{guiWidgetsToolkittcltk}(toolkit, title,
-    visible = visible, name, width, height, parent,
+  \method{.gwindow}{guiWidgetsToolkittcltk} (toolkit,
+    title, visible = visible, name, width, height, parent,
     handler, action, ...)
 
-  \method{.addStockIcons}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.addStockIcons}{guiWidgetsToolkittcltk} (toolkit,
     iconNames, iconFiles, ...)
 
-  \method{.getStockIcons}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.getStockIcons}{guiWidgetsToolkittcltk} (toolkit,
     ...)
 
-  \method{.getStockIconByName}{guiWidgetsToolkittcltk}(toolkit,
-    name, ...)
+  \method{.getStockIconByName}{guiWidgetsToolkittcltk}
+    (toolkit, name, ...)
 
-  \method{.stockIconFromObject}{guiWidgetsToolkittcltk}(toolkit,
-    obj, ...)
+  \method{.stockIconFromObject}{guiWidgetsToolkittcltk}
+    (toolkit, obj, ...)
 
-  \method{.gvarbrowser}{guiWidgetsToolkittcltk}(toolkit,
+  \method{.gvarbrowser}{guiWidgetsToolkittcltk} (toolkit,
     handler = NULL, action = "summary", container = NULL,
     ...)
 }

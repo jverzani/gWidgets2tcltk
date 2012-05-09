@@ -1,3 +1,5 @@
+gtable: selection set through svalue, sort order is off?
+
 drag-and-drop (framework!)
 - put warning message when no icon matches stock icon
 popup menus
@@ -35,7 +37,7 @@ DONE gtext.R
 DONE gtimer.R
 DONE gtoolbar.R
 DONE gtree.R: update_widget needs writing
-gvarbrowser.R
+gvarbrowser.R: needs popupwindow, dnd
 DONE gwindow.R: 
 DONE icons.R
 misc.R
