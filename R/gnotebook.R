@@ -117,7 +117,15 @@ GNotebook <- setRefClass("GNotebook",
                               },
                               add_handler_changed=function(handler, action=NULL, ...) {
                                 "A tab changed"
-                                add_handler("<<NotebookTabChanged>>", handler, action, decorator=.self$change_page_decorator)
+                                decorator <- function(FUN) {
+                                  force(FUN)
+                                  f <- function(W) {
+                                    ind <- as.integer(tcl(W, "index", "current")) + 1L
+                                    FUN(.self, page.no=ind)
+                                  }
+                                  f
+                                }
+                                add_handler("<<NotebookTabChanged>>", handler, action, decorator=decorator)
                               }
                               ))
 
