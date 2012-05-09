@@ -534,7 +534,7 @@ GTable <- setRefClass("GTable",
                               
                             },
                         set_DF=function(items) {
-                          items <<- as.data.frame(items)
+                          items <- as.data.frame(items)
                           ## stupid way to count NULLs
                           n <<- ncol(items) - length(unlist(list(icon_col, tooltip_col )))
                           configure_size()
