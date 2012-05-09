@@ -343,19 +343,20 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                     methods=list(
                                       ## Some decorators for handlers
                                       ## these wrap the handler to satisfy or fill the h object or return value
-                                      event_decorator=function(f) {
+                                      event_decorator=function(FUN) {
                                         "Decorator for basic event"
-                                        force(f) # impt to get proper f from within connect_to_toolkit
-                                        FUN <- function(W) {
-                                          f(extra_args=list())
+                                        force(FUN) # impt to get proper f from within connect_to_toolkit
+                                        f <- function(W) {
+                                          FUN(.self, extra_args=list())
                                         }
+                                        f
                                       },
-                                      key_release_decorator=function(f) {
-                                        force(f)
-                                        FUN <- function(w, k, K, N, s, x, y, X, Y, ...) {
-                                          f(extra_args=list(key=K, Key=k, x=x, y=y, X=X, Y=Y))
+                                      key_release_decorator=function(FUN) {
+                                        force(FUN)
+                                        f <- function(w, k, K, N, s, x, y, X, Y, ...) {
+                                          FUN(.self, key=K, Key=k, x=x, y=y, X=X, Y=Y)
                                         }
-                                        FUN
+                                        f
                                       },
                                       ## code for integrating observable interface with RGtk2
                                       handler_widget = function() widget, # allow override for block (e.g., glabel)
@@ -450,16 +451,17 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                       
                                       ## Basic event handlers
                                       ## Define decorators here
-                                      click_decorator=function(f) {
-                                        force(f)
-                                        FUN <- function(W, x, y, X, Y) {
-                                          f(extra_args=list(
+                                      click_decorator=function(FUN) {
+                                        force(FUN)
+                                        f <- function(W, x, y, X, Y) {
+                                          FUN(.self,
                                               x=as.numeric(x),
                                               y=as.numeric(y),
                                               X=as.numeric(X),
                                               Y=as.numeric(Y)
-                                              ))
+                                              )
                                         }
+                                        f
                                       },
                                       add_handler_clicked = function(handler, action=NULL, ...) {
                                         add_handler("<Button-1>", handler, action, decorator=.self$click_decorator,...)
@@ -480,12 +482,13 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                         "Keystroke handler."
                                         add_handler("<KeyRelease>", handler, action, decorator=.self$key_release_decorator, ...)
                                       },
-                                      motion_decorator=function(f) {
-                                        force(f)
-                                        FUN <- function(W, s, x, y, X, Y, ...) {
+                                      motion_decorator=function(FUN) {
+                                        force(FUN)
+                                        f <- function(W, s, x, y, X, Y, ...) {
                                           ## ??? consult state via s?
-                                          f(extra_args = list(x=x, X=X, y=y, Y=Y))
+                                          FUN(.self, x=x, X=X, y=y, Y=Y)
                                         }
+                                        f
                                       },
                                       add_handler_mouse_motion=function(handler, action=NULL, ...) {
                                         "Keystroke handler."
