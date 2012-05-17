@@ -169,11 +169,11 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                 },
                                 bind_select=function() {
                                   "Select is double click or enter"
-                                  tkbind(widget, "<Double-Button-1>", function() {
-                                    .self$notify_observers(signal="<<SelectionMade>>")
-                                  })
+#                                  tkbind(widget, "<Double-Button-1>", function() {
+#                                    .self$notify_observers(signal="<<SelectionMade>>"#)
+#                                  })
                                   tkbind(widget, "<Return>", function() {
-                                    .self$notify_observers(signal="<<SelectionMade>>")
+                                    .self$notify_observers(signal="<Double-Button-1>")
                                   })
 
                                 },
@@ -449,15 +449,19 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                   callSuper(value, ...)
                                 },
                                 ## Handlers
-                                add_handler_changed=function(handler, action, ...) {
+                                add_handler_changed=function(handler, action=NULL, ...) {
                                   if(is_handler(handler)) {
                                     o <- gWidgets2:::observer(.self, handler, action)
                                     invisible(add_observer(o, "<<SelectionMade>>"))
                                   }
                                 },
+                                add_handler_double_clicked=function(handler, action=NULL, ...) {
+                                  add_handler("<Double-Button-1>", handler, action)
+                                },
                                 add_handler_selection_changed=function(handler, action=NULL, ...) {
                                   add_handler("<<TreeviewSelect>>", handler, action)
                                 },
+
                                 add_handler_column_clicked=function(handler, action=NULL) {
                                   "Column clicked passed back column index in column component"
                                   ## have to do this the hard way
@@ -574,7 +578,7 @@ GTable <- setRefClass("GTable",
                         set_items = function(value, i, j, ...) {
                           if(missing(i) && missing(j)) {
                             ## replace data frame
-                            value <- as.data.frame(value)
+                            value <- as.data.frame(value, stringsAsFactors=FALSE)
                             set_DF(value)
                           } else {
                             callSuper(value, i, j, ...)

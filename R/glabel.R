@@ -47,10 +47,11 @@ GLabel <- setRefClass("GLabel",
                                 if(editable) {
                                   ## overwrite any handler
                                   handler <- function(h,...) {
-                                    val <- ginput(message=gettext("Change label value:"),
+                                    val <- ginput(msg=gettext("Change label value:"),
                                                   text=svalue(h$obj),
                                                   title="Change text for label",
-                                                  icon="question")
+                                                  icon="question",
+                                                  parent=getTopLevel(h$obj))
                                     if(!is.na(val))
                                       set_value(val)
                                   }
