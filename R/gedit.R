@@ -11,8 +11,8 @@ NULL
 ##' @method .gedit guiWidgetsToolkittcltk
 ##' @S3method .gedit guiWidgetsToolkittcltk
 .gedit.guiWidgetsToolkittcltk <-  function(toolkit,
-                                           text = "", width = 25, coerce.with = NULL, initial.msg=initial.msg,
-                    handler = NULL,action = NULL, container = NULL, ... ) {
+                                           text = "", width = 25,
+                                           coerce.with = NULL, initial.msg=initial.msg,                    handler = NULL,action = NULL, container = NULL, ... ) {
   GEdit$new( toolkit, text = text, width = width, coerce.with = coerce.with, initial.msg=initial.msg,
                     handler = handler,action = action, container = container, ...)
 }

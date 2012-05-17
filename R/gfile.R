@@ -172,7 +172,9 @@ GFileBrowse <- setRefClass("GFileBrowse",
                                  set_value(ret)
                              },
                              get_value=function( ...) {
-                               as.character(tclvalue(t_var))
+                               x <- as.character(tclvalue(t_var))
+                               Encoding(x) <- "UTF-8"
+                               x
                              },
                              set_value=function(value, ...) {
                                ## should we check file.exists?
