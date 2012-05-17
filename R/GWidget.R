@@ -5,10 +5,12 @@ NULL
 ##' @rdname gWidgets2tcltk-package
 GWidget <- setRefClass("GWidget",
                        contains="GComponentObservable",
-                       fields=list(
-                         coerce_with="ANY" # function
-                       ),
                        methods=list(
+                         initialize=function(..., coerce.with=NULL) {
+                           if(is.null(coerce_with) && !is.null(coerce.with))
+                             set_coerce_with(coerce.with)
+                           callSuper(...)
+                         },
                          set_coerce_with=function(coerce.with) {
                            if(is.character(coerce.with))
                              coerce.with <- get(coerce.with)
