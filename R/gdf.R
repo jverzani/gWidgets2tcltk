@@ -269,7 +269,7 @@ PagingBar <- setRefClass("PagingBar",
                                   out <- ""
                                 else
                                   out <- gettext("Number out of range")
-                                tcltk2:::tk2tip(page_label, out)
+                                tk2tip(page_label, out)
                               },
                               set_page = function(i) {
                                 "Set page through DF method"
@@ -280,7 +280,7 @@ PagingBar <- setRefClass("PagingBar",
                                 tclvalue(page_label_var) <<- i
                                 if(prev_page != i)
                                   ed$set_page(i)
-                                tcltk2:::tk2tip(page_label, "")
+                                tk2tip(page_label, "")
                               },
                               set_total_pages = function(n) {
                                 total_pages <<- as.integer(n)

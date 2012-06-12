@@ -261,9 +261,9 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                     row <- as.character(tcl(W, "identify", "row", x, y))
                                     ind <- match(row, child_ids)
                                     if(length(ind)) 
-                                      tcltk2:::tk2tip(W, tips[ind])
+                                      tk2tip(W, tips[ind])
                                     else
-                                      tcltk2:::tk2tip(W, "")
+                                      tk2tip(W, "")
                                   })
                                 },
                                 ## rows

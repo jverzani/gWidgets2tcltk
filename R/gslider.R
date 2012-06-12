@@ -81,7 +81,7 @@ GSlider <- setRefClass("GSlider",
                            set_index(1L)
                          },
                          update_tooltip=function() {
-                           tcltk2:::tk2tip(widget, get_value())
+                           tk2tip(widget, get_value())
                          }
 
                          ))
