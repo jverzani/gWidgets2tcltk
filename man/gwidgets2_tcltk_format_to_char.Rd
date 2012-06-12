@@ -10,17 +10,17 @@
 \usage{
   gwidgets2_tcltk_format_to_char(x)
 
-  \method{gwidgets2_tcltk_format_to_char}{default} (x)
+  \method{gwidgets2_tcltk_format_to_char}{default}(x)
 
-  \method{gwidgets2_tcltk_format_to_char}{factor} (x)
+  \method{gwidgets2_tcltk_format_to_char}{factor}(x)
 
-  \method{gwidgets2_tcltk_format_to_char}{integer} (x)
+  \method{gwidgets2_tcltk_format_to_char}{integer}(x)
 
-  \method{gwidgets2_tcltk_format_to_char}{numeric} (x)
+  \method{gwidgets2_tcltk_format_to_char}{numeric}(x)
 
-  \method{gwidgets2_tcltk_format_to_char}{Date} (x)
+  \method{gwidgets2_tcltk_format_to_char}{Date}(x)
 
-  \method{gwidgets2_tcltk_format_to_char}{data.frame} (x)
+  \method{gwidgets2_tcltk_format_to_char}{data.frame}(x)
 }
 \arguments{
   \item{x}{object to format to character class}

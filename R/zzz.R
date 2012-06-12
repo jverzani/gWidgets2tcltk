@@ -10,6 +10,8 @@ NULL
     methods:::setIs(i,"tcltkObject")
   })
 
+
+  
 }
          
 
@@ -24,11 +26,11 @@ NULL
   .Tcl("option add *tearOff 0")         # disable tearoff menus
 
 
-  
-  ## load in tcl packages
-  ## from tcltk2 we have this
-  tclRequire("autoscroll")
+
+  ## read in tklibs (from tcltk2 pacakge)
+  addTclPath(system.file("tklibs", package="gWidgets2tcltk"))
   tclRequire("tooltip")
+  tclRequire("autoscroll")
 
   ## Icons
   tcltkStockIcons$load_gWidgets_icons()

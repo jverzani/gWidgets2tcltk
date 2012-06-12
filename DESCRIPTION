@@ -10,7 +10,6 @@ Depends:
     digest,
     memoise,
     tcltk(>= 2.7.0),
-    tcltk2,
     gWidgets2
 Suggests:
     testthat
@@ -63,3 +62,4 @@ Collate:
     'icons.R'
     'zzz.R'
     'gvarbrowser.R'
+    'tk2tip.R'
