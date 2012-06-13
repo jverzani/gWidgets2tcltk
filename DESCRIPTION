@@ -1,5 +1,5 @@
 Package: gWidgets2tcltk
-Version: 0.0-1
+Version: 1.0-1
 Title: Toolkit implementation of gWidgets2 for tcltk
     package
 Author: John Verzani
