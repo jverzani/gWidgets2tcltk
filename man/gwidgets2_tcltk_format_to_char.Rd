@@ -1,7 +1,7 @@
 \name{gwidgets2_tcltk_format_to_char}
 \alias{gwidgets2_tcltk_format_to_char}
-\alias{gwidgets2_tcltk_format_to_char.data.frame}
 \alias{gwidgets2_tcltk_format_to_char.Date}
+\alias{gwidgets2_tcltk_format_to_char.data.frame}
 \alias{gwidgets2_tcltk_format_to_char.default}
 \alias{gwidgets2_tcltk_format_to_char.factor}
 \alias{gwidgets2_tcltk_format_to_char.integer}

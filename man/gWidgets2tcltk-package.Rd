@@ -6,10 +6,11 @@
 \alias{GContainer}
 \alias{GDf}
 \alias{GLabel}
+\alias{GProgressBar}
 \alias{GTimer}
 \alias{GWidget}
-\alias{gWidgets2tcltk-package}
 \alias{GWidgetWithItems}
+\alias{gWidgets2tcltk-package}
 \title{gWidgets2tcltk}
 \description{
   The \pkg{gWidgets2} package provides a programming
@@ -61,6 +62,10 @@
 
   The main reference methods \code{GTimer} are
   \code{start_timer} and \code{stop_timer}
+
+  For tcltk, the Gprogressbar class has the extra reference
+  method \code{set_border}. The \code{border} argument has
+  been deprecated.
 }
 \details{
   To implement drag and drop, we bind to the toplevel

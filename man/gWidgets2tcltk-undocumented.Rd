@@ -27,6 +27,7 @@
 \alias{.gmessage.guiWidgetsToolkittcltk}
 \alias{.gnotebook.guiWidgetsToolkittcltk}
 \alias{.gpanedgroup.guiWidgetsToolkittcltk}
+\alias{.gprogressbar.guiWidgetsToolkittcltk}
 \alias{.gradio.guiWidgetsToolkittcltk}
 \alias{.gseparator.guiWidgetsToolkittcltk}
 \alias{.gslider.guiWidgetsToolkittcltk}
@@ -212,6 +213,9 @@
   \method{.gvarbrowser}{guiWidgetsToolkittcltk}(toolkit,
     handler = NULL, action = "summary", container = NULL,
     ...)
+
+  \method{.gprogressbar}{guiWidgetsToolkittcltk}(toolkit,
+    value, container, ...)
 }
 \arguments{
   \item{delay}{delay}
@@ -516,9 +520,14 @@
   return stock id from object
 
   Toolkit constructor
+
+  Toolkit constructor
 }
 \seealso{
   The documentation for this is found at
   \code{\link{gbutton}}.
+
+  The documentation for this is found at
+  \code{\link{gprogressbar}}.
 }
 
