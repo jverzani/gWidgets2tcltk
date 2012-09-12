@@ -98,6 +98,8 @@ GDf <- setRefClass("GDf",
                         assign(make.names(nm), get_items(), .GlobalEnv)
                       },
                       get_items=function(i, j, ...) {
+                        opar <- options("warn"); on.exit(options(opar))
+                        options(list(warn=-1)) # quiet for coerce_raw
                         d <- get_dim()
                         l <- lapply(seq_len(d[2]), function(j) {
                           coerce_raw(head[[j]], tl_get_column_raw(widget, j))

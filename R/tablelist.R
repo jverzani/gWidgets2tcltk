@@ -13,12 +13,14 @@ tl_configure_columns <- function(tbl, nms) {
 ## Load Data
 ## helper to load a row
 tl_insert_row <- function(tbl, row) {
+  if(length(row) == 1 && grepl(" ", row))
+    row <- paste("{", row, "}", sep="")
   tcl(tbl, "insert", "end", unlist(lapply(row, as.character)))
 }
 
 tl_load_data <- function(tbl, items) {
   sapply(seq_len(nrow(items)), function(i)
-         tl_insert_row(tbl, items[i,]))
+         tl_insert_row(tbl, items[i,,drop=TRUE]))
 }
 
 ## return tcl cell index
@@ -35,10 +37,57 @@ tl_get_cell_raw <- function(tbl, i, j) {
 }
 
 ## returns text value for column -- must coerce to ...
-tl_get_column_raw <- function(tbl, j) {
+tl_get_column_raw1 <- function(tbl, j) {
   m <- tl_no_rows(tbl)
   sapply(seq_len(m), function(i) tl_get_cell_raw(tbl, i, j))
 }
+
+##helper
+parse_tcl <- function(x) {
+
+  ctr <- 0
+  y <- strsplit(x, "")[[1]]
+  tmp <- character(0)
+  cur <- ""
+  
+  push_chr <- function(cur, i) {
+    if(cur == "") i else paste(cur, i, sep="")
+  }
+  commit_cur <- function() {
+    if(nchar(cur) > 0)
+      tmp <<- c(tmp, cur)
+    cur <<- ""
+  }
+  for(i in y) {
+    if(i == "{") {
+      if(ctr == 1) {
+        commit_cur()
+      }
+      ctr <- ctr + 1
+    } else if(i == "}") {
+      if(ctr == 2) {
+        commit_cur()
+      }
+      ctr <- ctr - 1
+    } else if(i == " ") {
+      if(ctr == 1) {
+        commit_cur()
+      } else {
+        cur <- push_chr(cur, i)
+      }
+    } else {
+      cur <- push_chr(cur, i)
+    }
+  }
+  commit_cur()
+  tmp
+}
+
+tl_get_column_raw <- function(tbl, j) {
+  raw <- tcl(tbl, "getcolumns", j-1, j-1)
+  parse_tcl(tclvalue(raw))
+}
+
 
 ## return character matrix
 tl_get_raw <- function(tbl) {
