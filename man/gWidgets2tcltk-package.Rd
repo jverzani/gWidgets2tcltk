@@ -51,12 +51,8 @@
   been deprecated.
 
   The \code{GDf} class provides a means to edit a data
-  frame. Unlike \pkg{RGtk2} and \pkg{qtbase}, there is no
-  editable table widget include in \pkg{tctlk}. What to do?
-  Well, the add-on \pkg{tktable} package could be used, and
-  was. However, that never really seemed that usable. As
-  such, we try implementing a case-by-case editor here,
-  allowing fairly convenient row editing.
+  frame. We use the add on TK code provided by tablelist as
+  the underlying widget
 
   label class for tcltk
 

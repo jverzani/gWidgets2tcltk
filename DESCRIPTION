@@ -36,6 +36,7 @@ Collate:
     'gtable.R'
     'gcheckboxgroup.R'
     'gcombobox.R'
+    'tablelist.R'
     'gdf.R'
     'gedit.R'
     'gexpandgroup.R'
