@@ -74,7 +74,8 @@ GDf <- setRefClass("GDf",
                         
 
                         widget <<- tkwidget(block, "tablelist::tablelist",
-                                           resizablecolumns=1,
+                                            resizablecolumns=1,
+                                            selecttype="row",
                                             xscrollcommand=function(...) tkset(xscr,...),
                                             yscrollcommand=function(...) tkset(yscr,...))
                         
@@ -87,9 +88,11 @@ GDf <- setRefClass("GDf",
                         tcl("autoscroll::autoscroll", xscr)
                         tcl("autoscroll::autoscroll", yscr)
                       },
-                      set_items=function(i,j,..., value) {
+                      set_items=function(value, i,j,...) {
                         if(!missing(i) || !missing(j)) {
-                          warning("Need to implement i, j")
+                          tmp <- get_items()
+                          tmp[i,j] <- value
+                          value <- tmp
                         }
                         tl_load_data(widget, value)
                       },
@@ -115,6 +118,7 @@ GDf <- setRefClass("GDf",
                       get_names=function() tl_get_column_names(widget),
                       set_names=function(values, ...) tl_set_column_names(widget,values),
                       get_dim=function() c(tl_no_rows(widget), tl_no_cols(widget)),
+                      get_length=function() get_dim()[2],
                       ## some extras
                       hide_row=function(i, hide=TRUE) tl_hide_row(widget, i, hide),
                       hide_column=function(j, hide=TRUE) tl_hide_column(widget, j, hide),

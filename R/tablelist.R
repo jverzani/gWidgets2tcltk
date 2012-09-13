@@ -1,6 +1,10 @@
 ## Code for interfacing with tablelist5.6 which is loaded in
 ## zzz.R
 
+
+## Events are:  <<TablelistCellUpdated>> <<TablelistSelect>> 
+
+
 ## Configure tbl
 tl_configure_columns <- function(tbl, nms) {
   .Tcl(sprintf("%s configure -columns {%s}",
@@ -18,7 +22,13 @@ tl_insert_row <- function(tbl, row) {
   tcl(tbl, "insert", "end", unlist(lapply(row, as.character)))
 }
 
+tl_clear_data <- function(tbl) {
+  tcl(tbl, "delete", "0", "end")
+}
+
 tl_load_data <- function(tbl, items) {
+  ## need to clear old first!
+  tl_clear_data(tbl)
   sapply(seq_len(nrow(items)), function(i)
          tl_insert_row(tbl, items[i,,drop=TRUE]))
 }
