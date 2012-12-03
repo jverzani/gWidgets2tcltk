@@ -43,12 +43,20 @@ NULL
     
     l <- list(title=text,  multiple=multi)
 
-    the_filter <- filter
-    the_filter <- Filter(function(i) !is.null(i$patterns), the_filter)
+    if(is.character(filter)) {
+      the_filter <- sapply(names(filter), function(nm) {
+        list(patterns=paste(".", filter[nm], sep=""))
+      }, simplify=FALSE)
+      the_filter[['All files']]$patterns = "*"
+    } else {
+      the_filter <- Filter(function(i) !is.null(i$patterns), filter)
+    }
+
     if(length(the_filter)) {
-      l$filetypes <-  paste(sapply(names(the_filter), function(nm) {
-                                sprintf("{{%s} {%s}}", nm, paste(the_filter[[nm]]$patterns, collapse=" "))
-                              }), sep=" ", collapse=" ")
+      l$filetypes <- paste(Map(function(nm, patt) sprintf("{{%s} {%s}}", nm, patt),
+                               names(the_filter), lapply(the_filter, function(i) i$pattern)),
+                           sep=" ", collapse=" ")
+     l$filetypes <- gsub("[{][*][}]", "*", l$filetypes)
     }
 
     if(!is.null(initial.filename))
