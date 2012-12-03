@@ -47,8 +47,14 @@ GWindow <- setRefClass("GWindow",
 
                                 
 
-                                if(!is.null(parent))
+                                if(!is.null(parent)) {
                                   set_location(parent)
+                                  if(is(parent, "GWindow")) {
+                                    add_handler_destroy(parent, function(h,...) {
+                                      dipose_window()
+                                    })
+                                  }
+                                }
 
                                 
                                 initFields(toolkit=toolkit, 
@@ -227,8 +233,10 @@ GWindow <- setRefClass("GWindow",
                                 tkwm.protocol(block, "WM_DELETE_WINDOW",
                                               function(...) {
                                                 val <- handler(h,...)
-                                                ## FALSE -- destroy, TRUE -- keep
-                                                if(is.null(val)  || !is.logical(val) || !val)
+                                                ## FALSE -- keep, TRUE -- destroy
+                                                if(is.null(val)  ||
+                                                   (is.logical(val) && val)
+                                                   )
                                                   tkdestroy(block) ## revers
                                               })
                               }
