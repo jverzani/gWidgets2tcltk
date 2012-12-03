@@ -31,14 +31,14 @@ NULL
   
   addTclPath(system.file("tklibs", "tablelist5.6", package="gWidgets2tcltk"))
   tclRequire("tablelist")
-#  tcl("source", system.file("tklibs", "tablelist5.6", "tablelist.tcl", package="gWidgets2tcltk"))
-#  tcl("package", "require", "tablelist")
   sapply(c("tablelistConfig.tcl", "tablelistBind.tcl", "tablelistBind.tcl",
            "tablelistUtil.tcl", "tablelistEdit.tcl"), function(i) {
              tcl("source", system.file("tklibs", "tablelist5.6", "scripts", i, package="gWidgets2tcltk"))
           })
 
-  addTclPath(system.file("tklibs", package="gWidgets2tcltk"))
+
+  
+  addTclPath(system.file("tklibs", "tooltip1.4", package="gWidgets2tcltk"))
   tclRequire("tooltip")
   tcl("source", system.file("tklibs", "autoscroll.tcl", package="gWidgets2tcltk"))
   
