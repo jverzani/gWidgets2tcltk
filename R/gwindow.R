@@ -51,7 +51,7 @@ GWindow <- setRefClass("GWindow",
                                   set_location(parent)
                                   if(is(parent, "GWindow")) {
                                     add_handler_destroy(parent, function(h,...) {
-                                      dipose_window()
+                                      dispose_window()
                                     })
                                   }
                                 }
