@@ -151,9 +151,10 @@ GText <- setRefClass("GText",
                          where <- c(end="end", at.cursor="insert", beginning="0.0")[where]
                          
                          value <- paste(value,collapse="\n")
-                         if(do.newline)
-                           value = paste(value,"\n",sep="")
-
+                         if(do.newline) {
+                           message("insert new line")
+                           value <- paste(value,"\n",sep="")
+                         }
                          ## Handle markup here
                          if(!is.null(font.attr) && length(font.attr) > 0) {
                            ## bit of a hack to set font
