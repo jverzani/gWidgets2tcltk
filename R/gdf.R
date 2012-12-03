@@ -49,7 +49,7 @@ GDf <- setRefClass("GDf",
                         ...) {
 
                         ## what is 
-                        initFields(change_signal="<<XXX>>", coerce_with=NULL)
+                        initFields(change_signal="<<TablelistCellUpdated>>", coerce_with=NULL)
                         init_widget(container$widget)
                         items <- as.data.frame(items)
                         tl_configure_columns(widget, names(items))
@@ -75,9 +75,11 @@ GDf <- setRefClass("GDf",
 
                         widget <<- tkwidget(block, "tablelist::tablelist",
                                             resizablecolumns=1,
-                                            selecttype="row",
                                             xscrollcommand=function(...) tkset(xscr,...),
                                             yscrollcommand=function(...) tkset(yscr,...))
+
+                        tcl(widget, "configure", selecttype="cell")
+
                         
                         tkgrid(widget, row=0, column=0, sticky="news")
                         tkgrid(yscr, row=0, column=1, sticky="ns")
