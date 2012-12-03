@@ -5,6 +5,9 @@ NULL
 ##' @rdname gWidgets2tcltk-package
 GWidget <- setRefClass("GWidget",
                        contains="GComponentObservable",
+                       fields=list(
+                         coerce_with="FunctionOrNULL"
+                         ), 
                        methods=list(
                          initialize=function(..., coerce.with=NULL) {
                            if(is.null(coerce_with) && !is.null(coerce.with))
