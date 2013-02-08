@@ -94,6 +94,7 @@ findIcon <- function(stockname) tcltkStockIcons$find_icon(stockname)
 ##'
 ##' @param name name of icon
 ##' @export
+##' @usage \method{.getStockIconByName}{guiWidgetsToolkittcltk}(toolkit,name, ...)
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .getStockIconByName guiWidgetsToolkittcltk
 ##' @S3method .getStockIconByName guiWidgetsToolkittcltk
@@ -109,6 +110,7 @@ findIcon <- function(stockname) tcltkStockIcons$find_icon(stockname)
 ##'
 ##' @param obj obj to get icon from
 ##' @export
+##' @usage  \method{.stockIconFromObject}{guiWidgetsToolkittcltk}(toolkit,obj, ...)
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .stockIconFromObject guiWidgetsToolkittcltk
 ##' @S3method .stockIconFromObject guiWidgetsToolkittcltk

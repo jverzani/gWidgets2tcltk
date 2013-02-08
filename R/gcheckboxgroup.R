@@ -6,6 +6,7 @@ NULL
 ##'
 ##' @inheritParams gWidgets2::gcheckboxgroup
 ##' @export
+##' @usage \method{.gcheckboxgroup}{guiWidgetsToolkittcltk}(toolkit=NULL, items, checked = FALSE,horizontal = FALSE, use.table = FALSE, handler = NULL, action = NULL, container = NULL, ...)
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gcheckboxgroup guiWidgetsToolkittcltk
 ##' @S3method .gcheckboxgroup guiWidgetsToolkittcltk
