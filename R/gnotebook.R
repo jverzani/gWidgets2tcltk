@@ -63,8 +63,11 @@ GNotebook <- setRefClass("GNotebook",
                                 as.numeric(tcl(widget, "index", "current")) + 1
                               },
                               set_value=function(value, ...) {
+                                old_value <- get_index()
                                 value <- max(1,min(value,get_length()))
                                 tcl(widget,"select",value - 1) # 0 -based
+                                if(value != old_value)
+                                  invoke_handler("<<NotebookTabChanged>>")
                               },
                               get_names = function(...) {
                                 sapply(seq_len(get_length()), function(i) {

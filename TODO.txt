@@ -1,4 +1,4 @@
-gtable: selection set through svalue, sort order is off?
+HUH??gtable: selection set through svalue, sort order is off?
 
 drag-and-drop (framework!)
 - put warning message when no icon matches stock icon
