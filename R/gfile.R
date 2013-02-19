@@ -12,6 +12,7 @@ NULL
                                           text = "",
                                           type = c("open","save","selectdir"),
                                           initial.filename = NULL,
+                                          initial.dir = getwd(),
                                           filter = list(),
                                           multi=FALSE,
                                           ...) {
@@ -19,14 +20,10 @@ NULL
               
   args = list(...)
 
-  ## pass in initial dir information, or get from filename, or get from option, or setwd
-  initialdir <- args$initialdir
-  if(is.null(initialdir) && !is.null(initial.filename))
-    initialdir <- dirname(initial.filename)
-  if(is.null(initialdir))
-    initialdir <- getOption("gWidgetstcltk::gfile_initialdir")
+  if(is.null(initial.dir))
+    initia.ldir <- getOption("gWidgetstcltk::gfile_initialdir")
   ## may still be NULL that is okay
-  options("gWidgetstcltk::gfile_initialdir"=initialdir) # store
+  options("gWidgetstcltk::gfile_initialdir"=initial.dir) # store
             
   type <- match.arg(type)
 
@@ -61,8 +58,8 @@ NULL
 
     if(!is.null(initial.filename))
       l$initialfile=initial.filename
-    if(!is.null(initialdir))
-      l$initialdir=initialdir
+    if(!is.null(initial.dir))
+      l$initialdir=initial.dir
     
     val <- do.call("tkgetOpenFile", l)
     
@@ -117,6 +114,7 @@ NULL
                                                  text = "",
                                                  type = c("open","save","selectdir"),
                                                  initial.filename = NULL,
+                                                 initial.dir = getwd(),
                                                  filter = list(),
                                                  quote=TRUE,
                                                  handler=NULL,
@@ -124,7 +122,7 @@ NULL
                                                  container = NULL,
                                                  ... ) {
   GFileBrowse$new(toolkit,
-            text=text, type=type, initial.filename=initial.filename,
+            text=text, type=type, initial.filename=initial.filename, initial.dir = initial.dir,
             filter=filter, quote=quote, handler=handler, action=action, container=container, ...)
 }
 
@@ -137,6 +135,7 @@ GFileBrowse <- setRefClass("GFileBrowse",
                              text="ANY",
                              type="ANY",
                              initial.filename="ANY",
+                             initial.dir = "ANY",
                              filter="ANY",
                              quote="ANY"
                              ),
@@ -146,6 +145,7 @@ GFileBrowse <- setRefClass("GFileBrowse",
                                 text = "",
                                 type = c("open", "save", "selectdir"),
                                 initial.filename = NULL,
+                                initial.dir = getwd(),
                                 filter = list(),
                                 quote=TRUE,
                                 handler=NULL,
@@ -166,6 +166,7 @@ GFileBrowse <- setRefClass("GFileBrowse",
                                            text=text,
                                            type=type,
                                            initial.filename=initial.filename,
+                                           initial.dir = initial.dir,
                                            filter=filter,
                                            quote=quote)
 
@@ -175,7 +176,9 @@ GFileBrowse <- setRefClass("GFileBrowse",
                                 callSuper(toolkit)
                               },
                              popup_dialog=function() {
-                               ret <- gfile(text=text, type=type, initial.filename=initial.filename,filter=filter, toolkit=toolkit)
+                               ret <- gfile(text=text, type=type,
+                                            initial.filename=initial.filename, initial.dir = initial.dir,
+                                            filter=filter, toolkit=toolkit)
                                if(length(ret))
                                  set_value(ret)
                              },

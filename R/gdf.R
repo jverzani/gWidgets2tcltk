@@ -98,9 +98,9 @@ GDf <- setRefClass("GDf",
                         }
                         tl_load_data(widget, value)
                       },
-                      save_data=function(nm) {
+                      save_data=function(nm, where) {
                         "Save data set"
-                        assign(make.names(nm), get_items(), .GlobalEnv)
+                        assign(make.names(nm), get_items(), where)
                       },
                       get_items=function(i, j, ...) {
                         opar <- options("warn"); on.exit(options(opar))
