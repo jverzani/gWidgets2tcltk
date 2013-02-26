@@ -50,8 +50,10 @@ NULL
     }
 
     if(length(the_filter)) {
-      l$filetypes <- paste(Map(function(nm, patt) sprintf("{{%s} {%s}}", nm, patt),
-                               names(the_filter), lapply(the_filter, function(i) i$pattern)),
+      l$filetypes <- paste(unlist(
+                                  Map(function(nm, patt) sprintf("{{%s} {%s}}", nm, patt),
+                                      names(the_filter), lapply(the_filter, function(i) i$pattern))
+                                  ),
                            sep=" ", collapse=" ")
      l$filetypes <- gsub("[{][*][}]", "*", l$filetypes)
     }
