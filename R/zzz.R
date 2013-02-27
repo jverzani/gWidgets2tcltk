@@ -25,7 +25,9 @@ NULL
   ## some configuration
   .Tcl("option add *tearOff 0")         # disable tearoff menus
 
-
+  ## fix selection color for treeview
+  if(.Platform$OS.type == "windows")
+    .Tcl(sprintf("ttk::style map Treeview.Row  -background [ list selected %s ]", "gray"))
 
   ## read in tklibs (from tcltk2 pacakge)
   
