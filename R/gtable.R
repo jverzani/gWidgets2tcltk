@@ -155,6 +155,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                                          xscrollcommand=function(...) tkset(xscr,...),
                                                          yscrollcommand=function(...) tkset(yscr,...)
                                                          )
+                                  configure_select_color()
                                   bind_select()
                                   
                                   tkgrid(widget, row=0, column=0, sticky="news")
@@ -166,6 +167,11 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                   tcl("autoscroll::autoscroll", xscr)
                                   tcl("autoscroll::autoscroll", yscr)
 
+                                },
+                                configure_select_color = function() {
+                                  "Configure background of selection"
+                                  if(.Platform$OS.type == "windows")
+                                    .Tcl("  ttk::style map Treeview.Row  -background [ list selected gray ]")
                                 },
                                 bind_select=function() {
                                   "Select is double click or enter"
