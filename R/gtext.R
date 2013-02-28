@@ -86,6 +86,7 @@ GText <- setRefClass("GText",
                          if(!is_aqua()) {
                            tcl("autoscroll::autoscroll", xscr)
                            tcl("autoscroll::autoscroll", yscr)
+                           tkgrid.propagate(block, FALSE)                        
                          }
                        },
                        has_selection=function() {

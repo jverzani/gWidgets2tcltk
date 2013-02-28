@@ -89,6 +89,8 @@ GDf <- setRefClass("GDf",
                         
                         tcl("autoscroll::autoscroll", xscr)
                         tcl("autoscroll::autoscroll", yscr)
+
+                        tkgrid.propagate(block, FALSE)                        
                       },
                       set_items=function(value, i,j,...) {
                         if(!missing(i) || !missing(j)) {
