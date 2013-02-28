@@ -167,6 +167,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                   tcl("autoscroll::autoscroll", xscr)
                                   tcl("autoscroll::autoscroll", yscr)
 
+                                  tkgrid.propagate(block, FALSE)
                                 },
                                 configure_select_color = function(color="gray") {
                                   "Configure background of selection: http://compgroups.net/comp.lang.tcl/ttk-treeview-setting-default-colors-no-tags/304744"
