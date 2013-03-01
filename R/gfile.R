@@ -93,8 +93,9 @@ NULL
   }
   
   
-  
-  if (length(val) > 1 || nchar(val) > 0) {
+  if(length(val) == 0) {
+    return(character(0))
+  } else if (length(val) > 1 || nchar(val) > 0) {
     ## how to return filename?
     return(val)
   } else {
