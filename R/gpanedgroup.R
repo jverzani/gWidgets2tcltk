@@ -47,15 +47,21 @@ GPanedGroup <- setRefClass("GPanedGroup",
                               }, 
                               set_value = function(value, ...) {
                                 "Set sash position"
-                                if(0 <= value && value <= 1) {
-                                  theSize <- get_size()
-                                  if(horizontal)
-                                    pos <- floor(value *  theSize[1])
-                                  else
-                                    pos <- floor(value *  theSize[2])
-                                  
-                                  tcl(widget,"sashpos", 0, as.integer(pos))
+                                if(is.integer(value)) {
+                                  pos = value
+                                } else {
+                                  if(0 <= value && value <= 1) {
+                                    theSize <- get_size()
+                                    if(horizontal)
+                                      pos <- floor(value *  theSize[1])
+                                    else
+                                      pos <- floor(value *  theSize[2])
+                                  } else {
+                                    stop("Value must be in [0,1] or of class integer")
+                                  }
                                 }
+                                
+                                tcl(widget,"sashpos", 0, as.integer(pos))
                               },
                               get_items = function(i, j, ..., drop=TRUE) {
                                 children[[i, drop=drop]]
