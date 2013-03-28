@@ -19,17 +19,17 @@ GExpandGroup <- setRefClass("GExpandGroup",
                             contains="GBoxContainer",
                             fields=list(
                               disclose_icon="ANY",
+                              t_var = "ANY",
                               label="ANY",
-                              inner_frame="ANY",
-                              ..visible = "logical"
+                              inner_frame="ANY"
                               ),
                             methods=list(
                               initialize=function(toolkit=NULL, text="", markup=FALSE, horizontal=TRUE, handler, action=NULL, container=NULL, ...) {
 
                                 block <<- ttkframe(container$get_widget())
                                 inner_frame <<- ttkframe(block)
-                                
-                                disclose_icon <<- ttkcheckbutton(inner_frame,  variable=tclVar(1))
+                                t_var <<- tclVar(1)
+                                disclose_icon <<- ttkcheckbutton(inner_frame,  variable=t_var)
                                 label <<-ttklabel(inner_frame)
                                 widget <<- ttkframe(block)
 
@@ -38,7 +38,6 @@ GExpandGroup <- setRefClass("GExpandGroup",
 
 
                                 initFields(horizontal=horizontal,
-                                          ..visible=TRUE,
                                           change_signal="<<StateChanged>>"
                                           )
                                 set_spacing(5L)
@@ -53,10 +52,12 @@ GExpandGroup <- setRefClass("GExpandGroup",
                                 tkpack(disclose_icon, expand=FALSE, fill="none", anchor="w", side="left")
                                 tkpack(label, expand=TRUE, fill="x", anchor="w", side="left", padx=2)
 
-                                tkpack(widget, expand=TRUE, fill="both")
-
+                                
+                                tkpack(widget, expand=TRUE, fill="both", anchor="nw")
+                                
                                 tkconfigure(disclose_icon, command=function() {
-                                  set_visible(!get_visible())
+                                  if(get_visible()) show_container() else hide_container()
+                                        tcl("event", "generate", widget, change_signal)
                                 })
                               },
                               get_names=function(...) {
@@ -66,22 +67,24 @@ GExpandGroup <- setRefClass("GExpandGroup",
                                 tkconfigure(label, text=paste(value, collapse=" "))
                               },
                               get_visible = function() {
-                                ..visible
+                                tclvalue(t_var) == "1"
+                              },
+                              show_container=function() {
+                                tkpack("propagate", block, TRUE)
+#                                tkpack("propagate", widget, FALSE)
+                                tkpack(widget, expand=TRUE, fill="both")
+                              },
+                              hide_container=function() {
+                                width <- as.numeric(tkwinfo("width", widget))
+#                                tkpack("propagate", block, FALSE)
+                                ## configure height but not width!!!
+                                tkpack.forget(widget)
+                                        #                                  tkconfigure(widget, "height"=1, width=width)
                               },
                               set_visible = function(value) {
-                                if(value) {
-                                  tkpack("propagate", widget, TRUE)
-                                  tkpack(widget, expand=TRUE, fill="both")
-                                  ..visible <<- TRUE
-                                } else {
-                                  width <- as.numeric(tkwinfo("width", widget))
-                                  tkpack("propagate", widget, FALSE)
-                                  ## configure height but not width!!!
-                                  tkpack.forget(widget)
-#                                  tkconfigure(widget, "height"=1, width=width)
-                                  ..visible <<- FALSE
-                                }
-
+                                tmp <- t_var
+                                tclvalue(tmp) <- as.numeric(value)
+                                if(value) show_container() else hide_container()
                                 tcl("event", "generate", widget, change_signal)
                               },
                               set_enabled=function(value) {
