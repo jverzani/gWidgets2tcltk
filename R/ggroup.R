@@ -18,7 +18,7 @@ NULL
 GGroup <- setRefClass("GGroup",
                       contains="GBoxContainer",
                       fields=list(
-                        use_scrollwindow="logical"
+                        use_scrollwindow="character"
                         ),
                       methods=list(
                         ## main intialize method
@@ -28,12 +28,13 @@ GGroup <- setRefClass("GGroup",
                           container=NULL, ...) {
 
                           initFields(horizontal=horizontal,
-                                     use_scrollwindow=use.scrollwindow)
+                                     use_scrollwindow=as.character(use.scrollwindow))
 
-                          if(use.scrollwindow) {
+                          
+                          if(use_scrollwindow != FALSE) {
                             init_scrollwindow(container)
                             tkconfigure(block, width=400, height=400)
-                            tkpack.propagate(block, "FALSE")
+                            tkgrid.propagate(block, "FALSE")
                           } else {
                             widget <<- ttkframe(getWidget(container))
                             block <<- widget
@@ -54,18 +55,19 @@ GGroup <- setRefClass("GGroup",
                            yscr <- ttkscrollbar(block, 
                                      command=function(...)tkyview(cnv,...))
 
-                          if(horizontal) 
-                            tkconfigure(cnv,
-                                        xscrollcommand = function(...) tkset(xscr,...))
-                          else
-                            tkconfigure(cnv,
-                                        yscrollcommand = function(...) tkset(yscr,...))
+                          do_x <- horizontal #|| use_scrollwindow %in% c("TRUE", "x")
+                          do_y <- !horizontal# || use_scrollwindow %in% c("TRUE", "y")
+
+                          tkconfigure(cnv,
+                                      xscrollcommand = function(...) tkset(xscr,...))
+                          tkconfigure(cnv,
+                                      yscrollcommand = function(...) tkset(yscr,...))
                           ##
                            ## see tkFAQ 10.1 -- makes for automatic resizing
                           tkgrid(cnv,row=0,column=0, sticky="news")
-                          if(horizontal)
+                          if(do_x)
                             tkgrid(xscr,row=1,column=0, sticky="ew")
-                          else
+                          if(do_y)
                             tkgrid(yscr,row=0,column=1, sticky="ns")
 
                           
@@ -76,36 +78,26 @@ GGroup <- setRefClass("GGroup",
                           widget <<- ttkframe(cnv)
                           widgetID <- tcl(cnv,"create","window",0,0,anchor="nw",window=widget)
 
+                          ## initial mapping
                           tkbind(block, "<Map>", function() {
-                            if(horizontal) {
-                              width <- tkwinfo("width", block)
-                              tkconfigure(cnv, width=width)
-                            } else {
-                              height <- tkwinfo("height", block)
-                              tkconfigure(cnv, height=height)
-                            }
+                            width <- tkwinfo("width", block)
+                            height <- tkwinfo("height", block)
+                            if(do_x) tkconfigure(cnv, width=width)
+                            if(do_y) tkconfigure(cnv, height=height)
                           })
 
-                          ## coordinate change of heights
+                          ## coordinate change of heights bewteen block and canvas
                           tkbind(block, "<Configure>", function(W) {
                             width <- as.numeric(tkwinfo("width", W))
                             height <- as.numeric(tkwinfo("height", W))
                             
-                            cnvwidth <- as.numeric(tkwinfo("width", cnv))
-                            cnvheight <- as.numeric(tkwinfo("height", cnv))
-
-                            widgetwidth <- as.numeric(tkwinfo("width", widget))
-                            widgetheight <- as.numeric(tkwinfo("height", widget))
-                            
-                            if(horizontal)
+                            if(do_x) {
                               scroll_size <- as.numeric(tkwinfo("height", xscr))
-                            else
-                              scroll_size <- as.numeric(tkwinfo("width", yscr))
-
-                            if(horizontal) {
                               tkconfigure(cnv, height=height - scroll_size, width=width)
                               tkitemconfigure(cnv, widgetID, height=height - scroll_size - 2)
-                            } else {
+                            }
+                            if(do_y) {
+                              scroll_size <- as.numeric(tkwinfo("width", yscr))                              
                               tkconfigure(cnv, height=height, width=width - scroll_size)
                               tkitemconfigure(cnv, widgetID, width=width - scroll_size - 2)
                             }
