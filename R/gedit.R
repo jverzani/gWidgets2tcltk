@@ -284,6 +284,12 @@ GEdit <- setRefClass("GEdit",
                               },
 
                               ## Extra methods
+                              set_icon  = function(stock, where="start") {
+                                ## set an inline icon XXX implement
+                              },
+                              set_icon_handler = function(handler, where="start") {
+                                ## set handler for icon
+                              },
                               set_validator = function(FUN) {
                                 "Set a function to do the validation"
                                 validator <<- FUN
