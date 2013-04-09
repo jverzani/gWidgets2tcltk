@@ -148,6 +148,12 @@ GWindow <- setRefClass("GWindow",
                                 tkwm.geometry(block, "")
                                 invisible()
                               },
+                              ## set an icon
+                              set_icon=function(stock) {
+                                icon <- getStockIconByName(stock)
+                                if(icon != "")
+                                  tcl("wm", "iconphoto", block, default=icon)
+                              },
                               ## add methods
                               add_child=function(child, ...) {
                                                                 
