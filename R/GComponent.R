@@ -495,13 +495,13 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                         add_handler("<Motion>", handler, action, decorator=motion_decorator, ...)
                                       },
 
-                                      ## XXX add stibs for others
-                                      ##
+                                      ## popup menus
                                       add_popup_menu = function(mb, action=NULL, ...) {
-                                        XXX("do me")
+                                        tkbind(widget, "<Button-1>", function(X, Y) tkpopup(mb$widget, X, Y))
                                       },
                                       add_3rd_mouse_popup_menu=function(mb, action=NULL, ...) {
-                                        XXX("Do me")
+                                        events = ifelse(using_Mac(), c("<Button-2>", "<Control-1>"),  c("<Button-3>"))
+                                        QT <- Map(function(event) tkbind(widget, event, function(X, Y) tkpopup(mb$widget, X, Y)), events)
                                       }
 
 

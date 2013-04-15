@@ -1,9 +1,12 @@
 HUH??gtable: selection set through svalue, sort order is off?
 
+popup menus: not done
+
 drag-and-drop (framework!)
-- put warning message when no icon matches stock icon
-popup menus
+
 - gtable and tooltips; gtable and icons (cf ex-selection-widgets.R)
+
+- put warning message when no icon matches stock icon
 
 DONE fonts (styles, fonts objects)
 DONE GComponent.R

@@ -10,3 +10,6 @@ NULL
 ##' @export
 setClass("guiWidgetsToolkittcltk",
          contains="guiWidgetsToolkit")
+
+
+using_Mac <- function() as.character(tcl("tk", "windowingsystem")) == "aqua"

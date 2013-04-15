@@ -17,7 +17,7 @@ NULL
                                            container = NULL,
                                            ... ) {
   if(popup)
-    GMenuPopup$new(toolkit, menu.list=menu.list,  ...)
+    GMenuPopup$new(toolkit, menu.list=menu.list, container=container, ...)
   else
     GMenu$new(toolkit, menu.list=menu.list, container = container, ...)
 }
@@ -198,11 +198,12 @@ GMenuPopup <- setRefClass("GMenuPopup",
                             methods=list(
                               initialize=function(toolkit=NULL,
                                 menu.list=list(),
+                                container=NULL,
                                 ...) {
-                                widget <<- gtkMenuNew()
-                                initFields(block=widget)
+
+                                widget <<- tkmenu(getWidget(container), tearoff=FALSE)
                                 menu_list <<- menu.list
-                                add_menu_items(widget, menu.list)
+                                add_menu_items(widget, menu.list, index=integer(0))
                                 callSuper(toolkit)
                               }
                               ))
