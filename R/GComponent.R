@@ -498,7 +498,7 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                       ## popup menus
                                       add_popup_menu = function(mb, action=NULL, ...) {
                                         if(is.list(mb))
-                                          mb = gmenu(mlist, popup=TRUE, container=.self)
+                                          mb = gmenu(mb, popup=TRUE, container=.self)
                                         tkbind(widget, "<Button-1>", function(X, Y) tkpopup(mb$widget, X, Y))
                                       },
                                       add_3rd_mouse_popup_menu=function(mb, action=NULL, ...) {
