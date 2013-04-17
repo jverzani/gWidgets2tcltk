@@ -497,11 +497,17 @@ GComponentObservable <- setRefClass("GComponentObservable",
 
                                       ## popup menus
                                       add_popup_menu = function(mb, action=NULL, ...) {
+                                        if(is.list(mb))
+                                          mb = gmenu(mlist, popup=TRUE, container=.self)
                                         tkbind(widget, "<Button-1>", function(X, Y) tkpopup(mb$widget, X, Y))
                                       },
                                       add_3rd_mouse_popup_menu=function(mb, action=NULL, ...) {
+                                        if(is.list(mb))
+                                          mb = gmenu(mb, popup=TRUE, container=.self)
                                         events = ifelse(using_Mac(), c("<Button-2>", "<Control-1>"),  c("<Button-3>"))
-                                        QT <- Map(function(event) tkbind(widget, event, function(X, Y) tkpopup(mb$widget, X, Y)), events)
+                                        QT <- Map(function(event) tkbind(widget, event, function(X, Y) {
+                                          tkpopup(mb$widget, as.integer(X), as.integer(Y))
+                                          }), events)
                                       }
 
 
