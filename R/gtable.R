@@ -131,13 +131,15 @@ gwidgets2_tcltk_column_alignment.logical <- function(x) "c"
 
 
 ## Base class for the table widgets: gtable, gdf, gcheckboxgroup (with table)
+## We hack in popup_detail for popup menus to include row and column information of last popup click
 BaseTableClass <- setRefClass("BaseTableClass",
                               contains="GWidget",
                               fields=list(
                                 DF="ANY",   # data frame
                                 n="numeric", # n cols
                                 ..visible="logical",
-                                child_ids="ANY"
+                                child_ids="ANY",
+                                popup_detail="ANY"
                                 ),
                               methods=list(
                                 init_widget=function(parent, ...) {
@@ -484,8 +486,40 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                     connected_signals[[signal]] <<- TRUE
                                   }
                                   add_handler(signal, handler, action)
-                                }
+                                },
+                                ## popup menus
+                                ## we place the row and column information of the clicked value
+                                ## into a property popup_detail
+                                set_popup_details = function(X, Y) {
+                                  index <- tcl(widget, "identify", "row", X, Y) ## eg.I008
+                                  col <- as.character(tcl(widget, "identify", "column", X, Y)) ## #4
 
+                                  row <- as.integer(tcl(widget, "index",  index))
+                                  col <- as.integer(substr(col, 2, nchar(col)))
+
+                                  if(row == 0) # doesn't capture last row for some reason, here we hack away...
+                                    row <- get_dim()[1]
+                                    
+                                  popup_detail <<- c(row=row, column=col) # 0 means head
+                                },
+                                add_popup_menu = function(mb, action=NULL, ...) {
+                                  if(is.list(mb))
+                                    mb = gmenu(mb, popup=TRUE, container=.self)
+                                  tkbind(widget, "<Button-1>", function(X, Y) {
+                                    set_popup_details(X, Y)
+                                    tkpopup(mb$widget, X, Y)
+                                  })
+                                },
+                                add_3rd_mouse_popup_menu=function(mb, action=NULL, ...) {
+                                  if(is.list(mb))
+                                          mb = gmenu(mb, popup=TRUE, container=.self)
+                                  events = ifelse(using_Mac(), c("<Button-2>", "<Control-1>"),  c("<Button-3>"))
+                                  QT <- Map(function(event) tkbind(widget, event, function(X, Y) {
+                                    set_popup_details(X, Y)
+                                    tkpopup(mb$widget, as.integer(X), as.integer(Y))
+                                  }), events)
+                                }
+                                
                                 ))
 
 
