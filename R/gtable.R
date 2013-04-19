@@ -546,7 +546,8 @@ GTable <- setRefClass("GTable",
                               initFields(chosen_col=chosen.col,
                                          icon_col=icon.col,
                                          tooltip_col=tooltip.col,
-                                         multiple=multiple
+                                         multiple=multiple,
+                                         popup_detail=c(row=NA_integer_, column=NA_integer_)
                                          )
 
                               init_widget(container$get_widget(), ...)
