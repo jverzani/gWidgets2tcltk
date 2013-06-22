@@ -191,8 +191,10 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                   ## DF is just items by default
                                   DF <<- as.data.frame(items)
                                   ..visible <<- rep(TRUE, nrow(.self$DF))
+
                                   populate_view()
                                   set_column_headings(names(get_data()))
+                                  set_column_widths(data=DF)
                                 },
                                 ## headings
                                 set_column_headings=function(nms) {
@@ -206,19 +208,20 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                 },
                                 set_column_widths=function(widths, data) {
                                   "Set widths from widths, or from data frame passed in via data"
-
                                   
                                   if(!missing(data)) {
                                     m <- gWidgets2tcltk:::gwidgets2_tcltk_format_to_char(data)
                                     chars <- apply(m, 2, function(x) max(nchar(x)))
-                                    widths <- ceiling(1.4 * widthOfChar * pmax(4, chars))
+                                    widths <- ceiling(6 +  widthOfChar * pmax(4, chars))
+                                    stretch <- rep(FALSE, ncol(m)); stretch[ncol(m)] <- TRUE
+                                  } else {
+                                    stretch <- c(rep(FALSE, length(widths)-1), TRUE)
                                   }
                                   if(length(widths) != n) {
                                     message(sprintf("Widths are not the correct length. Expecting %s, got %s", n, length(widths)))
                                     return()
                                   }
                                   f <- function(col, width, stretch) tcl(widget, "column", col, width=width, stretch=stretch)
-                                  stretch <- rep(FALSE, ncol(m)); stretch[ncol(m)] <- TRUE
                                   mapply(f, seq_along(widths), widths, stretch)
                                 },
                                 set_column_alignment=function(aligns) {
@@ -318,7 +321,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                   "Return columns not to show"
                                   integer(0)
                                 },
-                                populate_view=function() {
+                                populate_view=function(set_widths=TRUE) {
                                   "Populate widget, set column widths and alignment"
                                   tclServiceMode(FALSE)
                                   on.exit(tclServiceMode(TRUE))
@@ -327,7 +330,8 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                   
                                   m <- get_data()
                                   child_ids <<- sapply(seq_len(nrow(m)), function(i) append_row(m[i,]))
-                                  set_column_widths(data=m)
+                                  if(set_widths)
+                                    set_column_widths(data=m)
                                   set_column_alignment()
 
                                 },
@@ -454,7 +458,8 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                     set_column_widths(col_widths)
                                     value <- c(width=value$width, height=value$height) # make vector, not list
                                   }
-                                  callSuper(value, ...)
+                                  if(length(value) > 0)
+                                    callSuper(value, ...)
                                 },
                                 ## Handlers
                                 add_handler_changed=function(handler, action=NULL, ...) {

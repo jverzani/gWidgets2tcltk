@@ -1,5 +1,6 @@
 HUH??gtable: selection set through svalue, sort order is off?
-
+* gbasicdialog isn't returning a proper return value
+* need tomake this asychronous, it is not blocking as we don't update values
 popup menus: not done
 
 drag-and-drop (framework!)

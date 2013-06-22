@@ -125,7 +125,8 @@ GWindow <- setRefClass("GWindow",
                                     tkgrab.release(block)
                                     dispose_window()
                                   })
-                                  tkgrab(block)
+                                  #tkgrab(block)
+                                  tkwait.window(block)
                                 } else {
                                   tkgrab.release(block)
                                 }
