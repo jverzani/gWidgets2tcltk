@@ -92,6 +92,9 @@ GExpandGroup <- setRefClass("GExpandGroup",
                                   tcl(i, "state", ifelse(value, "!disabled", "disabled"))
                                 })
                                 callSuper(value)
-                              }
+                              },
+                              set_font=function(value) {
+                                l <- label
+                                font(l) <- value
                               ))
                             
