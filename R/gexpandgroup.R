@@ -96,5 +96,6 @@ GExpandGroup <- setRefClass("GExpandGroup",
                               set_font=function(value) {
                                 l <- label
                                 font(l) <- value
+                              }
                               ))
                             
