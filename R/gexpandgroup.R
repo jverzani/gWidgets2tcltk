@@ -30,7 +30,7 @@ GExpandGroup <- setRefClass("GExpandGroup",
                                 inner_frame <<- ttkframe(block)
                                 t_var <<- tclVar(1)
                                 disclose_icon <<- ttkcheckbutton(inner_frame,  variable=t_var)
-                                label <<-ttklabel(inner_frame)
+                                label <<- ttklabel(inner_frame)
                                 widget <<- ttkframe(block)
 
                                 do_layout()
@@ -94,8 +94,7 @@ GExpandGroup <- setRefClass("GExpandGroup",
                                 callSuper(value)
                               },
                               set_font=function(value) {
-                                l <- label
-                                font(l) <- value
+                                set_font_ttk(value, label)
                               }
                               ))
                             

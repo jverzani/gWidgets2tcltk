@@ -143,7 +143,7 @@ GComponent <- setRefClass("GComponent",
                                      set_font_tk(value)
                                    }
                                  },
-                                 set_font_ttk = function(value) {
+                                 set_font_ttk = function(value, obj=get_widget()) {
                                    ## we create a style
                                    color <- value$color
                                    spec <- map_font_to_spec(value)
@@ -153,15 +153,15 @@ GComponent <- setRefClass("GComponent",
                                      tcl("ttk::style", "configure", style_name, font=spec)
                                    else
                                      tcl("ttk::style", "configure", style_name, font=spec, foreground=color)
-                                   tkconfigure(get_widget(), style=style_name)
+                                   tkconfigure(obj, style=style_name)
                                  },
-                                 set_font_tk=function(value) {
+                                 set_font_tk=function(value, obj=get_widget()) {
                                    color <- value$color
                                    spec <- map_font_to_spec(value)
                                    ## just try it?
                                    tkconfigure(get_widget(), font=spec)
                                    if(!is.null(color))
-                                     tkconfigure(get_widget(), color=color)
+                                     tkconfigure(obj, color=color)
                                  },
                                  map_font_to_spec = function(markup, return_list=FALSE) {
                                    fontList <- list()
