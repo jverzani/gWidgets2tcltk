@@ -1,6 +1,12 @@
 \name{GToolBar}
 \alias{GToolBar}
 \title{\code{GToolBar} is the base class for toolbars}
+\usage{
+  GToolBar(...)
+}
+\arguments{
+  \item{...}{passed to constructor}
+}
 \description{
   The toolbar is a container, so can have other widgets
   added to it as though it were a box container. Buttons

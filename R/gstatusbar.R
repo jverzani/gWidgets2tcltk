@@ -22,7 +22,8 @@ NULL
 ##' The \code{GStatusBar} class inherits for \code{GBoxContainer}
 ##' meaning it can be used as a parent container. As such, one can add
 ##' additional widgets beyond the plain label that is the main
-##' property of this widget. 
+##' property of this widget.
+##' @param ... passed to constructor
 GStatusBar <- setRefClass("GStatusBar",
                           contains="GBoxContainer",
                           fields=list(

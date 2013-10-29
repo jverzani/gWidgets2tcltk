@@ -21,6 +21,8 @@
 ##' iteration. As well, there are some lookup methods.
 ##' @exportClass List
 ##' @name List-class
+##' @param ... passed to constructor
+##' @aliases List
 List <- setRefClass("List",
                     fields=list(
                       "l"="list",

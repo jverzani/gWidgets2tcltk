@@ -4,10 +4,10 @@ NULL
 .onLoad <- function(libname,pkgname,...) {
   ## methods isn't loaded yet, so we try calling through :::
   oldClasses <- c("tkwin", "tclVar", "tclObj")
-  methods:::setClass("tcltkObject")
+  methods::setClass("tcltkObject")
   lapply(oldClasses, function(i) {
-    methods:::setOldClass(i)
-    methods:::setIs(i,"tcltkObject")
+    methods::setOldClass(i)
+    methods::setIs(i,"tcltkObject")
   })
 
 

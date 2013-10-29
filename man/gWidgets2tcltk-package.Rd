@@ -12,6 +12,30 @@
 \alias{GWidgetWithItems}
 \alias{gWidgets2tcltk-package}
 \title{gWidgets2tcltk}
+\usage{
+  DND(...)
+
+  GComponent(...)
+
+  GWidget(...)
+
+  GWidgetWithItems(...)
+
+  GContainer(...)
+
+  GButton(...)
+
+  GDf(...)
+
+  GLabel(...)
+
+  GTimer(...)
+
+  GProgressBar(...)
+}
+\arguments{
+  \item{...}{passed to constructor}
+}
 \description{
   The \pkg{gWidgets2} package provides a programming
   interface for making graphical user interfaces within R.

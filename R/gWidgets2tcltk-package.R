@@ -11,9 +11,15 @@
 ##' John Verzani \email{jverzani@@gmail.com}
 ##'
 ##' Maintainer: John Verzani \email{jverzani@@gmail.com}
+##' @param ... passed to constructor
 ##' @aliases gWidgets2tcltk-package
 ##' @name gWidgets2tcltk-package
 ##' @docType package
 ##' @title gWidgets2tcltk
 ##' @keywords package
+NULL
+
+##' @import digest
+##' @import memoise
+##' @import methods
 NULL

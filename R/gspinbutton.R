@@ -19,6 +19,7 @@ NULL
 
 ##' Spinbutton class
 ##'
+##' @param ... passed to constructor
 ##' \code{GSpinButton} is the base class for spin buttons. The widget
 ##' is buggy in tcltk, atleast with the old non-themed style and a Mac
 ##' running tcltk under X11. The bug is the thing keeps spinning when

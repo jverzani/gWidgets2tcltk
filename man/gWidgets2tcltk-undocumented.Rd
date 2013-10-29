@@ -225,6 +225,8 @@
 
   \item{digits}{digits}
 
+  \item{...}{passed to constructor}
+
   \item{name}{name of icon}
 
   \item{obj}{obj to get icon from}
@@ -238,8 +240,6 @@
   \item{icon}{What icon to show}
 
   \item{parent}{Hint as to where to display}
-
-  \item{...}{ignored}
 
   \item{text}{Character. Initial text}
 
@@ -288,7 +288,7 @@
   \item{items}{data.frame specifies items for selection.
   May be a vector, matrix or data frame}
 
-  \item{multiple}{logical allow multiple selectino}
+  \item{multiple}{logical allow multiple selection}
 
   \item{chosen.col}{which value from the row is returned by
   selection}
@@ -345,9 +345,18 @@
 
   \item{spacing}{spacing between columns}
 
-  \item{use.scrollwindow}{logical. If TRUE, places box
-  container in scrollwindow. In this case, a size should be
-  set.}
+  \item{use.scrollwindow}{logical. Either \code{TRUE},
+  \code{"TRUE"}, \code{FALSE}, \code{"FALSE"}, \code{"y"},
+  or \code{"x"}. For all toolkits a non-FALSE value will
+  place the child components into a scrollable container.
+  For some toolkits this will only be in the direction of
+  packing. If the toolkit allows it (RGtk2), then values of
+  \code{"x"} or \code{"y"} can be used to override the
+  default scrolling directions. A box container with
+  scrollwindows should have it size set either directly or
+  through packing with \code{expand=TRUE} as its size
+  request will not reflect the size of its child
+  components.}
 
   \item{markup}{does label use markup (toolkit specific)}
 

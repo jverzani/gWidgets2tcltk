@@ -4,6 +4,7 @@ NULL
 ##' Toolkit constructor
 ##'
 ##' @inheritParams gWidgets2::gtoolbar
+##' @param ... passed to constructor
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gtoolbar guiWidgetsToolkittcltk
@@ -26,6 +27,7 @@ NULL
 ##' action items, so that they are rendered in the proper style. Check
 ##' buttons should be given the argument \code{use.togglebutton}. Use
 ##' \code{addSpring} to right align items.
+##' @param ... passed to constructor
 GToolBar <- setRefClass("GToolBar",
                         contains="GBoxContainer",
                         fields=list(
