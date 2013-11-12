@@ -94,8 +94,9 @@ parse_tcl <- function(x) {
 }
 
 tl_get_column_raw <- function(tbl, j) {
-  raw <- tcl(tbl, "getcolumns", j-1, j-1)
-  parse_tcl(tclvalue(raw))
+  tcl(tbl, "getcolumns", j-1)
+#  raw <- tcl(tbl, "getcolumns", j-1, j-1)
+#  parse_tcl(tclvalue(raw))
 }
 
 
