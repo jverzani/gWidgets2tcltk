@@ -1,6 +1,7 @@
 Version 1.0-3
 -------------
 
+* add svalue(gtext_object, drop=TRUE) <- method to replace selected text
 
 Version 1.0-2
 -------------

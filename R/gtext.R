@@ -111,13 +111,18 @@ GText <- setRefClass("GText",
                          ## val = unlist(strsplit(val,"\n"))
                          return(val)
                        },
-                       set_value=function(value, ...) {
-                         "Replace all text, pasted together with newline"
-                         value <- paste(value, collapse="\n")
+                       set_value=function(value, drop=FALSE, ...) {
+                         "Replace all text, pasted together with newline or replace selection"
 
-                         tkdelete(widget,"0.0", "end") # clear old
-                         tkinsert(widget, "end", value)
-                         tksee(widget, "0.0")
+                         value <- paste(value, collapse="\n")
+                         
+                         if (drop) {
+                           tcl(widget,"replace", "sel.first", "sel.last", value)
+                         } else {
+                           tkdelete(widget,"0.0", "end") # clear old
+                           tkinsert(widget, "end", value)
+                           tksee(widget, "0.0")
+                         }
                        },
                        get_index = function(...) {
                          "Return the index of the selected text"
