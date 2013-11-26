@@ -407,20 +407,21 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                       sapply(seq_along(i), function(i) replace_row_data(i, value[i,]))
                                     }
                                   } else if(missing(i)) {
-                                    value <- data.frame(value)
+                                    if(!is.data.frame(value))
+                                      value <- data.frame(value, stringsAsFactors=FALSE)
                                     sapply(seq_len(nrow(DF)), function(i) {
                                       vals <- DF[i,]
                                       vals[j] <- value[i,] # replace
                                       replace_row_data(i, vals)
                                     })
                                   } else {
-                                    ## XXX need to work on dim of value
                                     sapply(seq_along(i), function(ii) {
                                       vals <- DF[i[ii], ]
-                                      if(is.vector(value))
-                                        vals[j] <- value[i[ii]]
-                                      else
-                                        vals[j] <- value[i[ii], ]
+                                      if(is.vector(value)) {
+                                        vals[1,j] <- value[ii]
+                                      } else {
+                                        vals[1,j] <- value[ii, ]
+                                      }
                                       replace_row_data(i[ii], vals)
                                     })
                                   }
