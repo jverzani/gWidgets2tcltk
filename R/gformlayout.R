@@ -94,7 +94,7 @@ GFormLayout <- setRefClass("GFormLayout",
                              },
                              no_rows=function() get_dim()[1],
                              ## hacky way to set label
-                             set_label_font(row, value) {
+                             set_label_font=function(row, value) {
                                "Row is row number, value is font spec"
                                l = tcl("grid", "slaves", widget, row=row-1, column=0)
                                set_font_ttk(value, l)
