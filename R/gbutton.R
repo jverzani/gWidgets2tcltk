@@ -24,11 +24,10 @@ GButton <- setRefClass("GButton",
                             methods=list(
                              
                               set_value=function(value, index=TRUE, drop=TRUE, ...) {
-                                "Set value, does not invoke widget"
-
-                                tkconfigure(widget, text=as.character(value))
-                                icon <- getStockIconByName(value, toolkit=toolkit)
-                                set_icon(icon)
+                                "Set value, does not invoke button's command"
+                                value <- as.character(value)
+                                tkconfigure(widget, text=value)
+                                set_icon(value)
 
                               },
                               set_index=function(...) set_value(...),
