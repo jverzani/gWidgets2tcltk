@@ -177,11 +177,11 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                 },
                                 bind_select=function() {
                                   "Select is double click or enter"
-#                                  tkbind(widget, "<Double-Button-1>", function() {
-#                                    .self$notify_observers(signal="<<SelectionMade>>"#)
-#                                  })
+                                  tkbind(widget, "<Double-Button-1>", function() {
+                                    .self$notify_observers(signal="<<SelectionMade>>")
+                                  })
                                   tkbind(widget, "<Return>", function() {
-                                    .self$notify_observers(signal="<Double-Button-1>")
+                                    .self$notify_observers(signal="<<SelectionMade>>")
                                   })
 
                                 },

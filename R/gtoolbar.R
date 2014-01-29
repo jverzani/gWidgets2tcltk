@@ -83,7 +83,7 @@ GToolBar <- setRefClass("GToolBar",
                           add_gaction_toolitem=function(obj) {
                             "Helper to add a gaction item"
                             btn <- gbutton(action=obj, container=widget, expand=FALSE)
-                            style_map <- list("both"="center", "icons"="image", "text"="text", "both-horiz"="left"),
+                            style_map <- list("both"="center", "icons"="image", "text"="text", "both-horiz"="left")
                             tkconfigure(btn$widget, compound=style_map[style], style="Toolbutton")
                           },
                           add_gseparator_toolitem=function() {
