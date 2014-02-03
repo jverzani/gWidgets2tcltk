@@ -249,9 +249,15 @@ GCheckboxGroupTable <- setRefClass("GCheckboxGroupTable",
                                      get_items=function(i, ...) {
                                        get_data()[i,1]
                                      },
-                                     set_items=function(i, ...) {
-                                       ## set data, selected? ...
-
+                                     set_items=function(value, i, ...) {
+                                       if(!missing(i)) {
+                                         message("Can only reset all items")
+                                         return()
+                                       }
+                                       set_DF(value)
+                                       cur_width = as.numeric(tkwinfo("width", widget))
+                                       tcl(widget, "column", 1,  width=cur_width- 50, stretch=TRUE)
+                                       set_index(integer(0))
                                      },
                                      get_length=function(...) {
                                        nrow(DF)
