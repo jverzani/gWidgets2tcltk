@@ -250,7 +250,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                 },
                                 set_icons=function(icons) {
                                   "Set column of icons"
-                                  if(is.null(icons))
+                                  if(is.null(icons) || length(icons) == 0)
                                     return()
                                   if(length(icons) != nrow(DF)) {
                                     message(sprintf("Too few icons specified. Expected %s, got %s", nrow(DF), length(icons)))

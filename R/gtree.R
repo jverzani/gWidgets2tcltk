@@ -301,14 +301,14 @@ GTree <- setRefClass("GTree",
                          })
                        },
                        configure_row=function(node, text, values, has_offspring, icon) {
-                         if(is.factor(values))
-                           values <- as.character(values)
-                         if(length(values) == 1)
-                           values <- sprintf("{%s}", values)
-                         if(length(values) > 0)
-                           id <- tcl(widget, "insert", node, "end", text=text, values=unlist(values))
-                         else
-                           id <- tcl(widget, "insert", node, "end", text=text)
+                         if(length(values) > 0) {
+                           values <- unlist(lapply(values, as.character))
+                           if(length(values) == 1)
+                             values <- sprintf("{%s}", values)
+                           id <- tcl(widget, "insert", node, "end", text=text, values=values)
+                           } else {
+                             id <- tcl(widget, "insert", node, "end", text=text)
+                           }
                          tcl(widget, "item", id, image=icon)
                          if(has_offspring) {
                            tcl(widget,"insert", id, "end", text="")
