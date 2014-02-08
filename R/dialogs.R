@@ -114,6 +114,7 @@ NULL
     tclvalue(flag) <- "destroy"
   })
 
+  tkfocus(ed$widget)
   dlg$set_visible(TRUE)
   
   ## make modal
