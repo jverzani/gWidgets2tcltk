@@ -133,7 +133,11 @@ GTreeBase <- setRefClass("GTreeBase",
                        ## main gWidgets methods
                        get_value=function(i, drop=TRUE,...) {
                          "Return path (by chosen col)"
-                         get_tree_path(widget)[i, drop=drop]
+                         path <- get_tree_path(widget)
+                         if(drop)
+                           tail(path,n=1)
+                         else
+                           path
                        },
                        set_value=function(value, ...) {
                          "open path, set via match"
@@ -227,6 +231,10 @@ GTreeBase <- setRefClass("GTreeBase",
                          f <- function(col, value) tcl(widget, "heading", col, text=value)
                          mapply(f, seq_along(nms), nms)
                        },
+                       ## handler
+                       add_handler_clicked=function(handler, action=NULL, ...) {
+                         add_handler_button_release(handler, action=action, ...)
+                       },
                        ## Some extra methods
                        clear_selection=function() {
                          tcl(widget, "selection", "set", "")
@@ -263,7 +271,7 @@ GTree <- setRefClass("GTree",
                                     offspring_col=offspring.col,
                                     icon_col = icon.col,
                                     tooltip_col=tooltip.col,
-                                    change_signal="<TreeviewExpand>"
+                                    change_signal="<<TreeviewSelect>>"
                                     )
                          
                          
