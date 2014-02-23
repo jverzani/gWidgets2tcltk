@@ -162,10 +162,16 @@ GText <- setRefClass("GText",
                          }
                          ## Handle markup here
                          if(!is.null(font.attr) && length(font.attr) > 0) {
+                           col <- font.attr$color
+                           font.attr <- font.attr[setdiff(names(font.attr), "color")]
+                           
                            ## bit of a hack to set font
                            fname <- paste(as.character(date()),rnorm(1), sep="") ## some random string
-                           
-                           fontList <- map_font_to_spec(font.attr, TRUE)
+                           if(length(font.attr) > 0) {
+                             fontList <- map_font_to_spec(font.attr, TRUE)
+                           } else {
+                             fontList <- list()
+                           }
                            do.call("tkfont.create", merge_list(fname, fontList))                           
                            
                            tkmark.set(widget, "left","insert")
@@ -175,15 +181,17 @@ GText <- setRefClass("GText",
                            tkinsert(widget, where, value)
                            tktag.add(widget, fname, "left","right")
                            tktag.configure(widget, fname, font=fname)
-                           if("color" %in% names(font.attr))
-                             tktag.configure(widget, fname, foreground=font.attr$color)
+                           if(!is.null(col))
+                             tktag.configure(widget, fname, foreground=col)
                          } else {
                            ## no markup
                            tkinsert(widget, where, value)
                          }
                          
                          ## does this place the cursor? TK FAQ 10.6
-                         tksee(widget, "insert")
+                         ## move cursor, unless an at.cursor event (which moves things down)
+                         if(where != "insert")
+                           tksee(widget, "insert")
 
                        },
                        set_font=function(value) {
