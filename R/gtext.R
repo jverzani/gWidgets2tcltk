@@ -158,7 +158,6 @@ GText <- setRefClass("GText",
                          
                          value <- paste(value,collapse="\n")
                          if(do.newline) {
-                           message("insert new line")
                            value <- paste(value,"\n",sep="")
                          }
                          ## Handle markup here

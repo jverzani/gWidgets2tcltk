@@ -165,7 +165,7 @@ GFileBrowse <- setRefClass("GFileBrowse",
                                 tkpack(widget, side="left", expand=TRUE, fill="both")
                                 tkpack(btn, side="left")
 
-                                initFields(change_signal="<Changed>",
+                                initFields(change_signal="<<Changed>>",
                                            text=text,
                                            type=type,
                                            initial.filename=initial.filename,
