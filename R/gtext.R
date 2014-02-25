@@ -162,27 +162,20 @@ GText <- setRefClass("GText",
                          }
                          ## Handle markup here
                          if(!is.null(font.attr) && length(font.attr) > 0) {
-                           col <- font.attr$color
-                           font.attr <- font.attr[setdiff(names(font.attr), "color")]
-                           
-                           ## bit of a hack to set font
-                           fname <- paste(as.character(date()),rnorm(1), sep="") ## some random string
-                           if(length(font.attr) > 0) {
-                             fontList <- map_font_to_spec(font.attr, TRUE)
-                           } else {
-                             fontList <- list()
-                           }
-                           do.call("tkfont.create", merge_list(fname, fontList))                           
-                           
-                           tkmark.set(widget, "left","insert")
-                           tkmark.gravity(widget,"left","left")
-                           tkmark.set(widget, "right","insert")
-                           tkmark.gravity(widget,"right","right")
-                           tkinsert(widget, where, value)
-                           tktag.add(widget, fname, "left","right")
-                           tktag.configure(widget, fname, font=fname)
-                           if(!is.null(col))
-                             tktag.configure(widget, fname, foreground=col)
+                           l <- list()
+                           l$foreground <- font.attr$color
+                           family <- font_family(font.attr$family)
+                           if(family != "")
+                             l$font <- sprintf("{%s %s %s %s}", family, font_size(font.attr$size),
+                                               font_style(font.attr$style), font_weight(font.attr$weight))
+                           ## pass on other attributes
+                           others <- font.attr[setdiff(names(font.attr), c("color", "family", "size", "style", "weight"))]
+                           if(length(others) > 1)
+                             l <- merge_list(l, others)
+                           ## make a random tag name
+                           tagname <- paste(sample(letters, 10,T), collapse="")
+                           do.call(function(...) tktag.configure(widget, tagname, ...), l)
+                           tkinsert(widget, where, value, tagname)
                          } else {
                            ## no markup
                            tkinsert(widget, where, value)

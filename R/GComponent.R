@@ -163,7 +163,53 @@ GComponent <- setRefClass("GComponent",
                                    if(!is.null(color))
                                      tkconfigure(obj, color=color)
                                  },
+                                 font_family=function(family=NULL) {
+                                   is.null(family) && return("")
+                                   switch(family,
+                                          "normal"="times",
+                                          "sans" = "helvetica",
+                                          "serif" = "times",
+                                          "monospace"="courier",
+                                          "helvetica")
+                                 },
+                                 font_style=function(style=NULL) {
+                                   is.null(style) && return("")
+                                   switch(style,
+                                          "normal"="roman",
+                                          "oblique"="roman",
+                                          "italic"="italic",
+                                          "")
+                                 },
+                                 font_weight = function(weight=NULL) {
+                                   is.null(weight) && return("")                                   
+                                   switch(weight,
+                                          "heavy"="bold",
+                                          "ultra-bold"="bold",
+                                          "bold"="bold",
+                                          "normal"="normal",
+                                          "light"="normal",
+                                          "ultra-light" = "normal",
+                                          "")
+                                 },
+                                 font_size=function(size=NULL) {
+                                   is.null(size) && return("")
+                                   if(is.numeric(size))
+                                     return(size)
+                                   else
+                                     switch(size,
+                                            "xxx-large"=24,
+                                            "xx-large"=20,
+                                            "x-large"=18,
+                                            "large"=16,
+                                            "medium"=12,
+                                            "small"=10,
+                                            "x-small"=8,
+                                            "xx-small"=6,
+                                            "")
+                                 },
+                                 
                                  map_font_to_spec = function(markup, return_list=FALSE) {
+                                   ## TODO tidy up using functions from above
                                    fontList <- list()
                                    if(!is.null(markup$family))
                                      fontList <- merge_list(fontList, list(family=switch(markup$family,
@@ -173,7 +219,7 @@ GComponent <- setRefClass("GComponent",
                                                                         "monospace"="courier",
                                                                         markup$family)))
                                    else
-                                     fontList$family <- "helvetica"
+                                     fontList$family <- "times"
                                    
                                    if(!is.null(markup$style))
                                      fontList <- merge_list(fontList, list(slant=switch(markup$style,
