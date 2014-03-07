@@ -79,18 +79,21 @@ GTreeBase <- setRefClass("GTreeBase",
                        configure_column_widths=function(widths, data) {
                          "straight from GTable, subclass?"
                          if(!missing(data)) {
-                           m <- gWidgets2tcltk:::gwidgets2_tcltk_format_to_char(data)
-                           chars <- apply(m, 2, function(x) max(nchar(x)))
-                           widths <- ceiling(1.4 * widthOfChar * pmax(4, chars))
+                           widths <- sapply(data, function(col) {
+                             m <- gWidgets2tcltk:::gwidgets2_tcltk_format_to_char(col)
+                             chars <- max(nchar(m))
+                             ceiling(1.4 * widthOfChar * pmax(4, chars))
+                           })
                          }
                          if(length(widths) != no_columns) {
+                           print(list(m, data, chars, widths))
                            message(sprintf("Widths are not the correct length. Expecting %s, got %s", no_columns, length(widths)))
                            return()
                          }
                          f <- function(col, width) tcl(widget, "column", col, width=width, stretch=FALSE)
                          mapply(f, seq_along(widths), widths)
                          
-                         tcl(widget, "column", ncol(m), stretch=TRUE)
+                         tcl(widget, "column", ncol(data), stretch=TRUE)
                          
                          ## do icon column, unlike gtable, here we want to strecth
                          tcl(widget, "column", "#0", width=50L, anchor="w", stretch=TRUE)                         
