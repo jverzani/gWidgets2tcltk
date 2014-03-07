@@ -84,7 +84,7 @@ GTreeBase <- setRefClass("GTreeBase",
                            widths <- ceiling(1.4 * widthOfChar * pmax(4, chars))
                          }
                          if(length(widths) != no_columns) {
-                           message(sprintf("Widths are not the correct length. Expecting %s, got %s", n, length(widths)))
+                           message(sprintf("Widths are not the correct length. Expecting %s, got %s", no_columns, length(widths)))
                            return()
                          }
                          f <- function(col, width) tcl(widget, "column", col, width=width, stretch=FALSE)
