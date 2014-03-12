@@ -127,8 +127,11 @@ GMenuBar <- setRefClass("GMenuBar",
                          menu_list
                        },
                        set_value=function(value, ...) {
+                         curind <- tkindex(widget, "end")
                          menu_list <<- value
                          add_menu_items(widget, value, index=integer(0))
+                         ## clear out old
+                         tkdelete(widget, 0, curind)
                        },
                        append_value=function(items) {
                          "Append to menu list"
