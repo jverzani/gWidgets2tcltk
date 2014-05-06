@@ -54,13 +54,14 @@ GCalendar <- setRefClass("GCalendar",
 
                              add_to_parent(container, .self, ...)
                              handler_id <<- add_handler_changed(handler, action)
+                             add_bindings()
                              callSuper(toolkit)
                            },
                            popup_date=function() {
                              cur_date <- get_value()
                              if(is.na(cur_date))
                                cur_date <- Sys.Date()
-                             makeCalendar(date_var, widget, cur_date, format)
+                             makeCalendar(date_var, widget, cur_date, format, set_value)
                            },
                            get_value=function(drop=TRUE, ...) {
                              val <- as.character(tclvalue(date_var))
@@ -78,11 +79,19 @@ GCalendar <- setRefClass("GCalendar",
                              d <- as.Date(value, format=format)
                              tclvalue(date_var) <<- format(d)
                              invoke_change_handler()
+                           },
+                           add_bindings = function() {
+                             add_handler("<Return>",function(...) {
+                                  set_value(as.character(tclvalue(date_var)))
+                              })
+                              add_handler("<FocusOut>",function(...) {
+                                  set_value(as.character(tclvalue(date_var)))
+                              })
                            }
                            ))
 
 ## helper
-makeCalendar <- function(date_var, widget, date, date_format="%Y-%m-%d") {
+makeCalendar <- function(date_var, widget, date, date_format="%Y-%m-%d", set_value) {
 
   if(missing(date))
     date <- Sys.Date()
@@ -161,11 +170,7 @@ makeCalendar <- function(date_var, widget, date, date_format="%Y-%m-%d") {
       ## might be more efficient to bind to toplevel and intercept
       tkbind(l, "<Button-1>", function(W) {
         day <- sprintf("%s-%s-%s", year, month, tclvalue(tkcget(W,"-text")))
-        
-        date <- as.Date(day, "%Y-%m-%d")
-        date <- format(date, format=date_format)
-        
-        tclvalue(date_var) <- date
+        set_value(day)
         tkdestroy(toplevel)
       })
 
