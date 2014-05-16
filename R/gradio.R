@@ -90,7 +90,7 @@ GRadio <- setRefClass("GRadio",
                                                     text=i, value=i)
                               ## configure call back
                               tkconfigure(btn, command=function() {
-                                if(as.character(tclvalue(state_var)) == as.character(tkcget(btn, "-text")))
+                                if(as.character(tclvalue(state_var)) == tclvalue(tkcget(btn, "-text")))
                                   notify_observers(signal=change_signal)
                               })
                               if(horizontal)

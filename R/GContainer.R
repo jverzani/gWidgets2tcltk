@@ -38,7 +38,10 @@ GContainer <- setRefClass("GContainer",
                             get_enabled=function(value) {
                               if(is(..enabled, "uninitializedField"))
                                 ..enabled <<- TRUE
-                              ..enabled
+                              if(length(..enabled) == 0)
+                                TRUE
+                              else
+                                ..enabled
                             }
                           ))
 

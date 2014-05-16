@@ -215,6 +215,9 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                     widths <- ceiling(6 +  widthOfChar * pmax(4, chars))
                                     stretch <- rep(FALSE, ncol(m)); stretch[ncol(m)] <- TRUE
                                   } else {
+                                    if(is.null(widths))
+                                      return()
+                                    print(widths)
                                     stretch <- c(rep(FALSE, length(widths)-1), TRUE)
                                   }
                                   if(length(widths) != n) {
