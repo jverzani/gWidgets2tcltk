@@ -63,12 +63,13 @@ GSlider <- setRefClass("GSlider",
                          },
                          set_value=function(value, drop=TRUE, ...) {
                            i <- match(value, items)
-                           if(!is.na(i))
+                           if(!is.na(i)) 
                              set_index(i)
                          },
                          set_index = function(value,...) {
                            a <- t_var
                            tclvalue(a) <- as.integer(value)
+                           invoke_change_handler()
                            update_tooltip()
                          },
                          get_items = function(i, ...) {
