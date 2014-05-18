@@ -9,18 +9,22 @@
 ### - add and check catch instructions here
 
 ## JV: Rather than load in tcltk2 dependency, we borrow Philippe's work here
-tk2tip <- function (widget, message)
-{
-##	if (!is.tk()) stop("Package Tk is required but not loaded")
-	if (is.null(message)) message <- ""
-	res <- tclRequire("tooltip")
+tk2tip <- function (widget, msg) {
+    ##	if (!is.tk()) stop("Package Tk is required but not loaded")
+    if (is.null(msg)) msg <- ""
+    
+    ## Hack for negative numbers
+    if(grepl("^-", msg))
+        msg <- sprintf("(%s)", substr(msg, 2, nchar(msg)))
+    
+    res <- tclRequire("tooltip")
 	if (inherits(res, "tclObj")) {
-		res <- tcl("tooltip::tooltip", widget, message)
-		## Store tip text in the object (use NULL instead of "" for no tip)
-		if (message == "") message <- NULL
-		widget$env$tip <- message
+            res <- tcl("tooltip::tooltip", widget, msg)
+            ## Store tip text in the object (use NULL instead of "" for no tip)
+            if (msg == "") msg <- NULL
+            widget$env$tip <- msg
 	} else stop("cannot find tcl package 'tooltip'")
-	return(invisible(res))
+    return(invisible(res))
 }
 
 tk2killtip <- function ()
