@@ -33,7 +33,7 @@ GSlider <- setRefClass("GSlider",
                              x <- from
                            x <- sort(unique(x))
                            items <<- x
-                           ind <- match(value, items)
+                           ind <- max(which(items <= value)) #match(value, items)
 
                            t_var <<- tclVar(ind)
                            orientation <- ifelse(horizontal, "horizontal", "vertical")
@@ -63,9 +63,10 @@ GSlider <- setRefClass("GSlider",
                            as.integer(tclvalue(t_var))
                          },
                          set_value=function(value, drop=TRUE, ...) {
-                           i <- match(value, items)
-                           if(!is.na(i)) 
-                             set_index(i)
+                             i <- max(which(items <= value))
+#                             i <- match(value, items)
+                             if(!is.na(i)) 
+                               set_index(as.integer(i))
                          },
                          set_index = function(value,...) {
                            a <- t_var
