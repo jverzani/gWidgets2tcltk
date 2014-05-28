@@ -147,12 +147,14 @@ GComponent <- setRefClass("GComponent",
                                    ## we create a style
                                    color <- value$color
                                    spec <- map_font_to_spec(value)
+                                   spec <- gsub("\\s*$", "", spec)
                                    kls <- as.character(tkwinfo("class", obj))
                                    style_name <- sprintf("%s_%s.%s", gsub(" ", "", spec), ifelse(is.null(color), "black", color), kls)
-                                   if(is.null(color))
-                                     tcl("ttk::style", "configure", style_name, font=spec)
-                                   else
+                                   if(is.null(color)) 
+                                       tcl("ttk::style", "configure", style_name, font=spec)
+                                   else 
                                      tcl("ttk::style", "configure", style_name, font=spec, foreground=color)
+                                   
                                    tkconfigure(obj, style=style_name)
                                  },
                                  set_font_tk=function(value, obj=get_widget()) {
