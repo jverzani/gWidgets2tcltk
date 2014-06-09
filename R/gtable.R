@@ -90,7 +90,7 @@ gwidgets2_tcltk_format_to_char.Date <- function(x) format(x, format="%d-%m-%Y")
 ##' @rdname gwidgets2_tcltk_format_to_char
 ##' @method gwidgets2_tcltk_format_to_char data.frame
 ##' @S3method gwidgets2_tcltk_format_to_char data.frame
-gwidgets2_tcltk_format_to_char.data.frame <- function(x) as.data.frame(sapply(x, gwidgets2_tcltk_format_to_char))
+gwidgets2_tcltk_format_to_char.data.frame <- function(x) as.data.frame(lapply(x, gwidgets2_tcltk_format_to_char))
 
 
 ##' align a column based on the class of the content
