@@ -427,8 +427,9 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                         "Uses Observable framework for events. Adds observer, then call connect signal method. Override last if done elsewhere"
                                         if(is_handler(handler)) {
                                           o <- gWidgets2:::observer(.self, handler, action)
-                                          invisible(add_observer(o, signal))
+                                          id <- add_observer(o, signal)
                                           connect_to_toolkit_signal(signal, decorator=decorator, emitter=emitter, ...)
+                                          return(id)
                                         }
                                       },
                                       connect_to_toolkit_signal=function(
