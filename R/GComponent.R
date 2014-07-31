@@ -521,6 +521,12 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                       add_handler_doubleclick = function(handler, action=NULL, ...) {
                                         add_handler("<Double-Button1>", handler, action, decorator=.self$click_decorator, ...)
                                       },
+                                        add_handler_shift_clicked = function(handler, action=NULL, ...) {
+                                            add_handler("<Shift-Button-1>", handler, action, decorator=.self$click_decorator, ...)
+                                        },
+                                        add_handler_control_clicked = function(handler, action=NULL, ...) {
+                                            add_handler("<Control-Button-1>", handler, action, decorator=.self$click_decorator, ...)
+                                        },
                                       add_handler_button_press=function(handler, action=NULL, ...) {
                                         add_handler("<ButtonPress>", handler, action, ...)
                                       },
