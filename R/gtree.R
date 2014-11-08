@@ -237,7 +237,14 @@ GTreeBase <- setRefClass("GTreeBase",
                        ## handler
                        add_handler_clicked=function(handler, action=NULL, ...) {
                          add_handler_button_release(handler, action=action, ...)
-                       },
+                     },
+                         add_handler_double_clicked=function(handler, action=NULL, ...) {
+                             add_handler("<Double-Button-1>", handler, action)
+                         },
+                         add_handler_selection_changed=function(handler, action=NULL, ...) {
+                             add_handler("<<TreeviewSelect>>", handler, action)
+                         },
+
                        ## Some extra methods
                        clear_selection=function() {
                          tcl(widget, "selection", "set", "")
