@@ -76,7 +76,7 @@ GWindow <- setRefClass("GWindow",
                                 
                                 add_handler_changed(handler, action)
 
-
+                                set_size(c(width, height))
                                 tclServiceMode(TRUE)
                                 set_visible(visible)
                                 
