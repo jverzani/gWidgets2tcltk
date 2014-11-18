@@ -256,7 +256,7 @@ GCheckboxGroupTable <- setRefClass("GCheckboxGroupTable",
                                        }
                                        set_DF(value)
                                        cur_width = as.numeric(tkwinfo("width", widget))
-                                       tcl(widget, "column", 1,  width=cur_width- 50, stretch=TRUE)
+                                       tcl(widget, "column", ncol(value),  width=cur_width- 50, stretch=TRUE)
                                        set_index(integer(0))
                                      },
                                      get_length=function(...) {
