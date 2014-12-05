@@ -216,9 +216,7 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                     stretch <- rep(FALSE, ncol(m)); stretch[ncol(m)] <- TRUE
                                   } else {
                                     if(is.null(widths))
-                                      return()
-                                    print(widths)
-                                    stretch <- c(rep(FALSE, length(widths)-1), TRUE)
+                                        stretch <- c(rep(FALSE, length(widths)-1), TRUE)
                                   }
                                   if(length(widths) != n) {
                                     message(sprintf("Widths are not the correct length. Expecting %s, got %s", n, length(widths)))
