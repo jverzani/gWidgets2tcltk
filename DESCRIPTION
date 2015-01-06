@@ -1,7 +1,6 @@
 Package: gWidgets2tcltk
-Version: 1.0-3
-Title: Toolkit implementation of gWidgets2 for tcltk
-    package
+Version: 1.0-4
+Title: Toolkit Implementation of gWidgets2 for tcltk
 Author: John Verzani
 Maintainer: John Verzani <jverzani@gmail.com>
 URL: https://github.com/jverzani/gWidgets2tcltk
@@ -14,7 +13,7 @@ Depends:
     gWidgets2
 Suggests:
     testthat
-Description: Port of the gWidgets2 API to the tcltk
+Description: Port of the gWidgets2 API for the tcltk
     package.
 License: GPL (>= 2)
 LazyLoad: yes

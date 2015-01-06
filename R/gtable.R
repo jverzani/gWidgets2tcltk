@@ -206,26 +206,31 @@ BaseTableClass <- setRefClass("BaseTableClass",
                                   f <- function(col, value) tcl(widget, "heading", col, text=value)
                                   mapply(f, seq_along(nms), nms)
                                 },
-                                set_column_widths=function(widths, data) {
-                                  "Set widths from widths, or from data frame passed in via data"
-                                  
-                                  if(!missing(data)) {
-                                    m <- gWidgets2tcltk:::gwidgets2_tcltk_format_to_char(data)
-                                    chars <- apply(m, 2, function(x) max(nchar(x)))
-                                    widths <- ceiling(6 +  widthOfChar * pmax(4, chars))
-                                    stretch <- rep(FALSE, ncol(m)); stretch[ncol(m)] <- TRUE
-                                  } else {
-                                    if(is.null(widths))
-                                        stretch <- c(rep(FALSE, length(widths)-1), TRUE)
-                                  }
-                                  if(length(widths) != n) {
-                                    message(sprintf("Widths are not the correct length. Expecting %s, got %s", n, length(widths)))
-                                    return()
-                                  }
-                                  f <- function(col, width, stretch) tcl(widget, "column", col, width=width, stretch=stretch)
-                                  mapply(f, seq_along(widths), widths, stretch)
+                                  set_column_widths=function(widths, data) {
+                                      "Set widths from widths, or from data frame passed in via data"
+
+                                      stretch <- NULL
+                                      if(!missing(data)) {
+                                          m <- gWidgets2tcltk:::gwidgets2_tcltk_format_to_char(data)
+                                          chars <- apply(m, 2, function(x) max(nchar(x)))
+                                          widths <- ceiling(6 +  widthOfChar * pmax(4, chars))
+                                          stretch <- rep(FALSE, ncol(m)); stretch[ncol(m)] <- TRUE
+                                      } else {
+                                          if(is.null(widths))
+                                              stretch <- c(rep(FALSE, length(widths)-1), TRUE)
+                                      }
+                                      if(is.null(stretch)) {
+                                          stretch <- rep(FALSE, length(widths));
+                                          stretch[length(widths)] <- TRUE
+                                      }
+                                      if(length(widths) != n) {
+                                          message(sprintf("Widths are not the correct length. Expecting %s, got %s", n, length(widths)))
+                                          return()
+                                      }
+                                      f <- function(col, width, stretch) tcl(widget, "column", col, width=width, stretch=stretch)
+                                      mapply(f, seq_along(widths), widths, stretch)
                                 },
-                                set_column_alignment=function(aligns) {
+                                  set_column_alignment=function(aligns) {
                                   if(missing(aligns)) 
                                     aligns <- sapply(get_data(), gWidgets2tcltk:::gwidgets2_tcltk_column_alignment)
 
