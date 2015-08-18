@@ -237,6 +237,6 @@ proc editEndCmd {tbl row col text} {
   ## Icons
   tcltkStockIcons$load_gWidgets_icons()
   ## images from http://ryanfait.com/resources/custom-checkboxes-and-radio-buttons/. Thanks
-  tkimage.create("photo", "::image::off", file=system.file("images", "checkbutton-off.gif", package="gWidgetstcltk"))
-  tkimage.create("photo", "::image::on",  file=system.file("images", "checkbutton-on.gif",  package="gWidgetstcltk"))
+  tkimage.create("photo", "::image::off", file=system.file("images", "checkbutton-off.gif", package="gWidgets2tcltk"))
+  tkimage.create("photo", "::image::on",  file=system.file("images", "checkbutton-on.gif",  package="gWidgets2tcltk"))
 }

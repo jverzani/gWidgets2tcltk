@@ -164,7 +164,10 @@ GCheckboxGroupTable <- setRefClass("GCheckboxGroupTable",
                                        set_column_headings(names(items))
                                        ## add in icons
                                        configure_icon_column(50)
-                                       
+
+                                       tkimage.create("photo", "::image::off", file=system.file("images", "checkbutton-off.gif", package="gWidgets2tcltk"))
+                                       tkimage.create("photo", "::image::on",  file=system.file("images", "checkbutton-on.gif",  package="gWidgets2tcltk"))
+
                                        icons <- paste("::image::", c("on","off"), sep="")
                                        class(icons) <- "StockIcon"
                                        on_off_icons <<- icons
