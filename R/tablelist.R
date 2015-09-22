@@ -111,7 +111,7 @@ coerce_raw.default <- function(x, values) as.character(values)
 coerce_raw.integer <- function(x, values) as.integer(values)
 coerce_raw.numeric <- function(x, values) as.numeric(values)
 coerce_raw.logical <- function(x, values) as.logical(values)
-coerce_raw.factor <- function(x, values) factor(values)
+coerce_raw.factor <- function(x, values) factor(as.character(values))
 
 
 ## names
