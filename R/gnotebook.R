@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gnotebook guiWidgetsToolkittcltk
-##' @S3method .gnotebook guiWidgetsToolkittcltk
 .gnotebook.guiWidgetsToolkittcltk <-  function(toolkit,
                                                tab.pos = 3, 
                                                container = NULL, ... ) {
@@ -65,6 +64,7 @@ GNotebook <- setRefClass("GNotebook",
                               set_value=function(value, ...) {
                                 old_value <- get_index()
                                 value <- max(1,min(value,get_length()))
+                                
                                 tcl(widget,"select",value - 1) # 0 -based
                                 if(value != old_value)
                                   invoke_handler("<<NotebookTabChanged>>")

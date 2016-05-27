@@ -8,7 +8,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gspinbutton guiWidgetsToolkittcltk
-##' @S3method .gspinbutton guiWidgetsToolkittcltk
 .gspinbutton.guiWidgetsToolkittcltk <-  function(toolkit,
                                                  from = 0, to = 10, by = 1, value = from, digits = 0,
                                                  handler = NULL,action = NULL, container = NULL, ... ) {
@@ -17,13 +16,13 @@ NULL
 }
 
 
-##' Spinbutton class
-##'
-##' @param ... passed to constructor
-##' \code{GSpinButton} is the base class for spin buttons. The widget
-##' is buggy in tcltk, atleast with the old non-themed style and a Mac
-##' running tcltk under X11. The bug is the thing keeps spinning when
-##' the buttons are pressed.
+## Spinbutton class
+##
+## @param ... passed to constructor
+## \code{GSpinButton} is the base class for spin buttons. The widget
+## is buggy in tcltk, atleast with the old non-themed style and a Mac
+## running tcltk under X11. The bug is the thing keeps spinning when
+## the buttons are pressed.
 GSpinButton <- setRefClass("GSpinButton",
                             contains="GWidget",
                            fields=list(

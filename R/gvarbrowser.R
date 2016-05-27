@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gvarbrowser guiWidgetsToolkittcltk
-##' @S3method .gvarbrowser guiWidgetsToolkittcltk
 .gvarbrowser.guiWidgetsToolkittcltk <-  function(toolkit,
                                                  handler = NULL,action = "summary", container = NULL, ... ) {
   GVarBrowser$new(toolkit,

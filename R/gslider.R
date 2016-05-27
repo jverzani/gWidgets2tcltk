@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gslider guiWidgetsToolkittcltk
-##' @S3method .gslider guiWidgetsToolkittcltk
 .gslider.guiWidgetsToolkittcltk <-  function(toolkit,
                                              from = 0, to = 100, by = 1, value = from, horizontal = TRUE,
                                              handler = NULL, action = NULL, container = NULL, ... ) {

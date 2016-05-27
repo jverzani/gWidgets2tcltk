@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gstackwidget guiWidgetsToolkittcltk
-##' @S3method .gstackwidget guiWidgetsToolkittcltk
 .gstackwidget.guiWidgetsToolkittcltk <-  function(toolkit,
                                                   container = NULL, ... ) {
   GStackWidget$new(toolkit,

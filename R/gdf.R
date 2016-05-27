@@ -10,7 +10,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gdf guiWidgetsToolkittcltk
-##' @S3method .gdf guiWidgetsToolkittcltk
 .gdf.guiWidgetsToolkittcltk <-  function(toolkit,
                                          items = NULL,
                     handler = NULL,action = NULL, container = NULL, ... ) {

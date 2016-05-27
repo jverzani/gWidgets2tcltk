@@ -9,7 +9,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gedit guiWidgetsToolkittcltk
-##' @S3method .gedit guiWidgetsToolkittcltk
 .gedit.guiWidgetsToolkittcltk <-  function(toolkit,
                                            text = "", width = 25,
                                            coerce.with = NULL, initial.msg=initial.msg,                    handler = NULL,action = NULL, container = NULL, ... ) {
@@ -18,9 +17,9 @@ NULL
 }
 
 
-##' The GEdit class adds some methods beyond the spec: \code{set_error}, \code{clear_error}, \code{validate_value}
-##'
-##' @param ... passed to constructor
+## The GEdit class adds some methods beyond the spec: \code{set_error}, \code{clear_error}, \code{validate_value}
+##
+## @param ... passed to constructor
 GEdit <- setRefClass("GEdit",
                             contains="GWidgetWithTclVariable",
                             fields=list(

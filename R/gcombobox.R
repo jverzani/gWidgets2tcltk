@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gcombobox guiWidgetsToolkittcltk
-##' @S3method .gcombobox guiWidgetsToolkittcltk
 .gcombobox.guiWidgetsToolkittcltk <-  function(toolkit,
                                                items, selected = 1, editable = FALSE, coerce.with = NULL,
                                                handler = NULL,action = NULL, container = NULL, ... ) {

@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gtable guiWidgetsToolkittcltk
-##' @S3method .gtable guiWidgetsToolkittcltk
 .gtable.guiWidgetsToolkittcltk <-  function(toolkit,
                                          items,
                                          multiple = FALSE,
@@ -44,7 +43,6 @@ gwidgets2_tcltk_format_to_char <- function(x) UseMethod("gwidgets2_tcltk_format_
 ##' @export
 ##' @rdname gwidgets2_tcltk_format_to_char
 ##' @method gwidgets2_tcltk_format_to_char default
-##' @S3method gwidgets2_tcltk_format_to_char default
 gwidgets2_tcltk_format_to_char.default <- function(x) as.character(x)
 
 ##' method for generic
@@ -53,7 +51,6 @@ gwidgets2_tcltk_format_to_char.default <- function(x) as.character(x)
 ##' @export
 ##' @rdname gwidgets2_tcltk_format_to_char
 ##' @method gwidgets2_tcltk_format_to_char factor
-##' @S3method gwidgets2_tcltk_format_to_char factor
 gwidgets2_tcltk_format_to_char.factor <- function(x) as.character(x)
 
 ##' method for generic
@@ -62,7 +59,6 @@ gwidgets2_tcltk_format_to_char.factor <- function(x) as.character(x)
 ##' @export
 ##' @rdname gwidgets2_tcltk_format_to_char
 ##' @method gwidgets2_tcltk_format_to_char integer
-##' @S3method gwidgets2_tcltk_format_to_char integer
 gwidgets2_tcltk_format_to_char.integer <- function(x) format(x, justify="right")
 
 ##' method for generic
@@ -71,7 +67,6 @@ gwidgets2_tcltk_format_to_char.integer <- function(x) format(x, justify="right")
 ##' @export
 ##' @rdname gwidgets2_tcltk_format_to_char
 ##' @method gwidgets2_tcltk_format_to_char numeric
-##' @S3method gwidgets2_tcltk_format_to_char numeric
 gwidgets2_tcltk_format_to_char.numeric <- function(x) format(x, trim=TRUE)
 
 ##' method for generic
@@ -80,7 +75,6 @@ gwidgets2_tcltk_format_to_char.numeric <- function(x) format(x, trim=TRUE)
 ##' @export
 ##' @rdname gwidgets2_tcltk_format_to_char
 ##' @method gwidgets2_tcltk_format_to_char Date
-##' @S3method gwidgets2_tcltk_format_to_char Date
 gwidgets2_tcltk_format_to_char.Date <- function(x) format(x, format="%d-%m-%Y")
 
 ##' method for generic
@@ -89,7 +83,6 @@ gwidgets2_tcltk_format_to_char.Date <- function(x) format(x, format="%d-%m-%Y")
 ##' @export
 ##' @rdname gwidgets2_tcltk_format_to_char
 ##' @method gwidgets2_tcltk_format_to_char data.frame
-##' @S3method gwidgets2_tcltk_format_to_char data.frame
 gwidgets2_tcltk_format_to_char.data.frame <- function(x) as.data.frame(lapply(x, gwidgets2_tcltk_format_to_char))
 
 
@@ -107,7 +100,6 @@ gwidgets2_tcltk_column_alignment <- function(x) UseMethod("gwidgets2_tcltk_colum
 ##' @export
 ##' @rdname gwidgets2_tcltk_column_alignment
 ##' @method gwidgets2_tcltk_column_alignment default
-##' @S3method gwidgets2_tcltk_column_alignment default
 gwidgets2_tcltk_column_alignment.default <- function(x) "w"
 
 ##' method for generic
@@ -116,7 +108,6 @@ gwidgets2_tcltk_column_alignment.default <- function(x) "w"
 ##' @export
 ##' @rdname gwidgets2_tcltk_column_alignment
 ##' @method gwidgets2_tcltk_column_alignment numeric
-##' @S3method gwidgets2_tcltk_column_alignment numeric
 gwidgets2_tcltk_column_alignment.numeric <- function(x) "e"
 
 ##' method for generic
@@ -125,7 +116,6 @@ gwidgets2_tcltk_column_alignment.numeric <- function(x) "e"
 ##' @export
 ##' @rdname gwidgets2_tcltk_column_alignment
 ##' @method gwidgets2_tcltk_column_alignment logical
-##' @S3method gwidgets2_tcltk_column_alignment logical
 gwidgets2_tcltk_column_alignment.logical <- function(x) "c"
 
 

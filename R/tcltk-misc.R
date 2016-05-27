@@ -8,7 +8,6 @@ NULL
 ##' @param obj object
 ##' @export
 ##' @method getWidget tkwin
-##' @S3method getWidget tkwin
 getWidget.tkwin <- function(obj) obj
 
 

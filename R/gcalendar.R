@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gcalendar guiWidgetsToolkittcltk
-##' @S3method .gcalendar guiWidgetsToolkittcltk
 .gcalendar.guiWidgetsToolkittcltk <-  function(toolkit,
                                                text="",
                                                format="%Y-%m-%d",
@@ -91,6 +90,13 @@ GCalendar <- setRefClass("GCalendar",
                            ))
 
 ## helper
+##' make a calendar...
+##'
+##' @param date_var var
+##' @param widget var
+##' @param date var
+##' @param date_format var
+##' @param set_value var
 makeCalendar <- function(date_var, widget, date, date_format="%Y-%m-%d", set_value) {
 
   if(missing(date))

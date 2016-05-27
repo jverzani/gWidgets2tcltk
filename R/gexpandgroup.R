@@ -6,7 +6,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gexpandgroup guiWidgetsToolkittcltk
-##' @S3method .gexpandgroup guiWidgetsToolkittcltk
 .gexpandgroup.guiWidgetsToolkittcltk <- function(toolkit,
                                                  text, markup,  horizontal=TRUE,
                                                  handler=NULL, action=NULL,

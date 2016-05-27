@@ -8,7 +8,6 @@ NULL
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @seealso The documentation for this is found at \code{\link{gbutton}}.
 ##' @method .gbutton guiWidgetsToolkittcltk
-##' @S3method .gbutton guiWidgetsToolkittcltk
 .gbutton.guiWidgetsToolkittcltk <- function(toolkit, text, handler, action, container, ...) {
   if(is(action, "GAction"))
     GButtonAction$new(toolkit, action, container, ...)

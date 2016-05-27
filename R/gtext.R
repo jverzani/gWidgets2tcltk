@@ -8,7 +8,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gtext guiWidgetsToolkittcltk
-##' @S3method .gtext guiWidgetsToolkittcltk
 .gtext.guiWidgetsToolkittcltk <-  function(toolkit,
                     text = NULL, width = NULL, height = 300, font.attr = NULL,
                     wrap = TRUE,

@@ -8,7 +8,6 @@ NULL
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @seealso The documentation for this is found at \code{\link{gprogressbar}}.
 ##' @method .gprogressbar guiWidgetsToolkittcltk
-##' @S3method .gprogressbar guiWidgetsToolkittcltk
 .gprogressbar.guiWidgetsToolkittcltk <- function(toolkit, value, container, ...) {
   GProgressBar$new(toolkit, value, container, ...)
 }

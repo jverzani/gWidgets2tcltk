@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gfile guiWidgetsToolkittcltk
-##' @S3method .gfile guiWidgetsToolkittcltk
 .gfile.guiWidgetsToolkittcltk <- function(toolkit,
                                           text = "",
                                           type = c("open","save","selectdir"),
@@ -112,7 +111,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gfilebrowse guiWidgetsToolkittcltk
-##' @S3method .gfilebrowse guiWidgetsToolkittcltk
 .gfilebrowse.guiWidgetsToolkittcltk <-  function(toolkit,
                                                  text = "",
                                                  type = c("open","save","selectdir"),

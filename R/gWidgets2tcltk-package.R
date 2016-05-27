@@ -19,7 +19,11 @@
 ##' @keywords package
 NULL
 
+##' @import tcltk
 ##' @import digest
 ##' @import memoise
 ##' @import methods
 NULL
+
+tclVar <- tcltk::tclVar
+tclObj <- tcltk::tclObj

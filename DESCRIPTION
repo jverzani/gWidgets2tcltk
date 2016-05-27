@@ -18,14 +18,14 @@ Description: Port of the gWidgets2 API for the tcltk
 License: GPL (>= 2)
 LazyLoad: yes
 Collate:
-    'gWidgets2tcltk-package.R'
     'List.R'
+    'gWidgets2tcltk-package.R'
     'misc.R'
     'tcltk-misc.R'
     'dnd.R'
     'GComponent.R'
-    'GWidget.R'
     'GContainer.R'
+    'GWidget.R'
     'dialogs.R'
     'gmenu.R'
     'gaction.R'
@@ -48,6 +48,7 @@ Collate:
     'glayout.R'
     'gnotebook.R'
     'gpanedgroup.R'
+    'gprogressbar.R'
     'gradio.R'
     'gseparator.R'
     'gslider.R'
@@ -58,9 +59,9 @@ Collate:
     'gtimer.R'
     'gtoolbar.R'
     'gtree.R'
+    'gvarbrowser.R'
     'gwindow.R'
     'icons.R'
-    'zzz.R'
-    'gvarbrowser.R'
     'tk2tip.R'
-    'gprogressbar.R'
+    'zzz.R'
+RoxygenNote: 5.0.1

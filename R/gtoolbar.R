@@ -1,14 +1,13 @@
 ##' @include GWidget.R
 NULL
 
-##' Toolkit constructor
-##'
-##' @inheritParams gWidgets2::gtoolbar
-##' @param ... passed to constructor
-##' @export
-##' @rdname gWidgets2tcltk-undocumented
-##' @method .gtoolbar guiWidgetsToolkittcltk
-##' @S3method .gtoolbar guiWidgetsToolkittcltk
+## Toolkit constructor
+##
+## @inheritParams gWidgets2::gtoolbar
+## @param ... passed to constructor
+## @export
+## @rdname gWidgets2tcltk-undocumented
+## @method .gtoolbar guiWidgetsToolkittcltk
 .gtoolbar.guiWidgetsToolkittcltk <-  function(toolkit,
                                               toolbar.list=list(),
                                               style = c("both","icons","text","both-horiz"),

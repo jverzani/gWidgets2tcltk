@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gpanedgroup guiWidgetsToolkittcltk
-##' @S3method .gpanedgroup guiWidgetsToolkittcltk
 .gpanedgroup.guiWidgetsToolkittcltk <-  function(toolkit,
                                                 horizontal = TRUE, 
                                                 container = NULL, ... ) {

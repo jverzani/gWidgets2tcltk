@@ -8,7 +8,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gaction guiWidgetsToolkittcltk
-##' @S3method .gaction guiWidgetsToolkittcltk
 .gaction.guiWidgetsToolkittcltk <-  function(toolkit,
                                              label, tooltip=NULL, icon = NULL, key.accel = NULL,
                                              handler = NULL,action = NULL, parent = NULL, ... ) {

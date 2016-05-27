@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gwindow guiWidgetsToolkittcltk
-##' @S3method .gwindow guiWidgetsToolkittcltk
 .gwindow.guiWidgetsToolkittcltk <- function(toolkit, title, visible=visible, name, width, height, parent, handler, action,  ...) {
   GWindow$new(toolkit, title, visible=visible, name, width, height, parent, handler, action,  ...)
 }

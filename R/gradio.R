@@ -8,7 +8,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gradio guiWidgetsToolkittcltk
-##' @S3method .gradio guiWidgetsToolkittcltk
 .gradio.guiWidgetsToolkittcltk <-  function(toolkit,
                                             items,selected=1, horizontal=FALSE, handler=NULL,
                                             action=NULL, container=NULL, ...
@@ -46,7 +45,7 @@ GRadio <- setRefClass("GRadio",
                           set_items(items)
                           set_index(selected)
 
-                          if(missing(parent) || is(parent, "GToolbar"))
+                          if(missing(parent) || is(parent, "GToolBar"))
                             add_to_parent(container, .self, ...)
                           
                           handler_id <<- add_handler_changed(handler, action)

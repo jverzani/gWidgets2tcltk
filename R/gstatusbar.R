@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gstatusbar guiWidgetsToolkittcltk
-##' @S3method .gstatusbar guiWidgetsToolkittcltk
 .gstatusbar.guiWidgetsToolkittcltk <-  function(toolkit,
                                                 text="",
                                                 container = NULL, ... ) {
@@ -17,13 +16,13 @@ NULL
 }
 
 
-##' \code{GStatusBar} is the base class for a status bar
-##'
-##' The \code{GStatusBar} class inherits for \code{GBoxContainer}
-##' meaning it can be used as a parent container. As such, one can add
-##' additional widgets beyond the plain label that is the main
-##' property of this widget.
-##' @param ... passed to constructor
+## \code{GStatusBar} is the base class for a status bar
+##
+## The \code{GStatusBar} class inherits for \code{GBoxContainer}
+## meaning it can be used as a parent container. As such, one can add
+## additional widgets beyond the plain label that is the main
+## property of this widget.
+## @param ... passed to constructor
 GStatusBar <- setRefClass("GStatusBar",
                           contains="GBoxContainer",
                           fields=list(

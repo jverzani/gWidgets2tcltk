@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .glayout guiWidgetsToolkittcltk
-##' @S3method .glayout guiWidgetsToolkittcltk
 .glayout.guiWidgetsToolkittcltk <-  function(toolkit,
                                              homogeneous = FALSE, spacing = 10,
                                              container = NULL, ... ) {

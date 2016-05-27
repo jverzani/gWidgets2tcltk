@@ -381,10 +381,10 @@ GComponent <- setRefClass("GComponent",
                                  }
                                  ))
 
-##' GComponentObservable adds the observable interface
-##'
-##' @param ... passed to constructor
-##' @aliases GComponentObservable
+## GComponentObservable adds the observable interface
+##
+## @param ... passed to constructor
+## @aliases GComponentObservable
 GComponentObservable <- setRefClass("GComponentObservable",
                                     fields=list(
                                       change_signal="character", # what signal is default change signal

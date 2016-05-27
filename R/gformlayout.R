@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gformlayout guiWidgetsToolkittcltk
-##' @S3method .gformlayout guiWidgetsToolkittcltk
 .gformlayout.guiWidgetsToolkittcltk <-  function(toolkit,
                                              align="left",
                                              spacing=5,

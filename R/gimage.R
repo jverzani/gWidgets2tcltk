@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gimage guiWidgetsToolkittcltk
-##' @S3method .gimage guiWidgetsToolkittcltk
 .gimage.guiWidgetsToolkittcltk <-  function(toolkit,
                                          filename = "", dirname = "", stock.id=NULL, size = "",
                                          handler = NULL,action = NULL, container = NULL, ... ) {

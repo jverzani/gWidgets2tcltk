@@ -10,7 +10,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gmessage guiWidgetsToolkittcltk
-##' @S3method .gmessage guiWidgetsToolkittcltk
 .gmessage.guiWidgetsToolkittcltk <- function(toolkit,
                                              msg,
                                              title = "message",
@@ -42,7 +41,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gconfirm guiWidgetsToolkittcltk
-##' @S3method .gconfirm guiWidgetsToolkittcltk
 .gconfirm.guiWidgetsToolkittcltk <-  function(toolkit,
                                               msg,
                                               title = "Confirm",
@@ -77,7 +75,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .ginput guiWidgetsToolkittcltk
-##' @S3method .ginput guiWidgetsToolkittcltk
 .ginput.guiWidgetsToolkittcltk <- function(toolkit,
                                            msg,
                                            text="",
@@ -135,7 +132,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gbasicdialog guiWidgetsToolkittcltk
-##' @S3method .gbasicdialog guiWidgetsToolkittcltk
 .gbasicdialog.guiWidgetsToolkittcltk <- function(toolkit,
                                                  title = "Dialog",
                                                  parent=NULL,
@@ -216,7 +212,6 @@ GBasicDialog <- setRefClass("GBasicDialog",
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .galert guiWidgetsToolkittcltk
-##' @S3method .galert guiWidgetsToolkittcltk
 .galert.guiWidgetsToolkittcltk <-  function(toolkit,
                                             msg,
                                             title = "message",

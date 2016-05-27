@@ -8,7 +8,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gcheckbox guiWidgetsToolkittcltk
-##' @S3method .gcheckbox guiWidgetsToolkittcltk
 .gcheckbox.guiWidgetsToolkittcltk <- function(toolkit,
                                               text, checked = FALSE, use.togglebutton=FALSE, handler = NULL, action = NULL,
                                               container = NULL, ... ) {
@@ -46,7 +45,7 @@ GCheckbox <- setRefClass("GCheckbox",
                                         menu_proxies=GMenuProxy$new()                                     
                                         )
 
-                             if(missing(parent) || is(parent, "GToolbar")) # not menu item
+                             if(missing(parent) || is(parent, "GToolBar")) # not menu item
                                add_to_parent(container, .self, ...)
                              
                              handler_id <<- add_handler_changed(handler, action)

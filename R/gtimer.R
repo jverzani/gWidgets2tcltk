@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gtimer guiWidgetsToolkittcltk
-##' @S3method .gtimer guiWidgetsToolkittcltk
 .gtimer.guiWidgetsToolkittcltk <- function(toolkit, ms, FUN, data=NULL, one.shot=FALSE, start=TRUE)
   GTimer$new(toolkit, ms, FUN, data=data, one.shot=one.shot, start=start)
 

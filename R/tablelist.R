@@ -125,7 +125,7 @@ tl_set_column_names <- function(tbl, nms) {
 
 
 tl_get_column_name <- function(tbl, j) {
-  tail(as.character(tcl(tbl, "columnconfigure", j-1, title=NULL)), n=1)
+  utils::tail(as.character(tcl(tbl, "columnconfigure", j-1, title=NULL)), n=1)
 }
 
 tl_get_column_names <- function(tbl) {

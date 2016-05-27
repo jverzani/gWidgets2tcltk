@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gframe guiWidgetsToolkittcltk
-##' @S3method .gframe guiWidgetsToolkittcltk
 .gframe.guiWidgetsToolkittcltk <- function(toolkit, text, markup, pos, horizontal=TRUE, spacing=5, container=NULL, ...) {
   GFrame$new(toolkit, text, markup, pos, horizontal, spacing, container, ...)
 }

@@ -74,7 +74,6 @@ findIcon <- function(stockname) tcltkStockIcons$find_icon(stockname)
 ##' @inheritParams gWidgets2::addStockIcons
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .addStockIcons guiWidgetsToolkittcltk
-##' @S3method .addStockIcons guiWidgetsToolkittcltk
 .addStockIcons.guiWidgetsToolkittcltk <- function(toolkit, iconNames, iconFiles,... ) {
   tcltkStockIcons$add_icons(iconNames, iconFiles)
 }
@@ -85,7 +84,6 @@ findIcon <- function(stockname) tcltkStockIcons$find_icon(stockname)
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .getStockIcons guiWidgetsToolkittcltk
-##' @S3method .getStockIcons guiWidgetsToolkittcltk
 .getStockIcons.guiWidgetsToolkittcltk <- function(toolkit, ...) {
   tcltkStockIcons$l
 }
@@ -97,7 +95,6 @@ findIcon <- function(stockname) tcltkStockIcons$find_icon(stockname)
 ##' @usage \method{.getStockIconByName}{guiWidgetsToolkittcltk}(toolkit,name, ...)
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .getStockIconByName guiWidgetsToolkittcltk
-##' @S3method .getStockIconByName guiWidgetsToolkittcltk
 .getStockIconByName.guiWidgetsToolkittcltk <- function(toolkit, name, ...) {
   
   tcltkStockIcons$find_icon(name)
@@ -113,7 +110,6 @@ findIcon <- function(stockname) tcltkStockIcons$find_icon(stockname)
 ##' @usage  \method{.stockIconFromObject}{guiWidgetsToolkittcltk}(toolkit,obj, ...)
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .stockIconFromObject guiWidgetsToolkittcltk
-##' @S3method .stockIconFromObject guiWidgetsToolkittcltk
 .stockIconFromObject.guiWidgetsToolkittcltk <- function(toolkit, obj, ...) {
   icon_for_object <- function(x) UseMethod("icon_for_object")
   icon_for_object.default <- function(x) "symbol_dot"

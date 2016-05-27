@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gseparator guiWidgetsToolkittcltk
-##' @S3method .gseparator guiWidgetsToolkittcltk
 .gseparator.guiWidgetsToolkittcltk <-  function(toolkit,
                                          horizontal = TRUE,
                    container = NULL, ... ) {

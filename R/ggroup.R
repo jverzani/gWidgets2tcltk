@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .ggroup guiWidgetsToolkittcltk
-##' @S3method .ggroup guiWidgetsToolkittcltk
 .ggroup.guiWidgetsToolkittcltk <- function(toolkit, horizontal=TRUE, spacing=5, use.scrollwindow=FALSE, container=NULL, ...) {
   GGroup$new(toolkit, horizontal, spacing=spacing, use.scrollwindow=use.scrollwindow, container, ...)
 }

@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .glabel guiWidgetsToolkittcltk
-##' @S3method .glabel guiWidgetsToolkittcltk
 .glabel.guiWidgetsToolkittcltk <- function(toolkit, text="", markup=FALSE, editable=FALSE,
                                            handler=NULL, action=NULL, container=NULL,
                                            ...) {

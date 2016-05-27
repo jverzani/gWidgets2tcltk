@@ -7,7 +7,6 @@ NULL
 ##' @export
 ##' @rdname gWidgets2tcltk-undocumented
 ##' @method .gtree guiWidgetsToolkittcltk
-##' @S3method .gtree guiWidgetsToolkittcltk
 .gtree.guiWidgetsToolkittcltk <-  function(toolkit,
                                            offspring = NULL, offspring.data = NULL,
                                            chosen.col = 1, offspring.col=2, icon.col=NULL, tooltip.col=NULL,
@@ -138,7 +137,7 @@ GTreeBase <- setRefClass("GTreeBase",
                          "Return path (by chosen col)"
                          path <- get_tree_path(widget)
                          if(drop)
-                           tail(path,n=1)
+                           utils::tail(path,n=1)
                          else
                            path
                        },
