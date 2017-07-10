@@ -109,7 +109,7 @@ GBoxContainer <- setRefClass("GBoxContainer",
                                  tclServiceMode(TRUE)
                                  sapply(children, function(i) {
                                    child$set_parent(NULL)
-                                   tkpack.forge(getBlock(child))
+                                   tkpack.forget(getBlock(child))
                                  })
                                  children <<- list()
                                },
