@@ -10,11 +10,10 @@ Depends:
     digest,
     memoise,
     tcltk(>= 2.7.0),
-    gWidgets2
+    gWidgets2(>= 1.0.7)
 Suggests:
     testthat
-Description: Port of the gWidgets2 API for the tcltk
-    package.
+Description: Port of the 'gWidgets2' API for the 'tcltk' package.
 License: GPL (>= 2)
 LazyLoad: yes
 Collate:
