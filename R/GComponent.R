@@ -238,28 +238,28 @@ GComponent <- setRefClass("GComponent",
                                                                         "light"="normal",
                                                                         "ultra-light" = "normal",
                                                                         "normal")))
-                                   
-                                   if(!is.null(markup$size))
-                                     if(is.numeric(markup$size))
-                                       fontList <- merge_list(fontList, list(size=markup$size))
-                                     else
-                                       fontList <- merge_list(fontList,list(size = switch(markup$size,
-                                                                         "xxx-large"=24,
-                                                                         "xx-large"=20,
-                                                                         "x-large"=18,
-                                                                         "large"=16,
-                                                                         "medium"=12,
-                                                                         "small"=10,
-                                                                         "x-small"=8,
-                                                                         "xx-small"=6,
-                                                                         as.integer(markup$size))))
 
+                                     if(!is.null(markup$size)) {
+                                         if(is.numeric(markup$size))
+                                             fontList <- merge_list(fontList, list(size=markup$size))
+                                         else
+                                             fontList <- merge_list(fontList,list(size = switch(markup$size,
+                                                                                                "xxx-large"=24,
+                                                                                                "xx-large"=20,
+                                                                                                "x-large"=18,
+                                                                                                "large"=16,
+                                                                                                "medium"=12,
+                                                                                                "small"=10,
+                                                                                                "x-small"=8,
+                                                                                                "xx-small"=6,
+                                                                                                as.integer(markup$size))))
+                                     }
                                    if(return_list) {
-                                     fontList
+                                       fontList
                                    } else {
                                      ## return "name [size [options]]"
                                      if(!is.null(fontList$slant) || !is.null(fontList$weight))
-                                       fontList$size <- 12
+                                       fontList$size <- getWithDefault(fontList$size, 12)
 
                                      paste(fontList$family, fontList$size, fontList$weight, fontList$slant)
                                    }

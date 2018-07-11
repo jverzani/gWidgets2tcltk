@@ -85,6 +85,32 @@ GComboBox <- setRefClass("GComboBox",
                            },
                            add_handler_clicked = function(handler, action=NULL, ...) {
                              add_handler("changed", handler, action=action, ...)
+                           },
+                           ## work around https://github.com/jverzani/gWidgets2/issues/98
+                           set_font_ttk = function(value, obj=get_widget(), listbox=TRUE) {
+                               
+                               spec <- map_font_to_spec(value, FALSE)                               
+                               speclst <- map_font_to_spec(value, TRUE)                               
+
+                               ## we create a style
+                               color <- value$color
+                                   
+                               spec <- gsub("\\s*$", "", spec)
+                               kls <- as.character(tkwinfo("class", obj))
+                               style_name <- sprintf("%s_%s.%s", gsub(" ", "", spec), ifelse(is.null(color), "black", color), kls)
+
+                               fnt <- sprintf("font create %s %s", style_name, paste("-", names(speclst), " ", speclst, sep="", collapse=" "))
+
+                               .Tcl(fnt)  # make a font
+                               tkconfigure(obj, font=style_name) # apply to widget
+                               if (listbox)
+                                   .Tcl(sprintf("option add *TCombobox*Listbox.font %s",style_name)) # add font to *all* dropdown values
+                               
+
+                               if(!is.null(color)) 
+                                   tcl("ttk::style", "configure", style_name, font=spec, foreground=color)
+                                   
+                               #tkconfigure(obj, style=style_name)
                            }
                            ))
 
