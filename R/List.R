@@ -124,7 +124,7 @@ List <- setRefClass("List",
                       },
                       len = function() {
                         "length"
-                        base:::length(l)
+                        base::length(l)
                       },
                       ## iterators
                       each = function(FUN, ...) {

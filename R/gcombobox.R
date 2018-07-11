@@ -81,7 +81,7 @@ GComboBox <- setRefClass("GComboBox",
                            ##   add_handler_clicked(handler, action=NULL, ...)
                            ## },
                            get_length=function() {
-                             base:::length(items)
+                             base::length(items)
                            },
                            add_handler_clicked = function(handler, action=NULL, ...) {
                              add_handler("changed", handler, action=action, ...)
