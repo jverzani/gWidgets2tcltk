@@ -534,10 +534,10 @@ GComponentObservable <- setRefClass("GComponentObservable",
                                         add_handler("<ButtonRelease>", handler, action, ...)
                                       },
                                       add_handler_focus=function(handler, action=NULL, ...) {
-                                        add_handler("<FocusIn>", handler, action, event_decorator, ...)
+                                        add_handler("<FocusIn>", handler, action, .self$event_decorator, ...)
                                       },
                                       add_handler_blur=function(handler, action=NULL, ...) {
-                                        add_handler("<FocusOut>", handler, action, event_decorator, ...)
+                                        add_handler("<FocusOut>", handler, action, .self$event_decorator, ...)
                                       },
                                       add_handler_keystroke=function(handler, action=NULL, ...) {
                                         "Keystroke handler."
