@@ -2,8 +2,8 @@
 % Please edit documentation in R/gedit.R
 \docType{class}
 \name{GEdit-class}
-\alias{GEdit}
 \alias{GEdit-class}
+\alias{GEdit}
 \title{show the word list}
 \arguments{
 \item{str}{a string. If

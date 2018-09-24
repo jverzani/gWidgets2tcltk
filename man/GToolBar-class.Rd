@@ -2,8 +2,8 @@
 % Please edit documentation in R/gtoolbar.R
 \docType{class}
 \name{GToolBar-class}
-\alias{GToolBar}
 \alias{GToolBar-class}
+\alias{GToolBar}
 \title{\code{GToolBar} is the base class for toolbars}
 \arguments{
 \item{...}{passed to constructor}

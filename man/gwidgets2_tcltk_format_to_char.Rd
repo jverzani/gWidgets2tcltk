@@ -2,12 +2,12 @@
 % Please edit documentation in R/gtable.R
 \name{gwidgets2_tcltk_format_to_char}
 \alias{gwidgets2_tcltk_format_to_char}
-\alias{gwidgets2_tcltk_format_to_char.Date}
-\alias{gwidgets2_tcltk_format_to_char.data.frame}
 \alias{gwidgets2_tcltk_format_to_char.default}
 \alias{gwidgets2_tcltk_format_to_char.factor}
 \alias{gwidgets2_tcltk_format_to_char.integer}
 \alias{gwidgets2_tcltk_format_to_char.numeric}
+\alias{gwidgets2_tcltk_format_to_char.Date}
+\alias{gwidgets2_tcltk_format_to_char.data.frame}
 \title{Format object to character class for inclusion in a table}
 \usage{
 gwidgets2_tcltk_format_to_char(x)
@@ -32,17 +32,4 @@ object of character class with possible formatting.
 }
 \description{
 Gives chance to do more than \code{as.character}
-
-method for generic
-
-method for generic
-
-method for generic
-
-method for generic
-
-method for generic
-
-method for generic
 }
-

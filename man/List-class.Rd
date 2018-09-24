@@ -2,8 +2,8 @@
 % Please edit documentation in R/List.R
 \docType{class}
 \name{List-class}
-\alias{List}
 \alias{List-class}
+\alias{List}
 \title{A list extension class.}
 \arguments{
 \item{...}{passed to constructor}

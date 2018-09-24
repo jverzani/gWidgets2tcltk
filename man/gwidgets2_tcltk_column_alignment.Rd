@@ -3,8 +3,8 @@
 \name{gwidgets2_tcltk_column_alignment}
 \alias{gwidgets2_tcltk_column_alignment}
 \alias{gwidgets2_tcltk_column_alignment.default}
-\alias{gwidgets2_tcltk_column_alignment.logical}
 \alias{gwidgets2_tcltk_column_alignment.numeric}
+\alias{gwidgets2_tcltk_column_alignment.logical}
 \title{align a column based on the class of the content}
 \usage{
 gwidgets2_tcltk_column_alignment(x)
@@ -23,11 +23,4 @@ anchor string
 }
 \description{
 Gives visual difference to data based on its class
-
-method for generic
-
-method for generic
-
-method for generic
 }
-

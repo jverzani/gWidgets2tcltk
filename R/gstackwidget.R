@@ -81,15 +81,22 @@ GStackWidget <- setRefClass("GStackWidget",
                                 
                                 child <- children[[idx]]
                                 ## remove from GUI, then from children
-                                if(idx == get_index()) {
+				## what is idx compared to get_index
+				cidx <- get_index()
+ 				tkpack.forget(getBlock(child))
+				children[[idx]] <<- NULL
+                                if(idx < cidx) {
+                                  set_index(cidx-1)
+                                } else if(idx == cidx) {
                                   if(idx > 1) set_index(idx - 1)
-                                  if(idx == 1 && get_length() > 1) set_index(idx + 1)
-                                  if(idx == 1 && get_length() == 1) {
-                                    warning(gettext("Removing last page"))
-                                    tkpack.forget(getBlock(child))
-                                  }
+                                  if(idx == 1 && get_length() > 0) set_index(1)
+                                  if(idx == 1 && get_length() == 0) {
+                                    warning(gettext("Removed last page"))
+				    cur_index <<- 0
+				  }
+ 
+                                } else {
                                 }
-                                children[[idx]] <<- NULL
                               }
                               ))
 

@@ -12,4 +12,3 @@
 \description{
 method for getWidget defined in gWidgets2
 }
-

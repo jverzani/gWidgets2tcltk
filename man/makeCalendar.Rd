@@ -4,7 +4,8 @@
 \alias{makeCalendar}
 \title{make a calendar...}
 \usage{
-makeCalendar(date_var, widget, date, date_format = "\%Y-\%m-\%d", set_value)
+makeCalendar(date_var, widget, date, date_format = "\%Y-\%m-\%d",
+  set_value)
 }
 \arguments{
 \item{date_var}{var}
@@ -21,4 +22,3 @@ from chron with slight change to arguments}
 \description{
 make a calendar...
 }
-
