@@ -3,7 +3,7 @@ NULL
 
 .onLoad <- function(libname,pkgname,...) {
   ## methods isn't loaded yet, so we try calling through :::
-  oldClasses <- c("tkwin", "tclVar", "tclObj")
+  oldClasses <- c("tkwin")#, "tclVar", "tclObj")
   methods::setClass("tcltkObject")
   lapply(oldClasses, function(i) {
     methods::setOldClass(i)
@@ -11,9 +11,9 @@ NULL
   })
 
 
-  
+
 }
-         
+
 
 
 .onAttach <- function(...) {
@@ -21,7 +21,7 @@ NULL
   if(as.numeric(.Tcl("info tclversion")) < 8.5) {
     packageStartupMessage("\n\n *** gWidgetstcltk needs tcl/tk version 8.5 or newer ***\n\n")
   }
-  
+
   ## some configuration
   try(.Tcl("option add *tearOff 0"), silent=TRUE)         # disable tearoff menus
 
@@ -30,7 +30,7 @@ NULL
     .Tcl(sprintf("ttk::style map Treeview.Row  -background [ list selected %s ]", "gray"))
 
   ## read in tklibs (from tcltk2 pacakge)
-  
+
   addTclPath(system.file("tklibs", "tablelist5.6", package="gWidgets2tcltk"))
   tclRequire("tablelist")
   sapply(c("tablelistConfig.tcl", "tablelistBind.tcl", "tablelistBind.tcl",
@@ -39,13 +39,13 @@ NULL
           })
 
 
-  
+
   addTclPath(system.file("tklibs", "tooltip1.4", package="gWidgets2tcltk"))
   tclRequire("tooltip")
   tcl("source", system.file("tklibs", "autoscroll.tcl", package="gWidgets2tcltk"))
-  
 
-  
+
+
   ## load in editors
 
 .Tcl('
@@ -165,7 +165,7 @@ proc editEndCmd {tbl row col text} {
 
 	actDate {
 	    #
-	    # Get the activation date in seconds from the last argument 
+	    # Get the activation date in seconds from the last argument
 	    #
 	    if {[catch {clock scan $text} actDate] != 0} {
 		bell
@@ -194,7 +194,7 @@ proc editEndCmd {tbl row col text} {
 
 	actTime {
 	    #
-	    # Get the activation clock value in seconds from the last argument 
+	    # Get the activation clock value in seconds from the last argument
 	    #
 	    set actDate [$tbl cellcget $row,actDate -text]
 	    if {[catch {clock scan $text -base $actDate} actClock] != 0} {
@@ -233,7 +233,7 @@ proc editEndCmd {tbl row col text} {
 
 ')
 
-  
+
   ## Icons
   tcltkStockIcons$load_gWidgets_icons()
   ## images from http://ryanfait.com/resources/custom-checkboxes-and-radio-buttons/. Thanks
