@@ -30,21 +30,21 @@ GWindow <- setRefClass("GWindow",
 
                                 ## don't draw until asked
                                 tclServiceMode(FALSE)
-                                
+
                                 block <<- tktoplevel()
                                 set_value(title)
                                 tkwm.state(block,"withdrawn")
 
 
                                 frame <<- ttkframe(block)
-                                
-                                
+
+
                                 if(is.null(width))
                                   width <- 400L
                                 if(is.null(height))
                                   height <- as.integer(0.7 * width)
 
-                                
+
 
                                 if(!is.null(parent)) {
                                   set_location(parent)
@@ -55,8 +55,8 @@ GWindow <- setRefClass("GWindow",
                                   }
                                 }
 
-                                
-                                initFields(toolkit=toolkit, 
+
+                                initFields(toolkit=toolkit,
                                            menubar_area=ttkframe(block),
                                            toolbar_area=ttkframe(block),
                                            infobar_area=ttkframe(block),
@@ -67,18 +67,18 @@ GWindow <- setRefClass("GWindow",
                                            modal_flag=tclVar(FALSE)
                                            )
                                 widget <<- content_area # generic name
-                                
+
                                 tkconfigure(statusbar_area, borderwidth = 1, relief="sunken")
                                 ## add areas to widget. For now we have simple
                                 layout_widget()
                                 tkbind(block, "<Unmap>", function() tkgrab.release(block))
-                                
+
                                 add_handler_changed(handler, action)
 
                                 set_size(c(width, height))
                                 tclServiceMode(TRUE)
                                 set_visible(visible)
-                                
+
                                 callSuper(...)
                               },
                               layout_widget = function() {
@@ -91,7 +91,7 @@ GWindow <- setRefClass("GWindow",
 
                                 tkgrid.columnconfigure(block, 0, weight = 1)
                                 tkgrid.rowconfigure(block, 3, weight = 1) # weight to content area
-                                
+
                                 tkgrid.propagate(content_area, FALSE) # make size carry forward
                               },
                               ## Widget methods
@@ -156,7 +156,7 @@ GWindow <- setRefClass("GWindow",
                               },
                               ## add methods
                               add_child=function(child, ...) {
-                                                                
+
                                 if(missing(child) || is.null(child))
                                   return()
 
@@ -204,7 +204,7 @@ GWindow <- setRefClass("GWindow",
                               },
                               set_infobar=function(msg, ...) {
                                 .Tcl("ttk::style configure InfoBar.TLabel -background red")
-                                
+
                                 infobar <- ttkframe(infobar_area, padding=c(0,0,0,0))
                                 label <- ttklabel(infobar, text=paste(msg, collapse=" "), style="InfoBar.TLabel")
                                 tkpack(label, side="left", expand=TRUE,  fill="x")
@@ -215,7 +215,7 @@ GWindow <- setRefClass("GWindow",
                                   tkconfigure(infobar_area, height=1)
                                 }
                                 tkbind(label, "<Motion>", remove_infobar)
-                                       
+
                                 ## hide after 4 seconds of mouse click
                                 timer <- GTimer$new(ms=4*1000,
                                                     FUN=function(...) {
@@ -238,15 +238,14 @@ GWindow <- setRefClass("GWindow",
                                 h <- list(obj=.self, action=action)
                                 tkwm.protocol(block, "WM_DELETE_WINDOW",
                                               function(...) {
-                                                val <- handler(h,...)
-                                                ## FALSE -- keep, TRUE -- destroy
+                                                  val <- handler(h,...)
+                                                  ## Oops, follow https://developer.gnome.org/gtk3/stable/GtkWidget.html#GtkWidget-delete-event
+                                                  ## FALSE means move to next handler (destroy) TRUE means break..
+                                                  ## FALSE -- keep, TRUE -- destroy
                                                 if(is.null(val)  ||
-                                                   (is.logical(val) && val)
+                                                   (is.logical(val) && !val)
                                                    )
                                                   tkdestroy(block) ## revers
                                               })
                               }
                               ))
-
-
-                              
