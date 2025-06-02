@@ -1,7 +1,7 @@
 #==============================================================================
 # Contains private configuration procedures for tablelist widgets.
 #
-# Copyright (c) 2000-2012  Csaba Nemethi (E-mail: csaba.nemethi@t-online.de)
+# Copyright (c) 2000-2025  Csaba Nemethi (E-mail: csaba.nemethi@t-online.de)
 #==============================================================================
 
 #------------------------------------------------------------------------------
@@ -19,18 +19,28 @@ proc tablelist::extendConfigSpecs {} {
     # Extend some elements of the array configSpecs
     #
     lappend configSpecs(-acceptchildcommand)	{}
+    lappend configSpecs(-acceptdropcommand)	{}
     lappend configSpecs(-activestyle)		frame
+    lappend configSpecs(-aftercopycommand)	{}
+    lappend configSpecs(-autofinishediting)	0
     lappend configSpecs(-autoscan)		1
     lappend configSpecs(-collapsecommand)	{}
+    lappend configSpecs(-colorizecommand)	{}
     lappend configSpecs(-columns)		{}
     lappend configSpecs(-columntitles)		{}
+    lappend configSpecs(-customdragsource)	0
+    lappend configSpecs(-displayondemand)	1
     lappend configSpecs(-editendcommand)	{}
+    lappend configSpecs(-editendonfocusout)	0
+    lappend configSpecs(-editendonmodclick)	1
     lappend configSpecs(-editselectedonly)	0
     lappend configSpecs(-editstartcommand)	{}
     lappend configSpecs(-expandcommand)		{}
     lappend configSpecs(-forceeditendcommand)	0
     lappend configSpecs(-fullseparators)	0
     lappend configSpecs(-incrarrowtype)		up
+    lappend configSpecs(-instanttoggle)		0
+    lappend configSpecs(-itembackground)	{}
     lappend configSpecs(-labelcommand)		{}
     lappend configSpecs(-labelcommand2)		{}
     lappend configSpecs(-labelrelief)		raised
@@ -40,9 +50,13 @@ proc tablelist::extendConfigSpecs {} {
     lappend configSpecs(-populatecommand)	{}
     lappend configSpecs(-protecttitlecolumns)	0
     lappend configSpecs(-resizablecolumns)	1
+    lappend configSpecs(-selectfiltercommand)	{}
     lappend configSpecs(-selecttype)		row
     lappend configSpecs(-setfocus)		1
     lappend configSpecs(-showarrow)		1
+    lappend configSpecs(-showbusycursor)	1
+    lappend configSpecs(-showeditcursor)	1
+    lappend configSpecs(-showhorizseparator)	1
     lappend configSpecs(-showlabels)		1
     lappend configSpecs(-showseparators)	0
     lappend configSpecs(-snipstring)		...
@@ -52,11 +66,13 @@ proc tablelist::extendConfigSpecs {} {
     lappend configSpecs(-stripebackground)	{}
     lappend configSpecs(-stripeforeground)	{}
     lappend configSpecs(-stripeheight)		1
-    lappend configSpecs(-targetcolor)		black
+    lappend configSpecs(-tight)			0
     lappend configSpecs(-titlecolumns)		0
     lappend configSpecs(-tooltipaddcommand)	{}
     lappend configSpecs(-tooltipdelcommand)	{}
     lappend configSpecs(-treecolumn)		0
+    lappend configSpecs(-xmousewheelwindow)	{}
+    lappend configSpecs(-ymousewheelwindow)	{}
 
     #
     # Append the default values of the configuration options
@@ -79,7 +95,7 @@ proc tablelist::extendConfigSpecs {} {
     destroy $helpListbox
 
     set helpLabel .__helpLabel
-    for {set n 0} {[winfo exists $helpLabel]} {incr n} {
+    for {set n 2} {[winfo exists $helpLabel]} {incr n} {
 	set helpLabel .__helpLabel$n
     }
 
@@ -95,37 +111,33 @@ proc tablelist::extendConfigSpecs {} {
 	# Append theme-specific values to some elements of the
 	# array configSpecs and initialize some tree resources
 	#
-	if {[string compare [getCurrentTheme] "tileqt"] == 0} {
-	    tileqt_kdeStyleChangeNotification 
+	variable currentTheme
+	if {$currentTheme eq "aqua"} {
+	    variable newAquaSupport
+	    ##nagelfar ignore
+	    scan $::tcl_platform(osVersion) "%d" majorOSVersion
+	    if {$newAquaSupport && $majorOSVersion >= 18} {	;# OS X 10.14+
+		update idletasks		;# needed for the isdark query
+	    }
+	} elseif {$currentTheme eq "tileqt"} {
+	    tileqt_kdeStyleChangeNotification
 	}
 	setThemeDefaults
 	variable themeDefaults
 	set treeStyle $themeDefaults(-treestyle)
-	${treeStyle}TreeImgs 
-	variable maxIndentDepths
-	set maxIndentDepths($treeStyle) 0
+	createTreeImgs $treeStyle
 
 	ttk::label $helpLabel -takefocus 0
 
-	#
-	# Define the header label layout
-	#
-	style theme settings "default" {
-	    style layout TablelistHeader.TLabel {
-		Treeheading.cell
-		Treeheading.border -children {
-		    Label.padding -children {
-			Label.label
-		    }
-		}
-	    }
-	}
-	if {[string compare [package provide ttk::theme::aqua] ""] != 0 ||
-	    [string compare [package provide tile::theme::aqua] ""] != 0} {
+	if {[package provide  ttk::theme::aqua] ne "" ||
+	    [package provide tile::theme::aqua] ne ""} {
 	    style theme settings "aqua" {
-		if {[info exists tile::patchlevel] &&
-		    [string compare $tile::patchlevel "0.6.4"] < 0} {
-		    style layout TablelistHeader.TLabel {
+		#
+		# Define the header label layout
+		#
+		if {[info exists ::tile::patchlevel] &&
+		    [string compare $::tile::patchlevel "0.6.4"] < 0} {
+		    style layout Tablelist.Heading {
 			Treeheading.cell
 			Label.padding -children {
 			    Label.label -side top
@@ -133,28 +145,22 @@ proc tablelist::extendConfigSpecs {} {
 			}
 		    }
 		} else {
-		    style layout TablelistHeader.TLabel {
+		    style layout Tablelist.Heading {
 			Treeheading.cell
 			Label.padding -children {
 			    Label.label -side top
 			}
 		    }
 		}
-		style map TablelistHeader.TLabel -foreground [list \
-		    {disabled background} #a3a3a3 disabled #a3a3a3 \
-		    background black]
+
+		variable newAquaSupport
+		if {!$newAquaSupport} {
+		    style map Tablelist.Heading -foreground {disabled #b1b1b1}
+		}
 	    }
 	}
     } else {
-	if {$::tk_version < 8.3} {
-	    unset configSpecs(-acceptchildcommand)
-	    unset configSpecs(-collapsecommand)
-	    unset configSpecs(-expandcommand)
-	    unset configSpecs(-populatecommand)
-	    unset configSpecs(-titlecolumns)
-	    unset configSpecs(-treecolumn)
-	    unset configSpecs(-treestyle)
-	}
+	lappend configSpecs(-targetcolor) [lindex $configSpecs(-foreground) 3]
 
 	#
 	# Append the default values of some configuration options
@@ -162,25 +168,12 @@ proc tablelist::extendConfigSpecs {} {
 	# corresponding -label* elements of the array configSpecs
 	#
 	tk::label $helpLabel -takefocus 0
-	foreach optTail {font height} {
+	foreach optTail {activebackground activeforeground disabledforeground
+			 font height} {
 	    set configSet [$helpLabel configure -$optTail]
 	    lappend configSpecs(-label$optTail) [lindex $configSet 3]
 	}
-	if {[catch {$helpLabel configure -activebackground} configSet1] == 0 &&
-	    [catch {$helpLabel configure -activeforeground} configSet2] == 0} {
-	    lappend configSpecs(-labelactivebackground) [lindex $configSet1 3]
-	    lappend configSpecs(-labelactiveforeground) [lindex $configSet2 3]
-	} else {
-	    unset configSpecs(-labelactivebackground)
-	    unset configSpecs(-labelactiveforeground)
-	}
-	if {[catch {$helpLabel configure -disabledforeground} configSet] == 0} {
-	    lappend configSpecs(-labeldisabledforeground) [lindex $configSet 3]
-	} else {
-	    unset configSpecs(-labeldisabledforeground)
-	}
-	if {[string compare $winSys "win32"] == 0 &&
-	    $::tcl_platform(osVersion) < 5.1} {
+	if {$winSys eq "win32" && $::tcl_platform(osVersion) < 5.1} {
 	    lappend configSpecs(-labelpady) 0
 	} else {
 	    set configSet [$helpLabel configure -pady]
@@ -192,7 +185,7 @@ proc tablelist::extendConfigSpecs {} {
 	# options from a temporary, invisible button widget
 	#
 	set helpButton .__helpButton
-	for {set n 0} {[winfo exists $helpButton]} {incr n} {
+	for {set n 2} {[winfo exists $helpButton]} {incr n} {
 	    set helpButton .__helpButton$n
 	}
 	button $helpButton
@@ -206,8 +199,7 @@ proc tablelist::extendConfigSpecs {} {
 	    set configSet [$helpButton configure -$optTail]
 	    lappend configSpecs(-label$optTail) [lindex $configSet 3]
 	}
-	if {[string compare $winSys "classic"] == 0 ||
-	    [string compare $winSys "aqua"] == 0} {
+	if {$winSys eq "aqua"} {
 	    lappend configSpecs(-labelborderwidth) 1
 	} else {
 	    set configSet [$helpButton configure -borderwidth]
@@ -221,9 +213,9 @@ proc tablelist::extendConfigSpecs {} {
 	#
 	switch $winSys {
 	    x11 {
-		set arrowColor		{}
-		set arrowDisabledColor	{}
-		set arrowStyle		sunken10x9
+		set arrowColor		black
+		set arrowDisabledColor	#a3a3a3
+		set arrowStyle		[defaultX11ArrowStyle]
 		set treeStyle		gtk
 	    }
 
@@ -235,18 +227,18 @@ proc tablelist::extendConfigSpecs {} {
 		    set treeStyle		winnative
 
 		} elseif {$::tcl_platform(osVersion) == 5.1} {	;# Win XP
-		    switch [winfo rgb . SystemHighlight] {
-			"12593 27242 50629" {			;# Win XP Blue
+		    switch [mwutil::normalizeColor SystemHighlight] {
+			#316ac5 {				;# Win XP Blue
 			    set arrowColor	#aca899
 			    set arrowStyle	flat9x5
 			    set treeStyle	winxpBlue
 			}
-			"37779 41120 28784" {			;# Win XP Olive
+			#93a070 {				;# Win XP Olive
 			    set arrowColor	#aca899
 			    set arrowStyle	flat9x5
 			    set treeStyle	winxpOlive
 			}
-			"45746 46260 49087" {			;# Win XP Silver
+			#b2b4bf {				;# Win XP Silver
 			    set arrowColor	#aca899
 			    set arrowStyle	flat9x5
 			    set treeStyle	winxpSilver
@@ -260,54 +252,74 @@ proc tablelist::extendConfigSpecs {} {
 		    set arrowDisabledColor	SystemDisabledText
 
 		} elseif {$::tcl_platform(osVersion) == 6.0} {	;# Win Vista
-		    switch [winfo rgb . SystemHighlight] {
-			"13107 39321 65535" {			;# Vista Aero
+		    switch [mwutil::normalizeColor SystemHighlight] {
+			#3399ff {				;# Vista Aero
 			    set arrowColor	#569bc0
-			    set arrowStyle	flat7x4
+			    set arrowStyle	photo[defaultWinArrowSize]
 			    set treeStyle	vistaAero
 			}
 			default {				;# Win Classic
 			    set arrowColor	SystemButtonShadow
-			    set arrowStyle	flat7x4
+			    set arrowStyle	flat[defaultWinArrowSize]
 			    set treeStyle	vistaClassic
 			}
 		    }
 		    set arrowDisabledColor	SystemDisabledText
 
-		} else {					;# Win 7
-		    switch [winfo rgb . SystemHighlight] {
-			"13107 39321 65535" {			;# Win 7 Aero
+		} elseif {$::tcl_platform(osVersion) < 10.0} {	;# Win 7/8
+		    switch [mwutil::normalizeColor SystemHighlight] {
+			#3399ff" {				;# Win 7/8 Aero
 			    set arrowColor	#569bc0
-			    set arrowStyle	flat7x4
+			    set arrowStyle	photo[defaultWinArrowSize]
 			    set treeStyle	win7Aero
 			}
 			default {				;# Win Classic
 			    set arrowColor	SystemButtonShadow
-			    set arrowStyle	flat7x4
+			    set arrowStyle	flat[defaultWinArrowSize]
 			    set treeStyle	win7Classic
 			}
 		    }
 		    set arrowDisabledColor	SystemDisabledText
+
+		} else {					;# Win 10
+		    set arrowColor		#595959
+		    set arrowDisabledColor	SystemDisabledText
+		    set arrowStyle		flatAngle[defaultWinArrowSize]
+		    set treeStyle		win10
 		}
 	    }
 
-	    classic -
 	    aqua {
-		set arrowColor		#717171
+		##nagelfar ignore
+		scan $::tcl_platform(osVersion) "%d" majorOSVersion
+		if {$majorOSVersion >= 20} {		;# macOS 11.0 or higher
+		    set arrowColor	#878787
+		    set arrowStyle	flatAngle7x4
+		} elseif {$majorOSVersion >= 14} {	;# OS X 10.10 or higher
+		    set arrowColor	#404040
+		    set arrowStyle	flatAngle7x4
+		} else {
+		    set arrowColor	#777777
+		    variable pngSupported
+		    if {$pngSupported} {
+			set arrowStyle	photo7x7
+		    } else {
+			set arrowStyle	flat7x7
+		    }
+		}
 		set arrowDisabledColor	#a3a3a3
-		set arrowStyle		flat7x7
-		set treeStyle		aqua
+		if {$majorOSVersion >= 20} {		;# macOS 11.0 or higher
+		    set treeStyle	aqua11
+		} else {
+		    set treeStyle	aqua
+		}
 	    }
 	}
 	lappend configSpecs(-arrowcolor)		$arrowColor
 	lappend configSpecs(-arrowdisabledcolor)	$arrowDisabledColor
 	lappend configSpecs(-arrowstyle)		$arrowStyle
-	if {$::tk_version >= 8.3} {
-	    lappend configSpecs(-treestyle)		$treeStyle
-	    ${treeStyle}TreeImgs 
-	    variable maxIndentDepths
-	    set maxIndentDepths($treeStyle) 0
-	}
+	lappend configSpecs(-treestyle)			$treeStyle
+	createTreeImgs $treeStyle
     }
 
     #
@@ -315,14 +327,6 @@ proc tablelist::extendConfigSpecs {} {
     # -movecursor, and -resizecursor options
     #
     switch $winSys {
-	x11 -
-	win32 {
-	    set movecolumnCursor	icon
-	    set moveCursor		hand2
-	    set resizeCursor		sb_h_double_arrow
-	}
-
-	classic -
 	aqua {
 	    set movecolumnCursor	closedhand
 	    set moveCursor		pointinghand
@@ -332,10 +336,25 @@ proc tablelist::extendConfigSpecs {} {
 		set resizeCursor	sb_h_double_arrow
 	    }
 	}
+
+	default {
+	    set movecolumnCursor	icon
+	    set moveCursor		hand2
+	    set resizeCursor		sb_h_double_arrow
+	}
     }
     lappend configSpecs(-movecolumncursor)	$movecolumnCursor
     lappend configSpecs(-movecursor)		$moveCursor
     lappend configSpecs(-resizecursor)		$resizeCursor
+
+    variable centerArrows 0
+    if {$winSys eq "win32" &&
+	($::tcl_platform(osVersion) >= 10.0 ||
+	 ($::tcl_platform(osVersion) >= 6.0 &&
+	  [mwutil::normalizeColor SystemHighlight] eq \
+	  "#3399ff"))} {				;# Win 10 or 7/8 Aero
+	set centerArrows 1
+    }
 }
 
 #------------------------------------------------------------------------------
@@ -360,24 +379,27 @@ proc tablelist::doConfig {win opt val} {
 	    # properly formatted value of val in data($opt)
 	    #
 	    foreach w [winfo children $win] {
-		if {[regexp {^(body|hdr|sep([0-9]+)?)$} [winfo name $w]]} {
+		if {[regexp {^(body|hdr|.sep[0-9]*)$} [winfo name $w]]} {
 		    $w configure $opt $val
 		}
 	    }
-	    $data(hdrTxt) configure $opt $val
-	    $data(hdrFrLbl) configure $opt $val
-	    $data(cornerLbl) configure $opt $val
-	    foreach w [winfo children $data(hdrTxtFr)] {
+	    foreach w [list $data(hdrTxt) $data(hdrFrmLbl) \
+			    $data(cornerFrm-ne) $data(cornerLbl) \
+			    $data(cornerFrm-sw)] {
 		$w configure $opt $val
 	    }
-	    set data($opt) [$data(hdrFrLbl) cget $opt]
+	    foreach w [winfo children $data(hdrTxtFrm)] {
+		$w configure $opt $val
+	    }
+	    set data($opt) [$data(hdrFrmLbl) cget $opt]
 	}
 
 	b {
 	    #
-	    # Apply the value to the body text widget and save
-	    # the properly formatted value of val in data($opt)
+	    # Apply the value to both text widgets and save the
+	    # properly formatted value of val in data($opt)
 	    #
+	    $data(hdrTxt) configure $opt $val
 	    set w $data(body)
 	    $w configure $opt $val
 	    set data($opt) [$w cget $opt]
@@ -385,9 +407,9 @@ proc tablelist::doConfig {win opt val} {
 	    switch -- $opt {
 		-background {
 		    #
-		    # Apply the value to the frame (because of
-		    # the shadow colors of its 3-D border), to
-		    # the separators, and to the "disabled" tag
+		    # Apply the value to the frame (because of the shadow
+		    # colors of its 3-D border), to the separators,
+		    # to the header frame, and to the "disabled" tag
 		    #
 		    if {$usingTile} {
 			styleConfig Frame$win.TFrame $opt $val
@@ -395,12 +417,17 @@ proc tablelist::doConfig {win opt val} {
 		    } else {
 			$win configure $opt $val
 			foreach c [winfo children $win] {
-			    if {[regexp {^sep[0-9]+$} [winfo name $c]]} {
+			    if {[regexp {^(vsep[0-9]+|hsep2)$} \
+					[winfo name $c]]} {
 				$c configure $opt $val
 			    }
 			}
 		    }
+		    $data(cornerFrm-ne) configure $opt $val
+		    $data(hdr) configure $opt $val
+		    $data(hdrTxt) tag configure disabled $opt $val
 		    $w tag configure disabled $opt $val
+		    hdr_updateColorsWhenIdle $win
 		    updateColorsWhenIdle $win
 		}
 		-font {
@@ -429,20 +456,25 @@ proc tablelist::doConfig {win opt val} {
 		}
 		-foreground {
 		    #
-		    # Set the background color of the main separator
-		    # frame (if any) to the specified value, and apply
+		    # Set the background color of the main separators
+		    # (if any) to the specified value, and apply
 		    # this value to the "disabled" tag if needed
 		    #
 		    if {$usingTile} {
-			styleConfig Sep$win.TSeparator -background $val
+			styleConfig Main$win.TSeparator -background $val
 		    } else {
-			if {[winfo exists $data(sep)]} {
-			    $data(sep) configure -background $val
+			if {[winfo exists $data(vsep)]} {
+			    $data(vsep) configure -background $val
+			}
+			if {[winfo exists $data(hsep)1]} {
+			    $data(hsep)1 configure -background $val
 			}
 		    }
-		    if {[string compare $data(-disabledforeground) ""] == 0} {
+		    if {$data(-disabledforeground) eq ""} {
+			$data(hdrTxt) tag configure disabled $opt $val
 			$w tag configure disabled $opt $val
 		    }
+		    hdr_updateColorsWhenIdle $win
 		    updateColorsWhenIdle $win
 		}
 	    }
@@ -454,30 +486,29 @@ proc tablelist::doConfig {win opt val} {
 	    # and save the properly formatted value of val in data($opt)
 	    #
 	    set optTail [string range $opt 6 end]	;# remove the -label
-	    configLabel $data(hdrFrLbl) -$optTail $val
+	    configLabel $data(hdrFrmLbl) -$optTail $val
 	    configLabel $data(cornerLbl) -$optTail $val
 	    for {set col 0} {$col < $data(colCount)} {incr col} {
-		set w $data(hdrTxtFrLbl)$col
+		set w $data(hdrTxtFrmLbl)$col
 		if {![info exists data($col$opt)]} {
 		    configLabel $w -$optTail $val
 		}
 	    }
-	    if {$usingTile && [string compare $opt "-labelpady"] == 0} {
+	    if {$usingTile && $opt eq "-labelpady"} {
 		set data($opt) $val
 	    } else {
-		set data($opt) [$data(hdrFrLbl) cget -$optTail]
+		set data($opt) [$data(hdrFrmLbl) cget -$optTail]
 	    }
 
 	    switch -- $opt {
 		-labelbackground -
 		-labelforeground {
 		    #
-		    # Apply the value to $data(hdrTxt) and conditionally
-		    # to the canvases displaying up- or down-arrows
+		    # Conditionally apply the value to the
+		    # canvases displaying up- or down-arrows
 		    #
 		    $helpLabel configure -$optTail $val
 		    set data($opt) [$helpLabel cget -$optTail]
-		    $data(hdrTxt) configure -$optTail $data($opt)
 		    foreach col $data(arrowColList) {
 			if {![info exists data($col$opt)]} {
 			    configCanvas $win $col
@@ -490,6 +521,7 @@ proc tablelist::doConfig {win opt val} {
 		    # the height of the header frame)
 		    #
 		    adjustColumns $win allLabels 1
+		    updateViewWhenIdle $win
 
 		    set borderWidth [winfo pixels $win $data($opt)]
 		    if {$borderWidth < 0} {
@@ -509,16 +541,16 @@ proc tablelist::doConfig {win opt val} {
 			}
 		    }
 		}
-		-labelfont {
-		    #
-		    # Apply the value to $data(hdrTxt) and adjust the
-		    # columns (including the height of the header frame)
-		    #
-		    $data(hdrTxt) configure -$optTail $data($opt)
-		    adjustColumns $win allLabels 1
-		}
-		-labelheight -
+		-labelfont -
 		-labelpady {
+		    #
+		    # Adjust the columns (including
+		    # the height of the header frame)
+		    #
+		    adjustColumns $win allLabels 1
+		    updateViewWhenIdle $win
+		}
+		-labelheight {
 		    #
 		    # Adjust the height of the header frame
 		    #
@@ -539,18 +571,21 @@ proc tablelist::doConfig {win opt val} {
 	w {
 	    switch -- $opt {
 		-acceptchildcommand -
+		-acceptdropcommand -
+		-aftercopycommand -
 		-collapsecommand -
+		-colorizecommand -
 		-editendcommand -
 		-editstartcommand -
 		-expandcommand -
 		-labelcommand -
 		-labelcommand2 -
 		-populatecommand -
+		-selectfiltercommand -
 		-selectmode -
 		-sortcommand -
 		-tooltipaddcommand -
-		-tooltipdelcommand -
-		-yscrollcommand {
+		-tooltipdelcommand {
 		    set data($opt) $val
 		}
 		-activestyle {
@@ -583,17 +618,15 @@ proc tablelist::doConfig {win opt val} {
 		    # Save the properly formatted value of val in data($opt)
 		    # and set the color of the normal or disabled arrows
 		    #
-		    if {[string compare $val ""] == 0} {
+		    if {$val eq ""} {
 			set data($opt) ""
 		    } else {
 			$helpLabel configure -foreground $val
 			set data($opt) [$helpLabel cget -foreground]
 		    }
-		    if {([string compare $opt "-arrowcolor"] == 0 &&
-			 !$data(isDisabled)) ||
-			([string compare $opt "-arrowdisabledcolor"] == 0 &&
-			 $data(isDisabled))} {
-			foreach w [info commands $data(hdrTxtFrCanv)*] {
+		    if {($opt eq "-arrowcolor" && !$data(isDisabled)) ||
+			($opt eq "-arrowdisabledcolor" && $data(isDisabled))} {
+			foreach w [info commands $data(hdrTxtFrmCanv)*] {
 			    fillArrows $w $val $data(-arrowstyle)
 			}
 		    }
@@ -606,11 +639,14 @@ proc tablelist::doConfig {win opt val} {
 		    variable arrowStyles
 		    set data($opt) \
 			[mwutil::fullOpt "arrow style" $val $arrowStyles]
-		    regexp {^(flat|sunken|photo)([0-9]+)x([0-9]+)$} \
+		    regexp {^(flat|flatAngle|sunken|photo)([0-9]+)x([0-9]+)$} \
 			   $data($opt) dummy relief width height
-		    set data(arrowWidth) $width
-		    set data(arrowHeight) $height
-		    foreach w [info commands $data(hdrTxtFrCanv)*] {
+		    set pct $::scaleutil::scalingPct
+		    set data(arrowWidth) [expr {
+			$width > 0 ? $width : int(8 * $pct / 100.0)}]
+		    set data(arrowHeight) [expr {
+			$height > 0 ? $height : int(4 * $pct / 100.0)}]
+		    foreach w [info commands $data(hdrTxtFrmCanv)*] {
 			createArrows $w $width $height $relief
 			if {$data(isDisabled)} {
 			    fillArrows $w $data(-arrowdisabledcolor) $data($opt)
@@ -624,16 +660,23 @@ proc tablelist::doConfig {win opt val} {
 			    lappend whichWidths l$col
 			}
 			adjustColumns $win $whichWidths 1
+			updateViewWhenIdle $win
 		    }
 		}
+		-autofinishediting -
 		-autoscan -
-		-editselectedonly -
+		-customdragsource -
+		-displayondemand -
+		-editendonfocusout -
+		-editendonmodclick -
 		-forceeditendcommand -
+		-instanttoggle -
 		-movablecolumns -
 		-movablerows -
 		-protecttitlecolumns -
 		-resizablecolumns -
-		-setfocus {
+		-setfocus -
+		-showbusycursor {
 		    #
 		    # Save the boolean value specified by val in data($opt)
 		    #
@@ -645,13 +688,13 @@ proc tablelist::doConfig {win opt val} {
 		    # the lists of the column fonts and tag
 		    # names, and redisplay the items
 		    #
-		    set selCells [curCellSelection $win]
 		    setupColumns $win $val 1
 		    adjustColumns $win allCols 1
 		    adjustColIndex $win data(anchorCol) 1
 		    adjustColIndex $win data(activeCol) 1
 		    makeColFontAndTagLists $win
-		    redisplay $win 0 $selCells
+		    makeSortAndArrowColLists $win
+		    redisplay $win
 		    updateViewWhenIdle $win
 		}
 		-columntitles {
@@ -670,6 +713,7 @@ proc tablelist::doConfig {win opt val} {
 			    lappend whichWidths l$col
 			}
 			adjustColumns $win $whichWidths 1
+			updateViewWhenIdle $win
 		    } else {
 			#
 			# Update the titles of the current columns,
@@ -685,11 +729,11 @@ proc tablelist::doConfig {win opt val} {
 			for {} {$col < $titleCount} {incr col} {
 			    lappend columns 0 [lindex $val $col] left
 			}
-			set selCells [curCellSelection $win]
 			setupColumns $win $columns 1
 			adjustColumns $win allCols 1
 			makeColFontAndTagLists $win
-			redisplay $win 0 $selCells
+			makeSortAndArrowColLists $win
+			redisplay $win
 			updateViewWhenIdle $win
 
 			#
@@ -702,29 +746,43 @@ proc tablelist::doConfig {win opt val} {
 			# be processed as a non-explicitly specified option
 			#
 			set callerProc [lindex [info level -1] 0]
-			if {[string compare $callerProc \
-			     "mwutil::configureWidget"] == 0} {
+			if {$callerProc eq "mwutil::configureWidget"} {
 			    uplevel 1 lappend cmdLineOpts "-columns"
 			}
 		    }
 		}
 		-disabledforeground {
 		    #
-		    # Configure the "disabled" tag in the body text widget and
+		    # Configure the "disabled" tag in both text widgets and
 		    # save the properly formatted value of val in data($opt)
 		    #
 		    set w $data(body)
-		    if {[string compare $val ""] == 0} {
-			$w tag configure disabled -fgstipple gray50 \
+		    if {$val eq ""} {
+			foreach w [list $data(hdrTxt) $data(body)] {
+			    $w tag configure disabled -fgstipple gray50 \
 				-foreground $data(-foreground)
+			}
 			set data($opt) ""
 		    } else {
-			$w tag configure disabled -fgstipple "" \
+			foreach w [list $data(hdrTxt) $data(body)] {
+			    $w tag configure disabled -fgstipple "" \
 				-foreground $val
+			}
 			set data($opt) [$w tag cget disabled -foreground]
 		    }
 		    if {$data(isDisabled)} {
+			hdr_updateColorsWhenIdle $win
 			updateColorsWhenIdle $win
+		    }
+		}
+		-editselectedonly {
+		    #
+		    # Save the boolean value specified by val in data($opt)
+		    # and invoke the motion handler if necessary
+		    #
+		    set data($opt) [expr {$val ? 1 : 0}]
+		    if {$data(-showeditcursor)} {
+			invokeMotionHandler $win
 		    }
 		}
 		-exportselection {
@@ -737,13 +795,15 @@ proc tablelist::doConfig {win opt val} {
 		    # when it loses ownership of the PRIMARY selection
 		    #
 		    set data($opt) [expr {$val ? 1 : 0}]
-		    if {$val &&
-			[llength [$data(body) tag nextrange select 1.0]] != 0} {
+		    upvar ::tablelist::ns${win}::selStates selStates
+		    if {$val && $data(colCount) != 0 &&
+			[array size selStates] != 0} {
 			selection own -command \
 				[list ::tablelist::lostSelection $win] $win
 		    }
 		}
-		-fullseparators {
+		-fullseparators -
+		-showhorizseparator {
 		    #
 		    # Save the boolean value specified by val
 		    # in data($opt) and adjust the separators
@@ -757,6 +817,7 @@ proc tablelist::doConfig {win opt val} {
 		    # and of the listbox child, and save the
 		    # properly formatted value of val in data($opt)
 		    #
+		    ##nagelfar ignore
 		    set val [format "%d" $val]	;# integer check with error msg
 		    if {$val <= 0} {
 			set viewableRowCount [expr \
@@ -789,11 +850,7 @@ proc tablelist::doConfig {win opt val} {
 		    #
 		    makeListVar $win $val
 		    set data($opt) $val
-		    if {[string compare $val ""] == 0} {
-			set data(hasListVar) 0
-		    } else {
-			set data(hasListVar) 1
-		    }
+		    set data(hasListVar) [expr {$val ne ""}]
 		}
 		-movecolumncursor -
 		-movecursor -
@@ -851,8 +908,10 @@ proc tablelist::doConfig {win opt val} {
 		    if {$spacing < 0} {
 			set spacing 0
 		    }
-		    $w configure -spacing1 [expr {$spacing + $pixVal}] \
-				 -spacing3 [expr {$spacing + $pixVal + 1}]
+		    set sp1 [expr {$spacing + $pixVal}]
+		    set sp3 [expr {$spacing + $pixVal + !$data(-tight)}]
+		    $data(hdrTxt) configure -spacing1 $sp1 -spacing3 $sp3
+		    $w configure -spacing1 $sp1 -spacing3 $sp3
 		    $data(lb) configure $opt $val
 		    redisplayWhenIdle $win
 		    updateViewWhenIdle $win
@@ -864,6 +923,7 @@ proc tablelist::doConfig {win opt val} {
 		    #
 		    $data(lb) configure $opt $val
 		    set data($opt) [$data(lb) cget $opt]
+		    updateListboxSetgridOpt $win
 		}
 		-showarrow {
 		    #
@@ -874,6 +934,15 @@ proc tablelist::doConfig {win opt val} {
 		    set data($opt) [expr {$val ? 1 : 0}]
 		    makeSortAndArrowColLists $win
 		    adjustColumns $win allLabels 1
+		    updateViewWhenIdle $win
+		}
+		-showeditcursor {
+		    #
+		    # Save the boolean value specified by val in
+		    # data($opt) and invoke the motion handler
+		    #
+		    set data($opt) [expr {$val ? 1 : 0}]
+		    invokeMotionHandler $win
 		}
 		-showlabels {
 		    #
@@ -894,7 +963,8 @@ proc tablelist::doConfig {win opt val} {
 			createSeps $win
 		    } elseif {$oldVal && !$data($opt)} {
 			foreach w [winfo children $win] {
-			    if {[regexp {^sep[0-9]+$} [winfo name $w]]} {
+			    if {[regexp {^(vsep[0-9]+|hsep2)$} \
+					[winfo name $w]]} {
 				destroy $w
 			    }
 			}
@@ -923,8 +993,10 @@ proc tablelist::doConfig {win opt val} {
 		    if {$selectBd < 0} {
 			set selectBd 0
 		    }
-		    $w configure -spacing1 [expr {$pixVal + $selectBd}] \
-				 -spacing3 [expr {$pixVal + $selectBd + 1}]
+		    set sp1 [expr {$pixVal + $selectBd}]
+		    set sp3 [expr {$pixVal + $selectBd + !$data(-tight)}]
+		    $data(hdrTxt) configure -spacing1 $sp1 -spacing3 $sp3
+		    $w configure -spacing1 $sp1 -spacing3 $sp3
 		    set data($opt) $val
 		    redisplayWhenIdle $win
 		    updateViewWhenIdle $win
@@ -934,33 +1006,39 @@ proc tablelist::doConfig {win opt val} {
 		    # Apply the value to all labels and their sublabels
 		    # (if any), as well as to the edit window (if present),
 		    # add/remove the "disabled" tag to/from the contents
-		    # of the body text widget, configure the borderwidth
+		    # of the text widgets, configure the borderwidth
 		    # of the "active" and "select" tags, save the
 		    # properly formatted value of val in data($opt),
 		    # and raise the corresponding arrow in the canvas
 		    #
 		    variable states
 		    set val [mwutil::fullOpt "state" $val $states]
-		    catch {
-			configLabel $data(hdrFrLbl) $opt $val
-			configLabel $data(cornerLbl) $opt $val
-			for {set col 0} {$col < $data(colCount)} {incr col} {
-			    configLabel $data(hdrTxtFrLbl)$col $opt $val
+		    configLabel $data(hdrFrmLbl) $opt $val
+		    configLabel $data(cornerLbl) $opt $val
+		    for {set col 0} {$col < $data(colCount)} {incr col} {
+			configLabel $data(hdrTxtFrmLbl)$col $opt $val
+			set w [labelwindowpathSubCmd $win $col]
+			if {[winfo exists $w]} {
+			    $w configure $opt $val
 			}
 		    }
 		    if {$data(editRow) >= 0} {
-			catch {$data(bodyFrEd) configure $opt $val}
+			catch {$data(bodyFrmEd) configure $opt $val}
 		    }
 		    set w $data(body)
 		    switch $val {
 			disabled {
+			    $data(hdrTxt) tag add disabled 2.0 end
 			    $w tag add disabled 1.0 end
 			    $w tag configure select -relief flat
+			    $w tag configure curRow -relief flat
 			    set data(isDisabled) 1
 			}
 			normal {
+			    $data(hdrTxt) tag remove disabled 2.0 end
 			    $w tag remove disabled 1.0 end
 			    $w tag configure select -relief raised
+			    $w tag configure curRow -relief raised
 			    set data(isDisabled) 0
 			}
 		    }
@@ -969,6 +1047,7 @@ proc tablelist::doConfig {win opt val} {
 			configCanvas $win $col
 			raiseArrow $win $col
 		    }
+		    hdr_updateColorsWhenIdle $win
 		    updateColorsWhenIdle $win
 		}
 		-stretch {
@@ -982,6 +1061,7 @@ proc tablelist::doConfig {win opt val} {
 			set data($opt) $val
 			sortStretchableColList $win
 		    }
+		    updateListboxSetgridOpt $win
 		    set data(forceAdjust) 1
 		    stretchColumnsWhenIdle $win
 		}
@@ -1003,6 +1083,7 @@ proc tablelist::doConfig {win opt val} {
 		    # Save the properly formatted value of val in
 		    # data($opt) and draw the stripes if necessary
 		    #
+		    ##nagelfar ignore
 		    set val [format "%d" $val]	;# integer check with error msg
 		    set data($opt) $val
 		    makeStripesWhenIdle $win
@@ -1016,22 +1097,47 @@ proc tablelist::doConfig {win opt val} {
 		    $data(colGap) configure -background $val
 		    set data($opt) [$data(rowGap) cget -background]
 		}
+		-itembackground {
+		    #
+		    # Configure the "itembg" tag in both text widgets and
+		    # save the properly formatted value of val in data($opt)
+		    #
+		    foreach w [list $data(hdrTxt) $data(body)] {
+			$w tag configure itembg -background $val
+		    }
+		    set data($opt) [$w tag cget itembg -background]
+		    hdr_updateColorsWhenIdle $win
+		    updateColorsWhenIdle $win
+		}
+		-tight {
+		    #
+		    # Save the boolean value specified by val
+		    # in data($opt) and adjust the line spacing
+		    #
+		    set data($opt) [expr {$val ? 1 : 0}]
+		    set w $data(body)
+		    set sp1 [$w cget -spacing1]
+		    set sp3 [expr {$sp1 + !$data($opt)}]
+		    $data(hdrTxt) configure -spacing3 $sp3
+		    $w configure -spacing3 $sp3
+		    updateViewWhenIdle $win
+		}
 		-titlecolumns {
 		    #
-		    # Update the value of the -xscrollcommand option, save
-		    # the properly formatted value of val in data($opt),
-		    # and create or destroy the main separator if needed
+		    # Save the properly formatted value of val in data($opt) and
+		    # create or destroy the vertical main separator if needed
 		    #
 		    set oldVal $data($opt)
+		    ##nagelfar ignore
 		    set val [format "%d" $val]	;# integer check with error msg
 		    if {$val < 0} {
 			set val 0
 		    }
 		    xviewSubCmd $win 0
-		    set w $data(sep)
+		    set w $data(vsep)
 		    if {$val == 0} {
 			$data(hdrTxt) configure -xscrollcommand \
-				      $data(-xscrollcommand)
+				      [list tablelist::updateHScrlbar $win]
 			if {$oldVal > 0} {
 			    destroy $w
 			}
@@ -1039,9 +1145,9 @@ proc tablelist::doConfig {win opt val} {
 			$data(hdrTxt) configure -xscrollcommand ""
 			if {$oldVal == 0} {
 			    if {$usingTile} {
-				ttk::separator $w -style Sep$win.TSeparator \
-						   -cursor $data(-cursor) \
-						   -orient vertical -takefocus 0
+				ttk::separator $w -style Main$win.TSeparator \
+						  -cursor $data(-cursor) \
+						  -orient vertical -takefocus 0
 			    } else {
 				tk::frame $w -background $data(-foreground) \
 					     -borderwidth 1 -container 0 \
@@ -1056,8 +1162,22 @@ proc tablelist::doConfig {win opt val} {
 			adjustSepsWhenIdle $win
 		    }
 		    set data($opt) $val
-		    xviewSubCmd $win 0
+		    set data(xView) {-1 -1}
 		    updateHScrlbarWhenIdle $win
+
+		    set titleColsWidth [getTitleColsWidth $win]
+		    set cornerFrmWidth $titleColsWidth
+		    if {$cornerFrmWidth == 0} {
+			set cornerFrmWidth 1
+		    } else {
+			incr cornerFrmWidth -1
+		    }
+		    if {$cornerFrmWidth !=
+			[winfo reqwidth $data(cornerFrm-sw)]} {
+			$data(cornerFrm-sw) configure -width $cornerFrmWidth
+			genVirtualEvent $win \
+			    <<TablelistTitleColsWidthChanged>> $titleColsWidth
+		    }
 		}
 		-treecolumn {
 		    #
@@ -1074,7 +1194,8 @@ proc tablelist::doConfig {win opt val} {
 			set data($opt) $newTreeCol
 		    }
 		    if {$newTreeCol != $oldTreeCol} {
-			for {set row 0} {$row < $data(itemCount)} {incr row} {
+			set itemCount $data(itemCount)
+			for {set row 0} {$row < $itemCount} {incr row} {
 			    doCellConfig $row $newTreeCol $win -indent \
 				[doCellCget $row $oldTreeCol $win -indent]
 			    doCellConfig $row $oldTreeCol $win -indent ""
@@ -1087,36 +1208,31 @@ proc tablelist::doConfig {win opt val} {
 		    # formatted value of val in data($opt)
 		    #
 		    variable treeStyles
-		    set newStyle [mwutil::fullOpt "tree style" $val $treeStyles]
-		    set oldStyle $data($opt)
-		    set treeCol $data(treeCol)
-		    if {[string compare $newStyle $oldStyle] != 0} {
-			${newStyle}TreeImgs 
+		    set val [mwutil::fullOpt "tree style" $val $treeStyles]
+		    set oldVal $data($opt)
+		    set data($opt) $val
+		    createTreeImgs $val
+		    if {$val ne $oldVal && $data(colCount) != 0} {
+			set itemCount $data(itemCount)
+			set treeCol $data(treeCol)
 			variable maxIndentDepths
-			if {![info exists maxIndentDepths($newStyle)]} {
-			    set maxIndentDepths($newStyle) 0
-			}
-			if {$data(colCount) != 0} {
-			    for {set row 0} {$row < $data(itemCount)} \
-				{incr row} {
-				set oldImg \
-				    [doCellCget $row $treeCol $win -indent]
-				set newImg [strMap \
-				    [list $oldStyle $newStyle "Sel" ""] $oldImg]
-				if {[regexp {^.+Img([0-9]+)$} $newImg \
-				     dummy depth]} {
-				    if {$depth > $maxIndentDepths($newStyle)} {
-					createTreeImgs $newStyle $depth
-					set maxIndentDepths($newStyle) $depth
-				    }
-				    doCellConfig $row $treeCol $win \
-						 -indent $newImg
+			for {set row 0} {$row < $itemCount} {incr row} {
+			    set oldIndent \
+				[doCellCget $row $treeCol $win -indent]
+			    set newIndent [string map \
+				[list $oldVal $val "Sel" ""] $oldIndent]
+			    if {[regexp {^.+Img([0-9]+)$} $newIndent \
+				 dummy depth]} {
+				if {$depth > $maxIndentDepths($val)} {
+				    setTreeLabelWidths $val $depth
+				    set maxIndentDepths($val) $depth
 				}
+				doCellConfig $row $treeCol $win \
+					     -indent $newIndent
 			    }
 			}
 		    }
-		    set data($opt) $newStyle
-		    switch -glob $newStyle {
+		    switch -glob $val {
 			baghira -
 			klearlooks -
 			oxygen? -
@@ -1126,11 +1242,6 @@ proc tablelist::doConfig {win opt val} {
 			winnative -
 			winxp*		{ set data(protectIndents) 1 }
 			default		{ set data(protectIndents) 0 }
-		    }
-		    set selCells [curCellSelection $win 1]
-		    foreach {key col} $selCells {
-			set row [keyToRow $win $key]
-			cellSelection $win set $row $col $row $col
 		    }
 		    if {$data(ownsFocus) && ![info exists data(dispId)]} {
 			addActiveTag $win
@@ -1142,29 +1253,35 @@ proc tablelist::doConfig {win opt val} {
 		    # header frame, and listbox child, and save the
 		    # properly formatted value of val in data($opt)
 		    #
+		    ##nagelfar ignore
 		    set val [format "%d" $val]	;# integer check with error msg
 		    $data(body) configure $opt $val
 		    if {$val <= 0} {
-			$data(hdr) configure $opt $data(hdrPixels)
+			$data(hdr) configure $opt $data(hdrWidth)
 			$data(lb) configure $opt \
-				  [expr {$data(hdrPixels) / $data(charWidth)}]
+				  [expr {$data(hdrWidth) / $data(charWidth)}]
 		    } else {
 			$data(hdr) configure $opt 0
 			$data(lb) configure $opt $val
 		    }
 		    set data($opt) $val
+		    updateListboxSetgridOpt $win
+		}
+		-xmousewheelwindow -
+		-ymousewheelwindow {
+		    if {$val eq "" || [winfo exists $val]} {
+			set data($opt) $val
+		    } else {
+			return -code error "bad window path name \"$val\""
+		    }
 		}
 		-xscrollcommand {
-		    #
-		    # Save val in data($opt), and apply it to the header text
-		    # widget if (and only if) no title columns are being used
-		    #
 		    set data($opt) $val
-		    if {$data(-titlecolumns) == 0} {
-			$data(hdrTxt) configure $opt $val
-		    } else {
-			$data(hdrTxt) configure $opt ""
-		    }
+		    set data(xView) {-1 -1}
+		}
+		-yscrollcommand {
+		    set data($opt) $val
+		    set data(yView) {-1 -1}
 		}
 	    }
 	}
@@ -1179,7 +1296,7 @@ proc tablelist::doConfig {win opt val} {
 #------------------------------------------------------------------------------
 proc tablelist::doCget {win opt} {
     upvar ::tablelist::ns${win}::data data
-    if {[string compare $opt "-columntitles"] == 0} {
+    if {$opt eq "-columntitles"} {
 	set colTitles {}
 	foreach {width title alignment} $data(-columns) {
 	    lappend colTitles $title
@@ -1197,7 +1314,7 @@ proc tablelist::doCget {win opt} {
 # column of the tablelist widget win.
 #------------------------------------------------------------------------------
 proc tablelist::doColConfig {col win opt val} {
-    variable canElide
+    variable pu
     upvar ::tablelist::ns${win}::data data
 
     switch -- $opt {
@@ -1212,63 +1329,35 @@ proc tablelist::doColConfig {col win opt val} {
 	    redisplayColWhenIdle $win $col
 	}
 
+	-allowduplicates -
+	-resizable {
+	    #
+	    # Save the boolean value specified by val in data($col$opt)
+	    #
+	    set data($col$opt) [expr {$val ? 1 : 0}]
+	}
+
 	-background -
 	-foreground {
-	    set w $data(body)
-	    set name $col$opt
-
-	    if {[info exists data($name)] &&
-		(!$data($col-hide) || $canElide)} {
-		#
-		# Remove the tag col$opt-$data($name)
-		# from the elements of the given column
-		#
-		set tag col$opt-$data($name)
-		for {set line 1} {$line <= $data(itemCount)} {incr line} {
-		    findTabs $win $line $col $col tabIdx1 tabIdx2
-		    $w tag remove $tag $tabIdx1 $tabIdx2+1c
-		}
-	    }
-
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($name)]} {
-		    unset data($name)
-		}
+	    if {$val eq ""} {
+		array unset data $col$opt
 	    } else {
 		#
-		# Configure the tag col$opt-$val in the body text widget
+		# Configure the tag col$opt-$val in both text widgets
 		#
-		set tag col$opt-$val
-		$w tag configure $tag $opt $val
-		$w tag lower $tag
-
-		if {!$data($col-hide) || $canElide} {
-		    #
-		    # Apply the tag to the elements of the given column
-		    #
-		    for {set line 1} {$line <= $data(itemCount)} {incr line} {
-			findTabs $win $line $col $col tabIdx1 tabIdx2
-			if {[lsearch -exact [$w tag names $tabIdx1] select]
-			    < 0} {
-			    $w tag add $tag $tabIdx1 $tabIdx2+1c
-			}
-		    }
+		foreach w [list $data(hdrTxt) $data(body)] {
+		    set tag col$opt-$val
+		    $w tag configure $tag $opt $val
+		    $w tag lower $tag stripe
 		}
 
-		#
-		# Save val in data($name)
-		#
-		set data($name) $val
+		set data($col$opt) $val
 	    }
 
 	    if {!$data(isDisabled)} {
+		hdr_updateColorsWhenIdle $win
 		updateColorsWhenIdle $win
 	    }
-
-	    #
-	    # Rebuild the lists of the column fonts and tag names
-	    #
-	    makeColFontAndTagLists $win
 	}
 
 	-changesnipside -
@@ -1284,12 +1373,36 @@ proc tablelist::doColConfig {col win opt val} {
 	    }
 	}
 
-	-editable -
-	-resizable {
+	-changetitlesnipside {
 	    #
-	    # Save the boolean value specified by val in data($col$opt)
+	    # Save the boolean value specified by val in
+	    # data($col$opt) and adjust the col'th label
 	    #
 	    set data($col$opt) [expr {$val ? 1 : 0}]
+	    set pixels [lindex $data(colList) [expr {2*$col}]]
+	    if {$pixels == 0} {			;# convention: dynamic width
+		if {$data($col-maxPixels) > 0} {
+		    if {$data($col-reqPixels) > $data($col-maxPixels)} {
+			set pixels $data($col-maxPixels)
+		    }
+		}
+	    }
+	    if {$pixels != 0} {
+		incr pixels $data($col-delta)
+	    }
+	    set alignment [lindex $data(colList) [expr {2*$col + 1}]]
+	    adjustLabel $win $col $pixels $alignment
+	}
+
+	-editable {
+	    #
+	    # Save the boolean value specified by val in data($col$opt)
+	    # and invoke the motion handler if necessary
+	    #
+	    set data($col$opt) [expr {$val ? 1 : 0}]
+	    if {$data(-showeditcursor)} {
+		invokeMotionHandler $win
+	    }
 	}
 
 	-editwindow {
@@ -1303,47 +1416,49 @@ proc tablelist::doColConfig {col win opt val} {
 	}
 
 	-font {
-	    set w $data(body)
+	    displayItems $win
 	    set name $col$opt
 
-	    if {[info exists data($name)] &&
-		(!$data($col-hide) || $canElide)} {
+	    if {[info exists data($name)]} {
 		#
 		# Remove the tag col$opt-$data($name)
 		# from the elements of the given column
 		#
 		set tag col$opt-$data($name)
-		for {set line 1} {$line <= $data(itemCount)} {incr line} {
-		    findTabs $win $line $col $col tabIdx1 tabIdx2
-		    $w tag remove $tag $tabIdx1 $tabIdx2+1c
+		set maxHdrLine [expr {$data(hdr_itemCount) + 1}]
+		foreach w [list $data(hdrTxt) $data(body)] min {2 1} \
+			max [list $maxHdrLine $data(itemCount)] {
+		    for {set line $min} {$line <= $max} {incr line} {
+			findTabs $win $w $line $col $col tabIdx1 tabIdx2
+			$w tag remove $tag $tabIdx1 $tabIdx2+1$pu
+		    }
 		}
 	    }
 
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($name)]} {
-		    unset data($name)
-		}
+	    if {$val eq ""} {
+		array unset data $name
 	    } else {
 		#
-		# Configure the tag col$opt-$val in the body text widget
+		# Configure the tag col$opt-$val in both text widgets
 		#
 		set tag col$opt-$val
-		$w tag configure $tag $opt $val
-		$w tag lower $tag
+		foreach w [list $data(hdrTxt) $data(body)] {
+		    $w tag configure $tag $opt $val
+		    $w tag lower $tag
+		}
 
-		if {!$data($col-hide) || $canElide} {
-		    #
-		    # Apply the tag to the elements of the given column
-		    #
-		    for {set line 1} {$line <= $data(itemCount)} {incr line} {
-			findTabs $win $line $col $col tabIdx1 tabIdx2
-			$w tag add $tag $tabIdx1 $tabIdx2+1c
+		#
+		# Apply the tag to the elements of the given column
+		#
+		set maxHdrLine [expr {$data(hdr_itemCount) + 1}]
+		foreach w [list $data(hdrTxt) $data(body)] min {2 1} \
+			max [list $maxHdrLine $data(itemCount)] {
+		    for {set line $min} {$line <= $max} {incr line} {
+			findTabs $win $w $line $col $col tabIdx1 tabIdx2
+			$w tag add $tag $tabIdx1 $tabIdx2+1$pu
 		    }
 		}
 
-		#
-		# Save val in data($name)
-		#
 		set data($name) $val
 	    }
 
@@ -1369,10 +1484,8 @@ proc tablelist::doColConfig {col win opt val} {
 	}
 
 	-formatcommand {
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($col$opt)]} {
-		    unset data($col$opt)
-		}
+	    if {$val eq ""} {
+		array unset data $col$opt
 		set fmtCmdFlag 0
 	    } else {
 		set data($col$opt) $val
@@ -1404,9 +1517,6 @@ proc tablelist::doColConfig {col win opt val} {
 	    set oldVal $data($col$opt)
 	    set newVal [expr {$val ? 1 : 0}]
 	    if {$newVal != $oldVal} {
-		if {!$canElide} {
-		    set selCells [curCellSelection $win]
-		}
 		set data($col$opt) $newVal
 		if {$newVal} {				;# hiding the column
 		    incr data(hiddenColCount)
@@ -1420,29 +1530,23 @@ proc tablelist::doColConfig {col win opt val} {
 		}
 		makeColFontAndTagLists $win
 		adjustColumns $win $col 1
-		if {!$canElide} {
-		    redisplay $win 0 $selCells
-		    if {!$newVal &&
-			[string compare $data(-selecttype) "row"] == 0} {
-			foreach row [curSelection $win] {
-			    rowSelection $win set $row $row
-			}
-		    }
-		}
 		updateViewWhenIdle $win
-		event generate $win <<TablelistColHiddenStateChanged>>
+
+		genVirtualEvent $win <<TablelistColHiddenStateChanged>> $col
 	    }
 	}
 
 	-labelalign {
-	    if {[string compare $val ""] == 0} {
+	    if {$val eq ""} {
+		if {![info exists data($col$opt)]} {
+		    return ""
+		}
+
 		#
 		# Unset data($col$opt)
 		#
 		set alignment [lindex $data(colList) [expr {2*$col + 1}]]
-		if {[info exists data($col$opt)]} {
-		    unset data($col$opt)
-		}
+		array unset data $col$opt
 	    } else {
 		#
 		# Save the properly formatted value of val in data($col$opt)
@@ -1464,7 +1568,7 @@ proc tablelist::doColConfig {col win opt val} {
 		    }
 		}
 	    }
-	    if {$pixels != 0} {	
+	    if {$pixels != 0} {
 		incr pixels $data($col-delta)
 	    }
 	    adjustLabel $win $col $pixels $alignment
@@ -1472,18 +1576,20 @@ proc tablelist::doColConfig {col win opt val} {
 
 	-labelbackground -
 	-labelforeground {
-	    set w $data(hdrTxtFrLbl)$col
+	    set w $data(hdrTxtFrmLbl)$col
 	    set optTail [string range $opt 6 end]	;# remove the -label
-	    if {[string compare $val ""] == 0} {
+	    if {$val eq ""} {
+		if {![info exists data($col$opt)]} {
+		    return ""
+		}
+
 		#
 		# Apply the value of the corresponding widget
 		# configuration option to the col'th label and
 		# its sublabels (if any), and unset data($col$opt)
 		#
 		configLabel $w -$optTail $data($opt)
-		if {[info exists data($col$opt)]} {
-		    unset data($col$opt)
-		}
+		array unset data $col$opt
 	    } else {
 		#
 		# Apply the given value to the col'th label and
@@ -1502,17 +1608,19 @@ proc tablelist::doColConfig {col win opt val} {
 	}
 
 	-labelborderwidth {
-	    set w $data(hdrTxtFrLbl)$col
+	    set w $data(hdrTxtFrmLbl)$col
 	    set optTail [string range $opt 6 end]	;# remove the -label
-	    if {[string compare $val ""] == 0} {
+	    if {$val eq ""} {
+		if {![info exists data($col$opt)]} {
+		    return ""
+		}
+
 		#
 		# Apply the value of the corresponding widget configuration
 		# option to the col'th label and unset data($col$opt)
 		#
 		configLabel $w -$optTail $data($opt)
-		if {[info exists data($col$opt)]} {
-		    unset data($col$opt)
-		}
+		array unset data $col$opt
 	    } else {
 		#
 		# Apply the given value to the col'th label and save the
@@ -1526,34 +1634,36 @@ proc tablelist::doColConfig {col win opt val} {
 	    # Adjust the columns (including the height of the header frame)
 	    #
 	    adjustColumns $win l$col 1
+	    updateViewWhenIdle $win
 	}
 
 	-labelcommand -
 	-labelcommand2 -
 	-name -
+	-selectfiltercommand -
 	-sortcommand {
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($col$opt)]} {
-		    unset data($col$opt)
-		}
+	    if {$val eq ""} {
+		array unset data $col$opt
 	    } else {
 		set data($col$opt) $val
 	    }
 	}
 
 	-labelfont {
-	    set w $data(hdrTxtFrLbl)$col
+	    set w $data(hdrTxtFrmLbl)$col
 	    set optTail [string range $opt 6 end]	;# remove the -label
-	    if {[string compare $val ""] == 0} {
+	    if {$val eq ""} {
+		if {![info exists data($col$opt)]} {
+		    return ""
+		}
+
 		#
 		# Apply the value of the corresponding widget
 		# configuration option to the col'th label and
 		# its sublabels (if any), and unset data($col$opt)
 		#
 		configLabel $w -$optTail $data($opt)
-		if {[info exists data($col$opt)]} {
-		    unset data($col$opt)
-		}
+		array unset data $col$opt
 	    } else {
 		#
 		# Apply the given value to the col'th label and
@@ -1568,21 +1678,24 @@ proc tablelist::doColConfig {col win opt val} {
 	    # Adjust the columns (including the height of the header frame)
 	    #
 	    adjustColumns $win l$col 1
+	    updateViewWhenIdle $win
 	}
 
 	-labelheight -
 	-labelpady {
-	    set w $data(hdrTxtFrLbl)$col
+	    set w $data(hdrTxtFrmLbl)$col
 	    set optTail [string range $opt 6 end]	;# remove the -label
-	    if {[string compare $val ""] == 0} {
+	    if {$val eq ""} {
+		if {![info exists data($col$opt)]} {
+		    return ""
+		}
+
 		#
 		# Apply the value of the corresponding widget configuration
 		# option to the col'th label and unset data($col$opt)
 		#
 		configLabel $w -$optTail $data($opt)
-		if {[info exists data($col$opt)]} {
-		    unset data($col$opt)
-		}
+		array unset data $col$opt
 	    } else {
 		#
 		# Apply the given value to the col'th label and save the
@@ -1597,6 +1710,25 @@ proc tablelist::doColConfig {col win opt val} {
 		}
 	    }
 
+	    if {$opt eq "-labelpady"} {
+		#
+		# Adjust the col'th label
+		#
+		set pixels [lindex $data(colList) [expr {2*$col}]]
+		if {$pixels == 0} {		;# convention: dynamic width
+		    if {$data($col-maxPixels) > 0} {
+			if {$data($col-reqPixels) > $data($col-maxPixels)} {
+			    set pixels $data($col-maxPixels)
+			}
+		    }
+		}
+		if {$pixels != 0} {
+		    incr pixels $data($col-delta)
+		}
+		set alignment [lindex $data(colList) [expr {2*$col + 1}]]
+		adjustLabel $win $col $pixels $alignment
+	    }
+
 	    #
 	    # Adjust the height of the header frame
 	    #
@@ -1604,64 +1736,31 @@ proc tablelist::doColConfig {col win opt val} {
 	}
 
 	-labelimage {
-	    set w $data(hdrTxtFrLbl)$col
-	    if {[string compare $val ""] == 0} {
-		foreach l [getSublabels $w] {
-		    destroy $l
+	    set w $data(hdrTxtFrmLbl)$col
+	    if {$val eq ""} {
+		if {![info exists data($col$opt)]} {
+		    return ""
 		}
-		if {[info exists data($col$opt)]} {
-		    unset data($col$opt)
-		}
-	    } else {
-		if {![winfo exists $w-il]} {
-		    variable configSpecs
-		    variable configOpts
-		    foreach l [list $w-il $w-tl] {	;# image and text labels
-			#
-			# Create the label $l
-			#
-			tk::label $l -borderwidth 0 -height 0 \
-				     -highlightthickness 0 -padx 0 \
-				     -pady 0 -takefocus 0 -width 0
 
-			#
-			# Apply to it the current configuration options
-			#
-			foreach opt2 $configOpts {
-			    if {[string compare \
-				 [lindex $configSpecs($opt2) 2] "c"] == 0} {
-				$l configure $opt2 $data($opt2)
-			    }
-			}
-			if {[string compare [winfo class $w] "TLabel"] == 0} {
-			    variable themeDefaults
-			    $l configure -background \
-					 $themeDefaults(-labelbackground)
-			} else {
-			    $l configure -background [$w cget -background]
-			    $l configure -foreground [$w cget -foreground]
-			    $l configure -font       [$w cget -font]
-			}
-			foreach opt2 {-activebackground -activeforeground
-				      -disabledforeground -state} {
-			    catch {$l configure $opt2 [$w cget $opt2]}
-			}
-
-			#
-			# Replace the binding tag Label with $w,
-			# $data(labelTag), and TablelistSubLabel in
-			# the list of binding tags of the label $l
-			#
-			bindtags $l [lreplace [bindtags $l] 1 1 \
-				     $w $data(labelTag) TablelistSubLabel]
+		if {![info exists data($col-labelwindow)]} {
+		    foreach l [getSublabels $w] {
+			destroy $l
 		    }
 		}
 
-		#
-		# Display the specified image in the label
-		# $w-il and save val in data($col$opt)
-		#
-		$w-il configure -image $val
+		array unset data $col$opt
+	    } else {
+		if {![info exists data($col-labelwindow)]} {
+		    if {![winfo exists $w-il]} {
+			createSublabels $win $w
+		    }
+
+		    #
+		    # Display the specified image in the label $w-il
+		    #
+		    $w-il configure -image $val
+		}
+
 		set data($col$opt) $val
 	    }
 
@@ -1669,20 +1768,23 @@ proc tablelist::doColConfig {col win opt val} {
 	    # Adjust the columns (including the height of the header frame)
 	    #
 	    adjustColumns $win l$col 1
+	    updateViewWhenIdle $win
 	}
 
 	-labelrelief {
-	    set w $data(hdrTxtFrLbl)$col
+	    set w $data(hdrTxtFrmLbl)$col
 	    set optTail [string range $opt 6 end]	;# remove the -label
-	    if {[string compare $val ""] == 0} {
+	    if {$val eq ""} {
+		if {![info exists data($col$opt)]} {
+		    return ""
+		}
+
 		#
 		# Apply the value of the corresponding widget configuration
 		# option to the col'th label and unset data($col$opt)
 		#
 		configLabel $w -$optTail $data($opt)
-		if {[info exists data($col$opt)]} {
-		    unset data($col$opt)
-		}
+		array unset data $col$opt
 	    } else {
 		#
 		# Apply the given value to the col'th label and save the
@@ -1693,12 +1795,95 @@ proc tablelist::doColConfig {col win opt val} {
 	    }
 	}
 
+	-labelvalign {
+	    #
+	    # Save the properly formatted value of val in
+	    # data($col$opt) and adjust the col'th label
+	    #
+	    variable valignments
+	    set val [mwutil::fullOpt "vertical alignment" $val $valignments]
+	    if {$val ne $data($col$opt)} {
+		set data($col$opt) $val
+
+		set pixels [lindex $data(colList) [expr {2*$col}]]
+		if {$pixels == 0} {		;# convention: dynamic width
+		    if {$data($col-maxPixels) > 0} {
+			if {$data($col-reqPixels) > $data($col-maxPixels)} {
+			    set pixels $data($col-maxPixels)
+			}
+		    }
+		}
+		if {$pixels != 0} {
+		    incr pixels $data($col-delta)
+		}
+		set alignment [lindex $data(colList) [expr {2*$col + 1}]]
+		adjustLabel $win $col $pixels $alignment
+	    }
+	}
+
+	-labelwindow {
+	    set w $data(hdrTxtFrmLbl)$col
+	    if {$val eq ""} {
+		if {![info exists data($col$opt)]} {
+		    return ""
+		}
+
+		foreach l [getSublabels $w] {
+		    destroy $l
+		}
+
+		if {[info exists data($col-labelimage)]} {
+		    createSublabels $win $w
+		    $w-il configure -image $data($col-labelimage)
+		}
+
+		array unset data $col$opt
+	    } else {
+		variable labelWinTypes
+		set val \
+		    [mwutil::fullOpt "label window style" $val $labelWinTypes]
+
+		foreach l [getSublabels $w] {
+		    destroy $l
+		}
+		createSublabels $win $w 1
+
+		#
+		# Display the (ttk::)checkbutton in a subframe of $w-il
+		#
+		set f $w-il.f
+		tk::frame $f -borderwidth 0 -container 0 \
+			     -highlightthickness 0 -padx 0 -pady 0 \
+			     -relief flat -takefocus 0
+		if {$val eq "checkbutton"} {
+		    foreach {width height} [makeCkbtn $f.ckbtn] {}
+		} else {
+		    foreach {width height} [makeTtkCkbtn $f.ckbtn] {}
+		}
+		$f.ckbtn configure -variable \
+		    ::tablelist::ns${win}::data($col-checkState)
+		foreach frm [list $f $w-il] {
+		    $frm configure -width $width -height $height
+		}
+		place $f -x 0
+
+		set data($col$opt) $val
+	    }
+
+	    #
+	    # Adjust the columns (including the height of the header frame)
+	    #
+	    adjustColumns $win l$col 1
+	    updateViewWhenIdle $win
+	}
+
 	-maxwidth {
 	    #
 	    # Save the properly formatted value of val in
 	    # data($col$opt), adjust the columns, and make sure
 	    # the specified column will be redisplayed at idle time
 	    #
+	    ##nagelfar ignore
 	    set val [format "%d" $val]	;# integer check with error message
 	    set data($col$opt) $val
 	    if {$val > 0} {		;# convention: max. width in characters
@@ -1716,58 +1901,19 @@ proc tablelist::doColConfig {col win opt val} {
 
 	-selectbackground -
 	-selectforeground {
-	    set w $data(body)
-	    set name $col$opt
-
-	    if {[info exists data($name)] &&
-		(!$data($col-hide) || $canElide)} {
-		#
-		# Remove the tag col$opt-$data($name)
-		# from the elements of the given column
-		#
-		set tag col$opt-$data($name)
-		for {set line 1} {$line <= $data(itemCount)} {incr line} {
-		    findTabs $win $line $col $col tabIdx1 tabIdx2
-		    $w tag remove $tag $tabIdx1 $tabIdx2+1c
-		}
-	    }
-
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($name)]} {
-		    unset data($name)
-		}
+	    if {$val eq ""} {
+		array unset data $col$opt
 	    } else {
 		#
 		# Configure the tag col$opt-$val in the body text widget
 		#
+		set w $data(body)
 		set tag col$opt-$val
 		set optTail [string range $opt 7 end]	;# remove the -select
 		$w tag configure $tag -$optTail $val
 		$w tag raise $tag select
 
-		if {!$data($col-hide) || $canElide} {
-		    #
-		    # Apply the tag to the selected elements of the given column
-		    #
-		    set selRange [$w tag nextrange select 1.0]
-		    while {[llength $selRange] != 0} {
-			set selStart [lindex $selRange 0]
-			set line [expr {int($selStart)}]
-			findTabs $win $line $col $col tabIdx1 tabIdx2
-			if {[lsearch -exact [$w tag names $tabIdx1] select]
-			    >= 0} {
-			    $w tag add $tag $tabIdx1 $tabIdx2+1c
-			}
-
-			set selRange \
-			    [$w tag nextrange select "$selStart lineend"]
-		    }
-		}
-
-		#
-		# Save val in data($name)
-		#
-		set data($name) $val
+		set data($col$opt) $val
 	    }
 
 	    if {!$data(isDisabled)} {
@@ -1783,6 +1929,7 @@ proc tablelist::doColConfig {col win opt val} {
 	    set data($col$opt) [expr {$val ? 1 : 0}]
 	    makeSortAndArrowColLists $win
 	    adjustColumns $win l$col 1
+	    updateViewWhenIdle $win
 	}
 
 	-showlinenumbers {
@@ -1809,7 +1956,7 @@ proc tablelist::doColConfig {col win opt val} {
 	-stretchable {
 	    set flag [expr {$val ? 1 : 0}]
 	    if {$flag} {
-		if {[string compare $data(-stretch) "all"] != 0 &&
+		if {$data(-stretch) ne "all" &&
 		    [lsearch -exact $data(-stretch) $col] < 0} {
 		    #
 		    # col was not found in data(-stretch): add it to the list
@@ -1819,7 +1966,7 @@ proc tablelist::doColConfig {col win opt val} {
 		    set data(forceAdjust) 1
 		    stretchColumnsWhenIdle $win
 		}
-	    } elseif {[string compare $data(-stretch) "all"] == 0} {
+	    } elseif {$data(-stretch) eq "all"} {
 		#
 		# Replace the value "all" of data(-stretch) with
 		# the list of all column indices different from col
@@ -1848,24 +1995,63 @@ proc tablelist::doColConfig {col win opt val} {
 		# contains "end" then remove "end" from the list
 		#
 		if {$col == $data(lastCol) &&
-		    [string compare [lindex $data(-stretch) end] "end"] == 0} {
+		    [lindex $data(-stretch) end] eq "end"} {
 		    set data(-stretch) [lreplace $data(-stretch) end end]
 		    set data(forceAdjust) 1
 		    stretchColumnsWhenIdle $win
 		}
 	    }
+	    updateListboxSetgridOpt $win
+	}
+
+	-stretchwindow {
+	    #
+	    # Save the boolean value specified by val in data($col$opt)
+	    # and configure the header and body cells of this column
+	    #
+	    set val [expr {$val ? 1 : 0}]
+	    set data($col$opt) $val
+	    set hdr_itemCount $data(hdr_itemCount)
+	    for {set row 0} {$row < $hdr_itemCount} {incr row} {
+		doCellConfig h$row $col $win $opt dummy
+	    }
+	    set itemCount $data(itemCount)
+	    for {set row 0} {$row < $itemCount} {incr row} {
+		doCellConfig $row $col $win $opt dummy
+	    }
+	}
+
+	-stripebackground -
+	-stripeforeground {
+	    if {$val eq ""} {
+		array unset data $col$opt
+	    } else {
+		#
+		# Configure the tag col$opt-$val in the body text widget
+		#
+		set w $data(body)
+		set tag col$opt-$val
+		set optTail [string range $opt 7 end]	;# remove the -stripe
+		$w tag configure $tag -$optTail $val
+		$w tag raise $tag stripe
+
+		set data($col$opt) $val
+	    }
+
+	    if {!$data(isDisabled)} {
+		updateColorsWhenIdle $win
+	    }
 	}
 
 	-text {
-	    if {$data(isDisabled)} {
+	    if {$data(isDisabled) || $data($col-showlinenumbers)} {
 		return ""
 	    }
 
 	    #
-	    # Replace the column's contents in the internal list
+	    # Replace the column's content in the internal list
 	    #
 	    set newItemList {}
-	    set row 0
 	    foreach item $data(itemList) text [lrange $val 0 $data(lastRow)] {
 		set item [lreplace $item $col $col $text]
 		lappend newItemList $item
@@ -1894,6 +2080,20 @@ proc tablelist::doColConfig {col win opt val} {
 	    set idx [expr {3*$col + 1}]
 	    set data(-columns) [lreplace $data(-columns) $idx $idx $val]
 	    adjustColumns $win l$col 1
+	    updateViewWhenIdle $win
+	}
+
+	-valign {
+	    #
+	    # Save the properly formatted value of val in data($col$opt) and
+	    # make sure the given column will be redisplayed at idle time
+	    #
+	    variable valignments
+	    set val [mwutil::fullOpt "vertical alignment" $val $valignments]
+	    if {$val ne $data($col$opt)} {
+		set data($col$opt) $val
+		redisplayColWhenIdle $win $col
+	    }
 	}
 
 	-width {
@@ -1904,9 +2104,35 @@ proc tablelist::doColConfig {col win opt val} {
 	    set idx [expr {3*$col}]
 	    if {$val != [lindex $data(-columns) $idx]} {
 		setupColumns $win [lreplace $data(-columns) $idx $idx $val] 0
-		redisplayColWhenIdle $win $col	;# here before adjustColumns!
+		set callerProc [lindex [info level -1] 0]
+		if {[string match "tablelist::label*" $callerProc]} {
+		    redisplayCol $win $col 0 last
+		} else {
+		    redisplayColWhenIdle $win $col
+		}
 		adjustColumns $win $col 1
 		updateViewWhenIdle $win
+	    }
+	}
+
+	-windowdestroy {
+	    if {$val eq ""} {
+		array unset data $col$opt
+	    } else {
+		set data($col$opt) $val
+	    }
+	}
+
+	-windowupdate {
+	    if {$val eq ""} {
+		array unset data $col$opt
+	    } else {
+		set data($col$opt) $val
+	    }
+
+	    if {!$data(isDisabled)} {
+		hdr_updateColorsWhenIdle $win
+		updateColorsWhenIdle $win
 	    }
 	}
     }
@@ -1928,10 +2154,10 @@ proc tablelist::doColCget {col win opt} {
 
 	-stretchable {
 	    return [expr {
-		[string compare $data(-stretch) "all"] == 0 ||
+		$data(-stretch) eq "all" ||
 		[lsearch -exact $data(-stretch) $col] >= 0 ||
 		($col == $data(lastCol) && \
-		 [string compare [lindex $data(-stretch) end] "end"] == 0)
+		 [lindex $data(-stretch) end] eq "end")
 	    }]
 	}
 
@@ -1968,76 +2194,35 @@ proc tablelist::doColCget {col win opt} {
 # of the tablelist widget win.
 #------------------------------------------------------------------------------
 proc tablelist::doRowConfig {row win opt val} {
-    variable canElide
-    variable elide
     variable snipSides
+    variable pu
     upvar ::tablelist::ns${win}::data data
-
-    set w $data(body)
+    foreach {row p w inBody diff} [getConfigParams $win $row] {}
 
     switch -- $opt {
 	-background -
 	-foreground {
-	    set key [lindex $data(keyList) $row]
-	    set name $key$opt
-
-	    if {[info exists data($name)]} {
-		#
-		# Remove the tag row$opt-$data($name) from the given row
-		#
-		set line [expr {$row + 1}]
-		$w tag remove row$opt-$data($name) $line.0 $line.end
-	    }
-
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($name)]} {
-		    unset data($name)
-		    incr data(rowTagRefCount) -1
-		}
+	    set key [lindex $data(${p}keyList) $row]
+	    if {$val eq ""} {
+		array unset data $key$opt
 	    } else {
 		#
-		# Configure the tag row$opt-$val in the body text widget and
-		# apply it to the non-selected elements of the given row
+		# Configure the tag row$opt-$val in the text widget
 		#
 		set tag row$opt-$val
 		$w tag configure $tag $opt $val
 		$w tag lower $tag active
-		set line [expr {$row + 1}]
-		if {[llength [$w tag nextrange select $line.0 $line.end]]
-		    == 0} {
-		    $w tag add $tag $line.0 $line.end
-		} else {
-		    set textIdx1 [expr {double($line)}]
-		    for {set col 0} {$col < $data(colCount)} {incr col} {
-			if {$data($col-hide) && !$canElide} {
-			    continue
-			}
 
-			set textIdx2 \
-			    [$w search $elide "\t" $textIdx1+1c $line.end]+1c
-			if {[lsearch -exact [$w tag names $textIdx1] select]
-			    < 0} {
-			    $w tag add $tag $textIdx1 $textIdx2
-			}
-			set textIdx1 $textIdx2
-		    }
-		}
-
-		#
-		# Save val in data($name)
-		#
-		if {![info exists data($name)]} {
-		    incr data(rowTagRefCount)
-		}
-		set data($name) $val
+		set data($key$opt) $val
 	    }
 
 	    if {!$data(isDisabled)} {
-		updateColorsWhenIdle $win
+		${p}updateColorsWhenIdle $win
 	    }
 	}
 
 	-elide {
+	    displayItems $win
 	    set val [expr {$val ? 1 : 0}]
 	    set item [lindex $data(itemList) $row]
 	    set key [lindex $item end]
@@ -2048,7 +2233,7 @@ proc tablelist::doRowConfig {row win opt val} {
 	    if {$val} {					;# eliding the row
 		if {![info exists data($name)]} {
 		    set data($name) 1
-		    $w tag add elidedRow $line.0 $line.end+1c
+		    $w tag add elidedRow $line.0 $line.end+1$pu
 
 		    if {![info exists data($key-hide)]} {
 			incr data(nonViewableRowCount)
@@ -2062,7 +2247,15 @@ proc tablelist::doRowConfig {row win opt val} {
 	    } else {					;# uneliding the row
 		if {[info exists data($name)]} {
 		    unset data($name)
-		    $w tag remove elidedRow $line.0 $line.end+1c
+
+		    #
+		    # Prevent any not yet created embeddded windows in this
+		    # text widget line scheduled for creation via $w window
+		    # create ... -create ... from being effectively created
+		    #
+		    $w tag add elidedWin $line.0 $line.end
+
+		    $w tag remove elidedRow $line.0 $line.end+1$pu
 
 		    if {![info exists data($key-hide)]} {
 			incr data(nonViewableRowCount) -1
@@ -2093,10 +2286,12 @@ proc tablelist::doRowConfig {row win opt val} {
 		if {$data(hasFmtCmds)} {
 		    set displayedItem [formatItem $win $key $row $displayedItem]
 		}
+		if {[string match "*\t*" $displayedItem]} {
+		    set displayedItem [mapTabs $displayedItem]
+		}
 		set col 0
-		foreach text [strToDispStr $displayedItem] \
-			{pixels alignment} $data(colList) {
-		    if {($data($col-hide) && !$canElide) || $pixels != 0} {
+		foreach text $displayedItem {pixels alignment} $data(colList) {
+		    if {$pixels != 0} {
 			incr col
 			continue
 		    }
@@ -2140,10 +2335,14 @@ proc tablelist::doRowConfig {row win opt val} {
 	}
 
 	-font {
+	    if {$inBody} {
+		displayItems $win
+	    }
+
 	    #
 	    # Save the current cell fonts in a temporary array
 	    #
-	    set item [lindex $data(itemList) $row]
+	    set item [lindex $data(${p}itemList) $row]
 	    set key [lindex $item end]
 	    for {set col 0} {$col < $data(colCount)} {incr col} {
 		set oldCellFonts($col) [getCellFont $win $key $col]
@@ -2154,30 +2353,32 @@ proc tablelist::doRowConfig {row win opt val} {
 		#
 		# Remove the tag row$opt-$data($name) from the given row
 		#
-		set line [expr {$row + 1}]
+		set line [expr {$row + $diff}]
 		$w tag remove row$opt-$data($name) $line.0 $line.end
 	    }
 
-	    if {[string compare $val ""] == 0} {
+	    if {$val eq ""} {
 		if {[info exists data($name)]} {
 		    unset data($name)
-		    incr data(rowTagRefCount) -1
+		    if {$inBody} {
+			incr data(rowTagRefCount) -1
+		    }
 		}
 	    } else {
 		#
-		# Configure the tag row$opt-$val in the body
+		# Configure the tag row$opt-$val in the
 		# text widget and apply it to the given row
 		#
 		set tag row$opt-$val
 		$w tag configure $tag $opt $val
 		$w tag lower $tag active
-		set line [expr {$row + 1}]
+		set line [expr {$row + $diff}]
 		$w tag add $tag $line.0 $line.end
 
 		#
 		# Save val in data($name)
 		#
-		if {![info exists data($name)]} {
+		if {$inBody && ![info exists data($name)]} {
 		    incr data(rowTagRefCount)
 		}
 		set data($name) $val
@@ -2187,18 +2388,15 @@ proc tablelist::doRowConfig {row win opt val} {
 	    if {$data(hasFmtCmds)} {
 		set displayedItem [formatItem $win $key $row $displayedItem]
 	    }
+	    if {[string match "*\t*" $displayedItem]} {
+		set displayedItem [mapTabs $displayedItem]
+	    }
 	    set colWidthsChanged 0
 	    set colIdxList {}
-	    set line [expr {$row + 1}]
+	    set line [expr {$row + $diff}]
 	    set textIdx1 $line.1
 	    set col 0
-	    foreach text [strToDispStr $displayedItem] \
-		    {pixels alignment} $data(colList) {
-		if {$data($col-hide) && !$canElide} {
-		    incr col
-		    continue
-		}
-
+	    foreach text $displayedItem {pixels alignment} $data(colList) {
 		#
 		# Adjust the cell text and the image or window width
 		#
@@ -2211,9 +2409,7 @@ proc tablelist::doRowConfig {row win opt val} {
 		    getIndentData $win $key $col indentWidthSav
 
 		    if {$data($col-maxPixels) > 0} {
-			if {$data($col-reqPixels) > $data($col-maxPixels)} {
-			    set workPixels $data($col-maxPixels)
-			}
+			set workPixels $data($col-maxPixels)
 		    }
 		}
 		set aux [getAuxData $win $key $col auxType auxWidth $workPixels]
@@ -2242,29 +2438,31 @@ proc tablelist::doRowConfig {row win opt val} {
 		    set msgScript [list ::tablelist::displayText $win $key \
 				   $col [join $list "\n"] $cellFont \
 				   $maxTextWidth $alignment]
+		    set msgScript [string map {"%" "%%"} $msgScript]
 		} else {
 		    adjustElem $win text auxWidth indentWidth $cellFont \
 			       $workPixels $snipSide $data(-snipstring)
 		}
 
-		if {$row == $data(editRow) && $col == $data(editCol)} {
+		if {$inBody &&
+		    $row == $data(editRow) && $col == $data(editCol)} {
 		    #
 		    # Configure the edit window
 		    #
 		    setEditWinFont $win
 		} else {
 		    #
-		    # Update the text widget's contents between the two tabs
+		    # Update the text widget's content between the two tabs
 		    #
-		    set textIdx2 [$w search $elide "\t" $textIdx1 $line.end]
+		    set textIdx2 [$w search -elide "\t" $textIdx1 $line.end]
 		    if {$multiline} {
-			updateMlCell $w $textIdx1 $textIdx2 $msgScript \
-				     $aux $auxType $auxWidth \
-				     $indent $indentWidth $alignment
+			updateMlCell $w $textIdx1 $textIdx2 $msgScript $aux \
+				     $auxType $auxWidth $indent $indentWidth \
+				     $alignment [getOpt $win $key $col -valign]
 		    } else {
-			updateCell $w $textIdx1 $textIdx2 $text \
-				   $aux $auxType $auxWidth \
-				   $indent $indentWidth $alignment
+			updateCell $w $textIdx1 $textIdx2 $text $aux \
+				   $auxType $auxWidth $indent $indentWidth \
+				   $alignment [getOpt $win $key $col -valign]
 		    }
 		}
 
@@ -2300,7 +2498,7 @@ proc tablelist::doRowConfig {row win opt val} {
 		    }
 		}
 
-		set textIdx1 [$w search $elide "\t" $textIdx1 $line.end]+2c
+		set textIdx1 [$w search -elide "\t" $textIdx1 $line.end]+2$pu
 		incr col
 	    }
 
@@ -2315,6 +2513,7 @@ proc tablelist::doRowConfig {row win opt val} {
 	}
 
 	-hide {
+	    displayItems $win
 	    set val [expr {$val ? 1 : 0}]
 	    set item [lindex $data(itemList) $row]
 	    set key [lindex $item end]
@@ -2326,7 +2525,7 @@ proc tablelist::doRowConfig {row win opt val} {
 	    if {$val} {					;# hiding the row
 		if {![info exists data($name)]} {
 		    set data($name) 1
-		    $w tag add hiddenRow $line.0 $line.end+1c
+		    $w tag add hiddenRow $line.0 $line.end+1$pu
 
 		    if {![info exists data($key-elide)]} {
 			incr data(nonViewableRowCount)
@@ -2357,7 +2556,15 @@ proc tablelist::doRowConfig {row win opt val} {
 	    } else {					;# unhiding the row
 		if {[info exists data($name)]} {
 		    unset data($name)
-		    $w tag remove hiddenRow $line.0 $line.end+1c
+
+		    #
+		    # Prevent any not yet created embeddded windows in this
+		    # text widget line scheduled for creation via $w window
+		    # create ... -create ... from being effectively created
+		    #
+		    $w tag add elidedWin $line.0 $line.end
+
+		    $w tag remove hiddenRow $line.0 $line.end+1$pu
 
 		    if {![info exists data($key-elide)]} {
 			incr data(nonViewableRowCount) -1
@@ -2394,10 +2601,12 @@ proc tablelist::doRowConfig {row win opt val} {
 		if {$data(hasFmtCmds)} {
 		    set displayedItem [formatItem $win $key $row $displayedItem]
 		}
+		if {[string match "*\t*" $displayedItem]} {
+		    set displayedItem [mapTabs $displayedItem]
+		}
 		set col 0
-		foreach text [strToDispStr $displayedItem] \
-			{pixels alignment} $data(colList) {
-		    if {($data($col-hide) && !$canElide) || $pixels != 0} {
+		foreach text $displayedItem {pixels alignment} $data(colList) {
+		    if {$pixels != 0} {
 			incr col
 			continue
 		    }
@@ -2448,17 +2657,16 @@ proc tablelist::doRowConfig {row win opt val} {
 		    makeStripesWhenIdle $win
 		    showLineNumbersWhenIdle $win
 		    updateViewWhenIdle $win
-		    event generate $win <<TablelistRowHiddenStateChanged>>
+
+		    genVirtualEvent $win <<TablelistRowHiddenStateChanged>> $row
 		}
 	    }
 	}
 
 	-name {
-	    set key [lindex $data(keyList) $row]
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($key$opt)]} {
-		    unset data($key$opt)
-		}
+	    set key [lindex $data(${p}keyList) $row]
+	    if {$val eq ""} {
+		array unset data $key$opt
 	    } else {
 		set data($key$opt) $val
 	    }
@@ -2469,56 +2677,31 @@ proc tablelist::doRowConfig {row win opt val} {
 	    set key [lindex $data(keyList) $row]
 
 	    if {$val} {
-		if {[info exists data($key$opt)]} {
-		    unset data($key$opt)
-		}
+		array unset data $key$opt
 	    } else {
 		#
 		# Set data($key$opt) to 0 and deselect the row
 		#
 		set data($key$opt) 0
-		rowSelection $win clear $row $row
+		selectionSubCmd $win [list clear $row $row]
 	    }
 	}
 
 	-selectbackground -
 	-selectforeground {
 	    set key [lindex $data(keyList) $row]
-	    set name $key$opt
-
-	    if {[info exists data($name)]} {
-		#
-		# Remove the tag row$opt-$data($name) from the given row
-		#
-		set line [expr {$row + 1}]
-		$w tag remove row$opt-$data($name) $line.0 $line.end
-	    }
-
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($name)]} {
-		    unset data($name)
-		}
+	    if {$val eq ""} {
+		array unset data $key$opt
 	    } else {
 		#
 		# Configure the tag row$opt-$val in the body text widget
-		# and apply it to the selected elements of the given row
 		#
 		set tag row$opt-$val
 		set optTail [string range $opt 7 end]	;# remove the -select
 		$w tag configure $tag -$optTail $val
 		$w tag lower $tag active
-		set line [expr {$row + 1}]
-		set selRange [$w tag nextrange select $line.0 $line.end]
-		while {[llength $selRange] != 0} {
-		    foreach {selStart selEnd} $selRange {}
-		    $w tag add $tag $selStart $selEnd
-		    set selRange [$w tag nextrange select $selEnd $line.end]
-		}
 
-		#
-		# Save val in data($name)
-		#
-		set data($name) [$w tag cget $tag -$optTail]
+		set data($key$opt) [$w tag cget $tag -$optTail]
 	    }
 
 	    if {!$data(isDisabled)} {
@@ -2531,26 +2714,43 @@ proc tablelist::doRowConfig {row win opt val} {
 		return ""
 	    }
 
+	    if {$inBody} {
+		displayItems $win
+	    }
+
+	    #
+	    # Return if the new item equals the old one
+	    #
+	    set newItem [adjustItem $val $data(colCount)]
+	    set oldItem [lindex $data(${p}itemList) $row]
+	    set equal 1
+	    set col 0
+	    foreach newText $newItem oldText $oldItem {
+		if {$newText ne $oldText && $col < $data(colCount)} {
+		    set equal 0
+		    break
+		}
+		incr col
+	    }
+	    if {$equal} {
+		return ""
+	    }
+
 	    set colWidthsChanged 0
 	    set colIdxList {}
-	    set oldItem [lindex $data(itemList) $row]
 	    set key [lindex $oldItem end]
-	    set newItem [adjustItem $val $data(colCount)]
 	    if {$data(hasFmtCmds)} {
 		set displayedItem [formatItem $win $key $row $newItem]
 	    } else {
 		set displayedItem $newItem
 	    }
-	    set line [expr {$row + 1}]
+	    if {[string match "*\t*" $displayedItem]} {
+		set displayedItem [mapTabs $displayedItem]
+	    }
+	    set line [expr {$row + $diff}]
 	    set textIdx1 $line.1
 	    set col 0
-	    foreach text [strToDispStr $displayedItem] \
-		    {pixels alignment} $data(colList) {
-		if {$data($col-hide) && !$canElide} {
-		    incr col
-		    continue
-		}
-
+	    foreach text $displayedItem {pixels alignment} $data(colList) {
 		#
 		# Adjust the cell text and the image or window width
 		#
@@ -2563,9 +2763,7 @@ proc tablelist::doRowConfig {row win opt val} {
 		    getIndentData $win $key $col indentWidthSav
 
 		    if {$data($col-maxPixels) > 0} {
-			if {$data($col-reqPixels) > $data($col-maxPixels)} {
-			    set workPixels $data($col-maxPixels)
-			}
+			set workPixels $data($col-maxPixels)
 		    }
 		}
 		set aux [getAuxData $win $key $col auxType auxWidth $workPixels]
@@ -2594,24 +2792,26 @@ proc tablelist::doRowConfig {row win opt val} {
 		    set msgScript [list ::tablelist::displayText $win $key \
 				   $col [join $list "\n"] $cellFont \
 				   $maxTextWidth $alignment]
+		    set msgScript [string map {"%" "%%"} $msgScript]
 		} else {
 		    adjustElem $win text auxWidth indentWidth $cellFont \
 			       $workPixels $snipSide $data(-snipstring)
 		}
 
-		if {$row != $data(editRow) || $col != $data(editCol)} {
+		if {!$inBody ||
+		    $row != $data(editRow) || $col != $data(editCol)} {
 		    #
-		    # Update the text widget's contents between the two tabs
+		    # Update the text widget's content between the two tabs
 		    #
-		    set textIdx2 [$w search $elide "\t" $textIdx1 $line.end]
+		    set textIdx2 [$w search -elide "\t" $textIdx1 $line.end]
 		    if {$multiline} {
-			updateMlCell $w $textIdx1 $textIdx2 $msgScript \
-				     $aux $auxType $auxWidth \
-				     $indent $indentWidth $alignment
+			updateMlCell $w $textIdx1 $textIdx2 $msgScript $aux \
+				     $auxType $auxWidth $indent $indentWidth \
+				     $alignment [getOpt $win $key $col -valign]
 		    } else {
-			updateCell $w $textIdx1 $textIdx2 $text \
-				   $aux $auxType $auxWidth \
-				   $indent $indentWidth $alignment
+			updateCell $w $textIdx1 $textIdx2 $text $aux \
+				   $auxType $auxWidth $indent $indentWidth \
+				   $alignment [getOpt $win $key $col -valign]
 		    }
 		}
 
@@ -2638,7 +2838,9 @@ proc tablelist::doRowConfig {row win opt val} {
 			    set oldText \
 				[formatElem $win $key $row $col $oldText]
 			}
-			set oldText [strToDispStr $oldText]
+			if {[string match "*\t*" $oldText]} {
+			    set oldText [mapTabs $oldText]
+			}
 			set oldElemWidth [getElemWidth $win $oldText $auxWidth \
 					  $indentWidth $cellFont]
 			if {$oldElemWidth < $data($col-elemWidth) &&
@@ -2653,25 +2855,26 @@ proc tablelist::doRowConfig {row win opt val} {
 		    }
 		}
 
-		set textIdx1 [$w search $elide "\t" $textIdx1 $line.end]+2c
+		set textIdx1 [$w search -elide "\t" $textIdx1 $line.end]+2$pu
 		incr col
 	    }
 
 	    #
-	    # Replace the row contents in the list variable if present
+	    # Replace the row's content in the list variable if present
 	    #
-	    if {$data(hasListVar)} {
+	    if {$inBody && $data(hasListVar)} {
 		upvar #0 $data(-listvariable) var
-		trace vdelete var wu $data(listVarTraceCmd)
+		trace remove variable var {write unset} $data(listVarTraceCmd)
 		set var [lreplace $var $row $row $newItem]
-		trace variable var wu $data(listVarTraceCmd)
+		trace add variable var {write unset} $data(listVarTraceCmd)
 	    }
 
 	    #
-	    # Replace the row contents in the internal list
+	    # Replace the row's content in the internal list
 	    #
 	    lappend newItem $key
-	    set data(itemList) [lreplace $data(itemList) $row $row $newItem]
+	    set data(${p}itemList) \
+		[lreplace $data(${p}itemList) $row $row $newItem]
 
 	    #
 	    # Adjust the columns if necessary and schedule
@@ -2680,7 +2883,9 @@ proc tablelist::doRowConfig {row win opt val} {
 	    if {$colWidthsChanged} {
 		adjustColumns $win $colIdxList 1
 	    }
-	    showLineNumbersWhenIdle $win
+	    if {$inBody} {
+		showLineNumbersWhenIdle $win
+	    }
 	    updateViewWhenIdle $win
 	}
     }
@@ -2694,11 +2899,9 @@ proc tablelist::doRowConfig {row win opt val} {
 #------------------------------------------------------------------------------
 proc tablelist::doRowCget {row win opt} {
     upvar ::tablelist::ns${win}::data data
+    foreach {row p w inBody diff} [getConfigParams $win $row] {}
+    set item [lindex $data(${p}itemList) $row]
 
-    #
-    # Return the value of the specified row configuration option
-    #
-    set item [lindex $data(itemList) $row]
     switch -- $opt {
 	-text {
 	    return [lrange $item 0 $data(lastCol)]
@@ -2740,127 +2943,117 @@ proc tablelist::doRowCget {row win opt} {
 # Applies the value val of the cell configuration option opt to the cell
 # row,col of the tablelist widget win.
 #------------------------------------------------------------------------------
-proc tablelist::doCellConfig {row col win opt val} {
-    variable canElide
+proc tablelist::doCellConfig {row col win opt val {skipParts 0}} {
     variable snipSides
+    variable pu
     upvar ::tablelist::ns${win}::data data
-
-    set w $data(body)
+    foreach {row p w inBody diff} [getConfigParams $win $row] {}
 
     switch -- $opt {
 	-background -
 	-foreground {
-	    set key [lindex $data(keyList) $row]
+	    set key [lindex $data(${p}keyList) $row]
 	    set name $key,$col$opt
-
-	    if {[info exists data($name)] &&
-		(!$data($col-hide) || $canElide)} {
-		#
-		# Remove the tag cell$opt-$data($name) from the given cell
-		#
-		findTabs $win [expr {$row + 1}] $col $col tabIdx1 tabIdx2
-		$w tag remove cell$opt-$data($name) $tabIdx1 $tabIdx2+1c
-	    }
-
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($name)]} {
-		    unset data($name)
-		    incr data(cellTagRefCount) -1
-		}
+	    if {$val eq ""} {
+		array unset data $name
 	    } else {
 		#
-		# Configure the tag cell$opt-$val in the body text widget
+		# Configure the tag cell$opt-$val in the text widget
 		#
 		set tag cell$opt-$val
 		$w tag configure $tag $opt $val
 		$w tag lower $tag disabled
 
-		if {!$data($col-hide) || $canElide} {
-		    #
-		    # Apply the tag to the given cell if it is not selected
-		    #
-		    findTabs $win [expr {$row + 1}] $col $col tabIdx1 tabIdx2
-		    if {[lsearch -exact [$w tag names $tabIdx1] select] < 0} {
-			$w tag add $tag $tabIdx1 $tabIdx2+1c
-		    }
-		}
-
-		#
-		# Save val in data($name)
-		#
-		if {![info exists data($name)]} {
-		    incr data(cellTagRefCount)
-		}
 		set data($name) $val
 	    }
 
 	    if {!$data(isDisabled)} {
-		updateColorsWhenIdle $win
+		${p}updateColorsWhenIdle $win
 	    }
 	}
 
 	-editable {
-	    #
-	    # Save the boolean value specified by val in data($key,$col$opt)
-	    #
 	    set key [lindex $data(keyList) $row]
-	    set data($key,$col$opt) [expr {$val ? 1 : 0}]
+	    set name $key,$col$opt
+	    if {$val eq ""} {
+		array unset data $name
+	    } else {
+		set data($name) [expr {$val ? 1 : 0}]
+	    }
+
+	    #
+	    # Invoke the motion handler if necessary
+	    #
+	    set callerCallerProc [lindex [info level -2] 0]
+	    if {$data(-showeditcursor) &&
+		$callerCallerProc ne "configcellsSubCmd"} {
+		invokeMotionHandler $win
+	    }
 	}
 
 	-editwindow {
-	    variable editWin
-	    if {[info exists editWin($val-creationCmd)]} {
-		set key [lindex $data(keyList) $row]
-		set data($key,$col$opt) $val
+	    set key [lindex $data(keyList) $row]
+	    set name $key,$col$opt
+	    if {$val eq ""} {
+		array unset data $name
 	    } else {
-		return -code error "name \"$val\" is not registered\
-				    for interactive cell editing"
+		variable editWin
+		if {[info exists editWin($val-creationCmd)]} {
+		    set data($name) $val
+		} else {
+		    return -code error "name \"$val\" is not registered\
+					for interactive cell editing"
+		}
 	    }
 	}
 
 	-font {
+	    if {$inBody} {
+		displayItems $win
+	    }
+
 	    #
 	    # Save the current cell font
 	    #
-	    set item [lindex $data(itemList) $row]
+	    set line [expr {$row + $diff}]
+	    set item [lindex $data(${p}itemList) $row]
 	    set key [lindex $item end]
 	    set name $key,$col$opt
 	    set oldCellFont [getCellFont $win $key $col]
 
-	    if {[info exists data($name)] &&
-		(!$data($col-hide) || $canElide)} {
+	    if {[info exists data($name)]} {
 		#
 		# Remove the tag cell$opt-$data($name) from the given cell
 		#
-		findTabs $win [expr {$row + 1}] $col $col tabIdx1 tabIdx2
-		$w tag remove cell$opt-$data($name) $tabIdx1 $tabIdx2+1c
+		findTabs $win $w $line $col $col tabIdx1 tabIdx2
+		$w tag remove cell$opt-$data($name) $tabIdx1 $tabIdx2+1$pu
 	    }
 
-	    if {[string compare $val ""] == 0} {
+	    if {$val eq ""} {
 		if {[info exists data($name)]} {
 		    unset data($name)
-		    incr data(cellTagRefCount) -1
+		    if {$inBody} {
+			incr data(cellTagRefCount) -1
+		    }
 		}
 	    } else {
 		#
-		# Configure the tag cell$opt-$val in the body text widget
+		# Configure the tag cell$opt-$val in the text widget
 		#
 		set tag cell$opt-$val
 		$w tag configure $tag $opt $val
 		$w tag lower $tag disabled
 
-		if {!$data($col-hide) || $canElide} {
-		    #
-		    # Apply the tag to the given cell
-		    #
-		    findTabs $win [expr {$row + 1}] $col $col tabIdx1 tabIdx2
-		    $w tag add $tag $tabIdx1 $tabIdx2+1c
-		}
+		#
+		# Apply the tag to the given cell
+		#
+		findTabs $win $w $line $col $col tabIdx1 tabIdx2
+		$w tag add $tag $tabIdx1 $tabIdx2+1$pu
 
 		#
 		# Save val in data($name)
 		#
-		if {![info exists data($name)]} {
+		if {$inBody && ![info exists data($name)]} {
 		    incr data(cellTagRefCount)
 		}
 		set data($name) $val
@@ -2873,7 +3066,9 @@ proc tablelist::doCellConfig {row col win opt val} {
 	    if {[lindex $data(fmtCmdFlagList) $col]} {
 		set text [formatElem $win $key $row $col $text]
 	    }
-	    set text [strToDispStr $text]
+	    if {[string match "*\t*" $text]} {
+		set text [mapTabs $text]
+	    }
 	    set multiline [string match "*\n*" $text]
 	    set cellFont [getCellFont $win $key $col]
 	    set pixels [lindex $data(colList) [expr {2*$col}]]
@@ -2884,9 +3079,7 @@ proc tablelist::doCellConfig {row col win opt val} {
 		getIndentData $win $key $col indentWidthSav
 
 		if {$data($col-maxPixels) > 0} {
-		    if {$data($col-reqPixels) > $data($col-maxPixels)} {
-			set workPixels $data($col-maxPixels)
-		    }
+		    set workPixels $data($col-maxPixels)
 		}
 	    }
 	    set aux [getAuxData $win $key $col auxType auxWidth $workPixels]
@@ -2916,30 +3109,32 @@ proc tablelist::doCellConfig {row col win opt val} {
 		set msgScript [list ::tablelist::displayText $win $key \
 			       $col [join $list "\n"] $cellFont \
 			       $maxTextWidth $alignment]
+		set msgScript [string map {"%" "%%"} $msgScript]
 	    } else {
 		adjustElem $win text auxWidth indentWidth $cellFont \
 			   $workPixels $snipSide $data(-snipstring)
 	    }
 
 	    if {!$data($col-hide)} {
-		if {$row == $data(editRow) && $col == $data(editCol)} {
+		if {$inBody &&
+		    $row == $data(editRow) && $col == $data(editCol)} {
 		    #
 		    # Configure the edit window
 		    #
 		    setEditWinFont $win
 		} else {
 		    #
-		    # Update the text widget's contents between the two tabs
+		    # Update the text widget's content between the two tabs
 		    #
-		    findTabs $win [expr {$row + 1}] $col $col tabIdx1 tabIdx2
+		    findTabs $win $w $line $col $col tabIdx1 tabIdx2
 		    if {$multiline} {
-			updateMlCell $w $tabIdx1+1c $tabIdx2 $msgScript \
-				     $aux $auxType $auxWidth \
-				     $indent $indentWidth $alignment
+			updateMlCell $w $tabIdx1+1$pu $tabIdx2 $msgScript $aux \
+				     $auxType $auxWidth $indent $indentWidth \
+				     $alignment [getOpt $win $key $col -valign]
 		    } else {
-			updateCell $w $tabIdx1+1c $tabIdx2 $text \
-				   $aux $auxType $auxWidth \
-				   $indent $indentWidth $alignment
+			updateCell $w $tabIdx1+1$pu $tabIdx2 $text $aux \
+				   $auxType $auxWidth $indent $indentWidth \
+				   $alignment [getOpt $win $key $col -valign]
 		    }
 		}
 	    }
@@ -2979,34 +3174,55 @@ proc tablelist::doCellConfig {row col win opt val} {
 	}
 
 	-image {
-	    if {$data(isDisabled)} {
+	    if {!$skipParts} {
+		if {$data(isDisabled)} {
+		    return ""
+		}
+
+		if {$inBody} {
+		    displayItems $win
+		}
+	    }
+
+	    #
+	    # Return if the new value equals the old one
+	    #
+	    set item [lindex $data(${p}itemList) $row]
+	    set key [lindex $item end]
+	    set name $key,$col$opt
+	    set hasImage [info exists data($name)]
+	    set callerProc [lindex [info level -1] 0]
+	    if {$hasImage && $val eq $data($name) &&
+		![string match "do*Editing" $callerProc]} {
 		return ""
 	    }
 
 	    #
 	    # Save the old image or window width
 	    #
-	    set item [lindex $data(itemList) $row]
-	    set key [lindex $item end]
-	    set name $key,$col$opt
 	    getAuxData $win $key $col oldAuxType oldAuxWidth
 
 	    #
 	    # Delete data($name) or save the specified value in it
 	    #
 	    set imgLabel $w.img_$key,$col
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($name)]} {
+	    if {$val eq ""} {
+		if {$hasImage} {
 		    unset data($name)
-		    incr data(imgCount) -1
+		    if {$inBody} {
+			incr data(imgCount) -1
+		    }
 		    destroy $imgLabel
 		}
 	    } else {
-		if {![info exists data($name)]} {
+		if {[catch {image type $val} result] != 0} {
+		    return -code error $result
+		}
+
+		if {$inBody && !$hasImage} {
 		    incr data(imgCount)
 		}
-		if {[winfo exists $imgLabel] &&
-		    [string compare $val $data($name)] != 0} {
+		if {[winfo exists $imgLabel] && $val ne $data($name)} {
 		    destroy $imgLabel
 		}
 		set data($name) $val
@@ -3021,7 +3237,9 @@ proc tablelist::doCellConfig {row col win opt val} {
 	    if {[lindex $data(fmtCmdFlagList) $col]} {
 		set text [formatElem $win $key $row $col $text]
 	    }
-	    set text [strToDispStr $text]
+	    if {[string match "*\t*" $text]} {
+		set text [mapTabs $text]
+	    }
 	    set oldText $text
 	    set multiline [string match "*\n*" $text]
 	    set cellFont [getCellFont $win $key $col]
@@ -3031,9 +3249,7 @@ proc tablelist::doCellConfig {row col win opt val} {
 		getIndentData $win $key $col indentWidthSav
 
 		if {$data($col-maxPixels) > 0} {
-		    if {$data($col-reqPixels) > $data($col-maxPixels)} {
-			set workPixels $data($col-maxPixels)
-		    }
+		    set workPixels $data($col-maxPixels)
 		}
 	    }
 	    set aux [getAuxData $win $key $col auxType auxWidth $workPixels]
@@ -3063,27 +3279,31 @@ proc tablelist::doCellConfig {row col win opt val} {
 		set msgScript [list ::tablelist::displayText $win $key \
 			       $col [join $list "\n"] $cellFont \
 			       $maxTextWidth $alignment]
+		set msgScript [string map {"%" "%%"} $msgScript]
 	    } else {
 		adjustElem $win text auxWidth indentWidth $cellFont \
 			   $workPixels $snipSide $data(-snipstring)
 	    }
 
-	    if {(!$data($col-hide) || $canElide) &&
-		!($row == $data(editRow) && $col == $data(editCol))} {
+	    if {!$inBody || $row != $data(editRow) || $col != $data(editCol)} {
 		#
-		# Delete the old cell contents between the two tabs,
+		# Delete the old cell content between the two tabs,
 		# and insert the text and the auxiliary object
 		#
-		findTabs $win [expr {$row + 1}] $col $col tabIdx1 tabIdx2
+		findTabs $win $w [expr {$row + $diff}] $col $col tabIdx1 tabIdx2
 		if {$multiline} {
-		    updateMlCell $w $tabIdx1+1c $tabIdx2 $msgScript \
-				 $aux $auxType $auxWidth \
-				 $indent $indentWidth $alignment
+		    updateMlCell $w $tabIdx1+1$pu $tabIdx2 $msgScript $aux \
+				 $auxType $auxWidth $indent $indentWidth \
+				 $alignment [getOpt $win $key $col -valign]
 		} else {
-		    updateCell $w $tabIdx1+1c $tabIdx2 $text \
-			       $aux $auxType $auxWidth \
-			       $indent $indentWidth $alignment
+		    updateCell $w $tabIdx1+1$pu $tabIdx2 $text $aux \
+			       $auxType $auxWidth $indent $indentWidth \
+			       $alignment [getOpt $win $key $col -valign]
 		}
+	    }
+
+	    if {$skipParts} {
+		return ""
 	    }
 
 	    #
@@ -3120,35 +3340,58 @@ proc tablelist::doCellConfig {row col win opt val} {
 	    updateViewWhenIdle $win
 	}
 
+	-imagebackground {
+	    set key [lindex $data(${p}keyList) $row]
+	    set name $key,$col$opt
+	    if {$val eq ""} {
+		array unset data $name
+	    } else {
+		set data($name) $val
+	    }
+
+	    if {!$data(isDisabled)} {
+		${p}updateColorsWhenIdle $win
+	    }
+	}
+
 	-indent {
 	    if {$data(isDisabled)} {
+		return ""
+	    }
+
+	    displayItems $win
+
+	    #
+	    # Return if the new value equals the old one
+	    #
+	    set item [lindex $data(itemList) $row]
+	    set key [lindex $item end]
+	    set name $key,$col$opt
+	    set hasIndent [info exists data($name)]
+	    if {$hasIndent && $val eq $data($name)} {
 		return ""
 	    }
 
 	    #
 	    # Save the old indentation width
 	    #
-	    set item [lindex $data(itemList) $row]
-	    set key [lindex $item end]
-	    set name $key,$col$opt
 	    getIndentData $win $key $col oldIndentWidth
 
 	    #
 	    # Delete data($name) or save the specified value in it
 	    #
 	    set indentLabel $w.ind_$key,$col
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($name)]} {
+	    if {$val eq ""} {
+		if {$hasIndent} {
 		    unset data($name)
 		    incr data(indentCount) -1
 		    destroy $indentLabel
 		}
 	    } else {
-		if {![info exists data($name)]} {
+		if {!$hasIndent} {
 		    incr data(indentCount)
 		}
-		if {[winfo exists $indentLabel] &&
-		    [string compare $val $data($name)] != 0} {
+		if {[winfo exists $indentLabel] && $val ne $data($name)} {
 		    destroy $indentLabel
 		}
 		set data($name) $val
@@ -3163,7 +3406,9 @@ proc tablelist::doCellConfig {row col win opt val} {
 	    if {[lindex $data(fmtCmdFlagList) $col]} {
 		set text [formatElem $win $key $row $col $text]
 	    }
-	    set text [strToDispStr $text]
+	    if {[string match "*\t*" $text]} {
+		set text [mapTabs $text]
+	    }
 	    set oldText $text
 	    set multiline [string match "*\n*" $text]
 	    set cellFont [getCellFont $win $key $col]
@@ -3173,9 +3418,7 @@ proc tablelist::doCellConfig {row col win opt val} {
 		getIndentData $win $key $col indentWidthSav
 
 		if {$data($col-maxPixels) > 0} {
-		    if {$data($col-reqPixels) > $data($col-maxPixels)} {
-			set workPixels $data($col-maxPixels)
-		    }
+		    set workPixels $data($col-maxPixels)
 		}
 	    }
 	    set aux [getAuxData $win $key $col auxType auxWidth $workPixels]
@@ -3205,26 +3448,26 @@ proc tablelist::doCellConfig {row col win opt val} {
 		set msgScript [list ::tablelist::displayText $win $key \
 			       $col [join $list "\n"] $cellFont \
 			       $maxTextWidth $alignment]
+		set msgScript [string map {"%" "%%"} $msgScript]
 	    } else {
 		adjustElem $win text auxWidth indentWidth $cellFont \
 			   $workPixels $snipSide $data(-snipstring)
 	    }
 
-	    if {(!$data($col-hide) || $canElide) &&
-		!($row == $data(editRow) && $col == $data(editCol))} {
+	    if {$row != $data(editRow) || $col != $data(editCol)} {
 		#
-		# Delete the old cell contents between the two tabs,
+		# Delete the old cell content between the two tabs,
 		# and insert the text and the auxiliary object
 		#
-		findTabs $win [expr {$row + 1}] $col $col tabIdx1 tabIdx2
+		findTabs $win $w [expr {$row + 1}] $col $col tabIdx1 tabIdx2
 		if {$multiline} {
-		    updateMlCell $w $tabIdx1+1c $tabIdx2 $msgScript \
-				 $aux $auxType $auxWidth \
-				 $indent $indentWidth $alignment
+		    updateMlCell $w $tabIdx1+1$pu $tabIdx2 $msgScript $aux \
+				 $auxType $auxWidth $indent $indentWidth \
+				 $alignment [getOpt $win $key $col -valign]
 		} else {
-		    updateCell $w $tabIdx1+1c $tabIdx2 $text \
-			       $aux $auxType $auxWidth \
-			       $indent $indentWidth $alignment
+		    updateCell $w $tabIdx1+1$pu $tabIdx2 $text $aux \
+			       $auxType $auxWidth $indent $indentWidth \
+			       $alignment [getOpt $win $key $col -valign]
 		}
 	    }
 
@@ -3266,20 +3509,8 @@ proc tablelist::doCellConfig {row col win opt val} {
 	-selectforeground {
 	    set key [lindex $data(keyList) $row]
 	    set name $key,$col$opt
-
-	    if {[info exists data($name)] &&
-		(!$data($col-hide) || $canElide)} {
-		#
-		# Remove the tag cell$opt-$data($name) from the given cell
-		#
-		findTabs $win [expr {$row + 1}] $col $col tabIdx1 tabIdx2
-		$w tag remove cell$opt-$data($name) $tabIdx1 $tabIdx2+1c
-	    }
-
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($name)]} {
-		    unset data($name)
-		}
+	    if {$val eq ""} {
+		array unset data $name
 	    } else {
 		#
 		# Configure the tag cell$opt-$val in the body text widget
@@ -3289,19 +3520,6 @@ proc tablelist::doCellConfig {row col win opt val} {
 		$w tag configure $tag -$optTail $val
 		$w tag lower $tag disabled
 
-		if {!$data($col-hide) || $canElide} {
-		    #
-		    # Apply the tag to the given cell if it is selected
-		    #
-		    findTabs $win [expr {$row + 1}] $col $col tabIdx1 tabIdx2
-		    if {[lsearch -exact [$w tag names $tabIdx1] select] >= 0} {
-			$w tag add $tag $tabIdx1 $tabIdx2+1c
-		    }
-		}
-
-		#
-		# Save val in data($name)
-		#
 		set data($name) $val
 	    }
 
@@ -3311,20 +3529,20 @@ proc tablelist::doCellConfig {row col win opt val} {
 	}
 
 	-stretchwindow {
-	    #
-	    # Save the boolean value specified by val in data($key,$col$opt)
-	    #
-	    set item [lindex $data(itemList) $row]
+	    set item [lindex $data(${p}itemList) $row]
 	    set key [lindex $item end]
 	    set name $key,$col$opt
-	    if {$val} {
-		set data($name) 1
-	    } elseif {[info exists data($name)]} {
-		unset data($name)
+	    set callerProc [lindex [info level -1] 0]
+	    if {$callerProc ne "tablelist::doColConfig"} {
+		if {$val eq ""} {
+		    array unset data $name
+		} else {
+		    set val [expr {$val ? 1 : 0}]
+		    set data($name) $val
+		}
 	    }
 
-	    if {($data($col-hide) && !$canElide) ||
-		($row == $data(editRow) && $col == $data(editCol))} {
+	    if {$inBody && $row == $data(editRow) && $col == $data(editCol)} {
 		return ""
 	    }
 
@@ -3333,7 +3551,9 @@ proc tablelist::doCellConfig {row col win opt val} {
 	    if {[lindex $data(fmtCmdFlagList) $col]} {
 		set text [formatElem $win $key $row $col $text]
 	    }
-	    set text [strToDispStr $text]
+	    if {[string match "*\t*" $text]} {
+		set text [mapTabs $text]
+	    }
 	    set multiline [string match "*\n*" $text]
 	    set cellFont [getCellFont $win $key $col]
 	    if {$pixels == 0} {			;# convention: dynamic width
@@ -3344,6 +3564,14 @@ proc tablelist::doCellConfig {row col win opt val} {
 		}
 	    }
 	    set aux [getAuxData $win $key $col auxType auxWidth $pixels]
+	    if {$auxType < 2} {			;# no window
+		return ""
+	    }
+
+	    if {$inBody} {
+		displayItems $win
+	    }
+
 	    set indent [getIndentData $win $key $col indentWidth]
 	    set maxTextWidth $pixels
 	    if {$pixels != 0} {
@@ -3357,9 +3585,6 @@ proc tablelist::doCellConfig {row col win opt val} {
 			set multiline 1
 		    }
 		}
-	    }
-	    if {$auxType < 2} {			;# no window
-		return ""
 	    }
 
 	    #
@@ -3377,41 +3602,57 @@ proc tablelist::doCellConfig {row col win opt val} {
 		set msgScript [list ::tablelist::displayText $win $key $row \
 			       [join $list "\n"] $cellFont \
 			       $maxTextWidth $alignment]
+		set msgScript [string map {"%" "%%"} $msgScript]
 	    } else {
 		adjustElem $win text auxWidth indentWidth $cellFont \
 			   $pixels $snipSide $data(-snipstring)
 	    }
 
 	    #
-	    # Update the text widget's contents between the two tabs
+	    # Update the text widget's content between the two tabs
 	    #
-	    findTabs $win [expr {$row + 1}] $col $col tabIdx1 tabIdx2
+	    findTabs $win $w [expr {$row + $diff}] $col $col tabIdx1 tabIdx2
 	    if {$multiline} {
-		updateMlCell $w $tabIdx1+1c $tabIdx2 $msgScript \
-			     $aux $auxType $auxWidth \
-			     $indent $indentWidth $alignment
+		updateMlCell $w $tabIdx1+1$pu $tabIdx2 $msgScript $aux \
+			     $auxType $auxWidth $indent $indentWidth \
+			     $alignment [getOpt $win $key $col -valign]
 	    } else {
-		updateCell $w $tabIdx1+1c $tabIdx2 $text \
-			   $aux $auxType $auxWidth \
-			   $indent $indentWidth $alignment
+		updateCell $w $tabIdx1+1$pu $tabIdx2 $text $aux \
+			   $auxType $auxWidth $indent $indentWidth \
+			   $alignment [getOpt $win $key $col -valign]
 	    }
 	}
 
 	-text {
-	    if {$data(isDisabled)} {
+	    if {$data(isDisabled) || ($inBody && $data($col-showlinenumbers))} {
+		return ""
+	    }
+
+	    if {$inBody} {
+		displayItems $win
+	    }
+
+	    #
+	    # Return if the new value equals the old one
+	    #
+	    set oldItem [lindex $data(${p}itemList) $row]
+	    set oldText [lindex $oldItem $col]
+	    set callerProc [lindex [info level -1] 0]
+	    if {$val eq $oldText && ![string match "do*Editing" $callerProc]} {
 		return ""
 	    }
 
 	    set pixels [lindex $data(colList) [expr {2*$col}]]
 	    set workPixels $pixels
 	    set text $val
-	    set oldItem [lindex $data(itemList) $row]
 	    set key [lindex $oldItem end]
 	    set fmtCmdFlag [lindex $data(fmtCmdFlagList) $col]
 	    if {$fmtCmdFlag} {
 		set text [formatElem $win $key $row $col $text]
 	    }
-	    set text [strToDispStr $text]
+	    if {[string match "*\t*" $text]} {
+		set text [mapTabs $text]
+	    }
 	    set textSav $text
 	    set multiline [string match "*\n*" $text]
 	    set cellFont [getCellFont $win $key $col]
@@ -3420,9 +3661,7 @@ proc tablelist::doCellConfig {row col win opt val} {
 		getIndentData $win $key $col indentWidthSav
 
 		if {$data($col-maxPixels) > 0} {
-		    if {$data($col-reqPixels) > $data($col-maxPixels)} {
-			set workPixels $data($col-maxPixels)
-		    }
+		    set workPixels $data($col-maxPixels)
 		}
 	    }
 	    set aux [getAuxData $win $key $col auxType auxWidth $workPixels]
@@ -3456,43 +3695,44 @@ proc tablelist::doCellConfig {row col win opt val} {
 		set msgScript [list ::tablelist::displayText $win $key \
 			       $col [join $list "\n"] $cellFont \
 			       $maxTextWidth $alignment]
+		set msgScript [string map {"%" "%%"} $msgScript]
 	    } else {
 		adjustElem $win text auxWidth indentWidth $cellFont \
 			   $workPixels $snipSide $data(-snipstring)
 	    }
 
-	    if {(!$data($col-hide) || $canElide) &&
-		!($row == $data(editRow) && $col == $data(editCol))} {
+	    if {!$inBody || $row != $data(editRow) || $col != $data(editCol)} {
 		#
-		# Update the text widget's contents between the two tabs
+		# Update the text widget's content between the two tabs
 		#
-		findTabs $win [expr {$row + 1}] $col $col tabIdx1 tabIdx2
+		findTabs $win $w [expr {$row + $diff}] $col $col tabIdx1 tabIdx2
 		if {$multiline} {
-		    updateMlCell $w $tabIdx1+1c $tabIdx2 $msgScript \
-				 $aux $auxType $auxWidth \
-				 $indent $indentWidth $alignment
+		    updateMlCell $w $tabIdx1+1$pu $tabIdx2 $msgScript $aux \
+				 $auxType $auxWidth $indent $indentWidth \
+				 $alignment [getOpt $win $key $col -valign]
 		} else {
-		    updateCell $w $tabIdx1+1c $tabIdx2 $text \
-			       $aux $auxType $auxWidth \
-			       $indent $indentWidth $alignment
+		    updateCell $w $tabIdx1+1$pu $tabIdx2 $text $aux \
+			       $auxType $auxWidth $indent $indentWidth \
+			       $alignment [getOpt $win $key $col -valign]
 		}
 	    }
 
 	    #
-	    # Replace the cell contents in the internal list
+	    # Replace the cell's content in the internal list
 	    #
 	    set newItem [lreplace $oldItem $col $col $val]
-	    set data(itemList) [lreplace $data(itemList) $row $row $newItem]
+	    set data(${p}itemList) \
+		[lreplace $data(${p}itemList) $row $row $newItem]
 
 	    #
-	    # Replace the cell contents in the list variable if present
+	    # Replace the cell's content in the list variable if present
 	    #
-	    if {$data(hasListVar)} {
+	    if {$inBody && $data(hasListVar)} {
 		upvar #0 $data(-listvariable) var
-		trace vdelete var wu $data(listVarTraceCmd)
+		trace remove variable var {write unset} $data(listVarTraceCmd)
 		set var [lreplace $var $row $row \
 			 [lrange $newItem 0 $data(lastCol)]]
-		trace variable var wu $data(listVarTraceCmd)
+		trace add variable var {write unset} $data(listVarTraceCmd)
 	    }
 
 	    #
@@ -3513,11 +3753,12 @@ proc tablelist::doCellConfig {row col win opt val} {
 			adjustColumns $win {} 1
 		    }
 		} else {
-		    set oldText [lindex $oldItem $col]
 		    if {$fmtCmdFlag} {
 			set oldText [formatElem $win $key $row $col $oldText]
 		    }
-		    set oldText [strToDispStr $oldText]
+		    if {[string match "*\t*" $oldText]} {
+			set oldText [mapTabs $oldText]
+		    }
 		    set oldElemWidth [getElemWidth $win $oldText $auxWidth \
 				      $indentWidth $cellFont]
 		    if {$oldElemWidth < $data($col-elemWidth) &&
@@ -3531,21 +3772,57 @@ proc tablelist::doCellConfig {row col win opt val} {
 		}
 	    }
 
-	    showLineNumbersWhenIdle $win
 	    updateViewWhenIdle $win
 	}
 
+	-valign {
+	    set key [lindex $data(${p}keyList) $row]
+	    set name $key,$col$opt
+	    if {$val eq ""} {
+		array unset data $name
+	    } else {
+		#
+		# Save the properly formatted value of val in data($name)
+		#
+		variable valignments
+		set val [mwutil::fullOpt "vertical alignment" $val $valignments]
+		set data($name) $val
+	    }
+
+	    #
+	    # Redisplay the cell
+	    #
+	    redisplayCol $win $col $row $row $inBody
+	}
+
 	-window {
-	    if {$data(isDisabled)} {
+	    if {!$skipParts} {
+		if {$data(isDisabled)} {
+		    return ""
+		}
+
+		if {$inBody} {
+		    displayItems $win
+		}
+	    }
+
+	    #
+	    # Return if the new value equals the old one
+	    #
+	    set item [lindex $data(${p}itemList) $row]
+	    set key [lindex $item end]
+	    set name $key,$col$opt
+	    set hasWindow [info exists data($name)]
+	    set callerProc [lindex [info level -1] 0]
+	    if {$hasWindow && $val eq $data($name) &&
+		![string match "do*Editing" $callerProc] &&
+		$callerProc ne "tablelist::reconfigWindows"} {
 		return ""
 	    }
 
 	    #
 	    # Save the old image or window width
 	    #
-	    set item [lindex $data(itemList) $row]
-	    set key [lindex $item end]
-	    set name $key,$col$opt
 	    getAuxData $win $key $col oldAuxType oldAuxWidth
 	    getIndentData $win $key $col oldIndentWidth
 
@@ -3553,30 +3830,31 @@ proc tablelist::doCellConfig {row col win opt val} {
 	    # Delete data($name) or save the specified value in it
 	    #
 	    set aux $w.frm_$key,$col
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($name)]} {
+	    if {$val eq ""} {
+		if {$hasWindow} {
 		    unset data($name)
 		    unset data($key,$col-reqWidth)
 		    unset data($key,$col-reqHeight)
 
 		    #
 		    # If the cell index is contained in the list
-		    # data(cellsToReconfig) then remove it from the list
+		    # data(${p}cellsToReconfig) then remove it from the list
 		    #
-		    set n [lsearch -exact $data(cellsToReconfig) $row,$col]
+		    set n [lsearch -exact $data(${p}cellsToReconfig) $row,$col]
 		    if {$n >= 0} {
-			set data(cellsToReconfig) \
-			    [lreplace $data(cellsToReconfig) $n $n]
+			set data(${p}cellsToReconfig) \
+			    [lreplace $data(${p}cellsToReconfig) $n $n]
 		    }
-		    incr data(winCount) -1
+		    if {$inBody} {
+			incr data(winCount) -1
+		    }
 		    destroy $aux
 		}
 	    } else {
-		if {![info exists data($name)]} {
+		if {$inBody && !$hasWindow} {
 		    incr data(winCount)
 		}
-		if {[info exists data($name)] &&
-		    [string compare $val $data($name)] != 0} {
+		if {$hasWindow && $val ne $data($name)} {
 		    destroy $aux
 		}
 		if {![winfo exists $aux]} {
@@ -3586,10 +3864,14 @@ proc tablelist::doCellConfig {row col win opt val} {
 		    #
 		    tk::frame $aux -borderwidth 0 -class TablelistWindow \
 				   -container 0 -highlightthickness 0 \
-				   -relief flat -takefocus 0
-		    catch {$aux configure -padx 0 -pady 0}
-		    bindtags $aux [linsert [bindtags $aux] 1 \
-				   $data(bodyTag) TablelistBody]
+				   -padx 0 -pady 0 -relief flat -takefocus 0
+		    if {$inBody} {
+			bindtags $aux [linsert [bindtags $aux] 1 \
+				       $data(bodyTag) TablelistBody]
+		    } else {
+			bindtags $aux [linsert [bindtags $aux] 1 \
+				       $data(headerTag) TablelistHeader]
+		    }
 		    uplevel #0 $val [list $win $row $col $aux.w]
 		}
 		set data($name) $val
@@ -3598,13 +3880,13 @@ proc tablelist::doCellConfig {row col win opt val} {
 		$aux configure -height $data($key,$col-reqHeight)
 
 		#
-		# Add the cell index to the list data(cellsToReconfig) if
-		# the window's requested width or height is not yet known
+		# Add the cell index to the list data(${p}cellsToReconfig)
+		# if the window's requested width or height is not yet known
 		#
 		if {($data($key,$col-reqWidth) == 1 ||
 		     $data($key,$col-reqHeight) == 1) &&
-		    [lsearch -exact $data(cellsToReconfig) $row,$col] < 0} {
-		    lappend data(cellsToReconfig) $row,$col
+		    [lsearch -exact $data(${p}cellsToReconfig) $row,$col] < 0} {
+		    lappend data(${p}cellsToReconfig) $row,$col
 		    if {![info exists data(reconfigId)]} {
 			set data(reconfigId) \
 			    [after idle [list tablelist::reconfigWindows $win]]
@@ -3621,7 +3903,9 @@ proc tablelist::doCellConfig {row col win opt val} {
 	    if {[lindex $data(fmtCmdFlagList) $col]} {
 		set text [formatElem $win $key $row $col $text]
 	    }
-	    set text [strToDispStr $text]
+	    if {[string match "*\t*" $text]} {
+		set text [mapTabs $text]
+	    }
 	    set oldText $text
 	    set multiline [string match "*\n*" $text]
 	    set cellFont [getCellFont $win $key $col]
@@ -3631,9 +3915,7 @@ proc tablelist::doCellConfig {row col win opt val} {
 		getIndentData $win $key $col indentWidthSav
 
 		if {$data($col-maxPixels) > 0} {
-		    if {$data($col-reqPixels) > $data($col-maxPixels)} {
-			set workPixels $data($col-maxPixels)
-		    }
+		    set workPixels $data($col-maxPixels)
 		}
 	    }
 	    set aux [getAuxData $win $key $col auxType auxWidth $workPixels]
@@ -3663,27 +3945,31 @@ proc tablelist::doCellConfig {row col win opt val} {
 		set msgScript [list ::tablelist::displayText $win $key \
 			       $col [join $list "\n"] $cellFont \
 			       $maxTextWidth $alignment]
+		set msgScript [string map {"%" "%%"} $msgScript]
 	    } else {
 		adjustElem $win text auxWidth indentWidth $cellFont \
 			   $workPixels $snipSide $data(-snipstring)
 	    }
 
-	    if {(!$data($col-hide) || $canElide) &&
-		!($row == $data(editRow) && $col == $data(editCol))} {
+	    if {!$inBody || $row != $data(editRow) || $col != $data(editCol)} {
 		#
-		# Delete the old cell contents between the two tabs,
+		# Delete the old cell content between the two tabs,
 		# and insert the text and the auxiliary object
 		#
-		findTabs $win [expr {$row + 1}] $col $col tabIdx1 tabIdx2
+		findTabs $win $w [expr {$row + $diff}] $col $col tabIdx1 tabIdx2
 		if {$multiline} {
-		    updateMlCell $w $tabIdx1+1c $tabIdx2 $msgScript \
-				 $aux $auxType $auxWidth \
-				 $indent $indentWidth $alignment
+		    updateMlCell $w $tabIdx1+1$pu $tabIdx2 $msgScript $aux \
+				 $auxType $auxWidth $indent $indentWidth \
+				 $alignment [getOpt $win $key $col -valign]
 		} else {
-		    updateCell $w $tabIdx1+1c $tabIdx2 $text \
-			       $aux $auxType $auxWidth \
-			       $indent $indentWidth $alignment
+		    updateCell $w $tabIdx1+1$pu $tabIdx2 $text $aux \
+			       $auxType $auxWidth $indent $indentWidth \
+			       $alignment [getOpt $win $key $col -valign]
 		}
+	    }
+
+	    if {$skipParts} {
+		return ""
 	    }
 
 	    #
@@ -3720,20 +4006,27 @@ proc tablelist::doCellConfig {row col win opt val} {
 	    updateViewWhenIdle $win
 	}
 
-	-windowdestroy -
-	-windowupdate {
-	    set key [lindex $data(keyList) $row]
+	-windowdestroy {
+	    set key [lindex $data(${p}keyList) $row]
 	    set name $key,$col$opt
-
-	    #
-	    # Delete data($name) or save the specified value in it
-	    #
-	    if {[string compare $val ""] == 0} {
-		if {[info exists data($name)]} {
-		    unset data($name)
-		}
+	    if {$val eq ""} {
+		array unset data $name
 	    } else {
 		set data($name) $val
+	    }
+	}
+
+	-windowupdate {
+	    set key [lindex $data(${p}keyList) $row]
+	    set name $key,$col$opt
+	    if {$val eq ""} {
+		array unset data $name
+	    } else {
+		set data($name) $val
+	    }
+
+	    if {!$data(isDisabled)} {
+		${p}updateColorsWhenIdle $win
 	    }
 	}
     }
@@ -3747,34 +4040,31 @@ proc tablelist::doCellConfig {row col win opt val} {
 #------------------------------------------------------------------------------
 proc tablelist::doCellCget {row col win opt} {
     upvar ::tablelist::ns${win}::data data
+    foreach {row p w inBody diff} [getConfigParams $win $row] {}
 
-    #
-    # Return the value of the specified cell configuration option
-    #
     switch -- $opt {
 	-editable {
 	    return [isCellEditable $win $row $col]
 	}
 
 	-editwindow {
-	    return [getEditWindow $win $row $col]
+	    return [getEditWindow $win $row $col 0]
 	}
 
-	-stretchwindow {
-	    set key [lindex $data(keyList) $row]
-	    if {[info exists data($key,$col$opt)]} {
-		return $data($key,$col$opt)
-	    } else {
-		return 0
-	    }
+	-stretchwindow -
+	-valign -
+	-windowdestroy -
+	-windowupdate {
+	    set key [lindex $data(${p}keyList) $row]
+	    return [getOpt $win $key $col $opt]
 	}
 
 	-text {
-	    return [lindex [lindex $data(itemList) $row] $col]
+	    return [lindex [lindex $data(${p}itemList) $row] $col]
 	}
 
 	default {
-	    set key [lindex $data(keyList) $row]
+	    set key [lindex $data(${p}keyList) $row]
 	    if {[info exists data($key,$col$opt)]} {
 		return $data($key,$col$opt)
 	    } else {
@@ -3785,6 +4075,35 @@ proc tablelist::doCellCget {row col win opt} {
 }
 
 #------------------------------------------------------------------------------
+# tablelist::defaultX11ArrowStyle
+#
+# Returns the default sort arrow style on X11, corresponding to the display's
+# scaling level.
+#------------------------------------------------------------------------------
+proc tablelist::defaultX11ArrowStyle {} {
+    variable svgSupported
+    if {$svgSupported} {
+	return photo0x0
+    } else {
+	variable scalingpct
+	array set arr {100 8x4  125 10x5  150 12x6  175 14x7  200 16x8}
+	return flat$arr($scalingpct)
+    }
+}
+
+#------------------------------------------------------------------------------
+# tablelist::defaultWinArrowSize
+#
+# Returns the size (of the form "<width>x<height>") of the default sort arrow
+# on Windows, corresponding to the display's scaling level.
+#------------------------------------------------------------------------------
+proc tablelist::defaultWinArrowSize {} {
+    variable scalingpct
+    array set arr {100 7x4  125 9x5  150 11x6  175 13x7  200 15x8}
+    return $arr($scalingpct)
+}
+
+#------------------------------------------------------------------------------
 # tablelist::makeListVar
 #
 # Arranges for the global variable specified by varName to become the list
@@ -3792,15 +4111,15 @@ proc tablelist::doCellCget {row col win opt} {
 #------------------------------------------------------------------------------
 proc tablelist::makeListVar {win varName} {
     upvar ::tablelist::ns${win}::data data
-    if {[string compare $varName ""] == 0} {
+    if {$varName eq ""} {
 	#
 	# If there is an old list variable associated with the
 	# widget then remove the trace set on this variable
 	#
-	if {$data(hasListVar)} {
+	if {$data(hasListVar) &&
+	    [catch {upvar #0 $data(-listvariable) oldVar}] == 0} {
 	    synchronize $win
-	    upvar #0 $data(-listvariable) var
-	    trace vdelete var wu $data(listVarTraceCmd)
+	    trace remove variable oldVar {write unset} $data(listVarTraceCmd)
 	}
 	return ""
     }
@@ -3808,30 +4127,41 @@ proc tablelist::makeListVar {win varName} {
     #
     # The list variable may be an array element but must not be an array
     #
+    upvar #0 $varName var
     if {![regexp {^(.*)\((.*)\)$} $varName dummy name1 name2]} {
-	if {[array exists $varName]} {
+	if {[array exists var]} {
 	    return -code error "variable \"$varName\" is array"
 	}
+
 	set name1 $varName
 	set name2 ""
+    }
+
+    #
+    # The value of the list variable (if any) must be a list of lists
+    #
+    if {[info exists var]} {
+	if {[catch {foreach item $var {llength $item}} err] != 0} {
+	    return -code error "value of variable \"$varName\" is not a list\
+				of lists ($err)"
+	}
     }
 
     #
     # If there is an old list variable associated with the
     # widget then remove the trace set on this variable
     #
-    if {$data(hasListVar)} {
+    if {$data(hasListVar) &&
+	[catch {upvar #0 $data(-listvariable) oldVar}] == 0} {
 	synchronize $win
-	upvar #0 $data(-listvariable) var
-	trace vdelete var wu $data(listVarTraceCmd)
+	trace remove variable oldVar {write unset} $data(listVarTraceCmd)
     }
 
-    upvar #0 $varName var
     if {[info exists var]} {
 	#
 	# Invoke the trace procedure associated with the new list variable
 	#
-	listVarTrace $win $name1 $name2 w
+	listVarTrace $win $name1 $name2 write
     } else {
 	#
 	# Set $varName according to the value of data(itemList)
@@ -3845,7 +4175,77 @@ proc tablelist::makeListVar {win varName} {
     #
     # Set a trace on the new list variable
     #
-    trace variable var wu $data(listVarTraceCmd)
+    trace add variable var {write unset} $data(listVarTraceCmd)
+}
+
+#------------------------------------------------------------------------------
+# tablelist::updateListboxSetgridOpt
+#
+# Updates the -setgrid option of the listbox child of the tablelist widget win.
+#------------------------------------------------------------------------------
+proc tablelist::updateListboxSetgridOpt win {
+    upvar ::tablelist::ns${win}::data data
+    if {$data(-width) <= 0 && [llength $data(-stretch)] != 0} {
+	$data(lb) configure -setgrid 0
+    } else {
+	$data(lb) configure -setgrid $data(-setgrid)
+    }
+}
+
+#------------------------------------------------------------------------------
+# tablelist::createSublabels
+#
+# Creates the sublabels $w-il and $w-tl associated with the label widget w of
+# the tablelist widget win.
+#------------------------------------------------------------------------------
+proc tablelist::createSublabels {win w {forWindow 0}} {
+    set wClass [winfo class $w]
+    variable configSpecs
+    variable configOpts
+    upvar ::tablelist::ns${win}::data data
+    foreach l [list $w-il $w-tl] {		;# image and text labels
+	if {$forWindow && $l eq "$w-il"} {
+	    tk::frame $l -borderwidth 0 -container 0 -highlightthickness 0 \
+			 -padx 0 -pady 0 -relief flat -takefocus 0
+	    set isLabel 0
+	} else {
+	    tk::label $l -borderwidth 0 -height 0 -highlightthickness 0 \
+			 -padx 0 -pady 0 -relief flat -takefocus 0 -width 0
+	    set isLabel 1
+	}
+
+	#
+	# Apply to it the current configuration options
+	#
+	foreach opt2 $configOpts {
+	    if {[lindex $configSpecs($opt2) 2] eq "c"} {
+		$l configure $opt2 $data($opt2)
+	    }
+	}
+	if {$wClass eq "TLabel"} {
+	    variable themeDefaults
+	    $l configure -background $themeDefaults(-labelbackground)
+	} else {
+	    $l configure -background [$w cget -background]
+	    if {$isLabel} {
+		$l configure -foreground [$w cget -foreground]
+	    }
+	}
+	if {$isLabel} {
+	    foreach opt2 {-activebackground -activeforeground \
+			  -disabledforeground -font -state} {
+		catch {$l configure $opt2 [$w cget $opt2]}
+	    }
+	}
+
+	#
+	# Replace the binding tag Label or Frame with
+	# $w, $data(labelTag), and TablelistSubLabel
+	# in the list of binding tags of the widget $l
+	#
+	bindtags $l [lreplace [bindtags $l] 1 1 \
+		     $w $data(labelTag) TablelistSubLabel]
+    }
 }
 
 #------------------------------------------------------------------------------
@@ -3890,7 +4290,7 @@ proc tablelist::reconfigWindows win {
     # Force any geometry manager calculations to be completed first
     #
     update idletasks
-    if {![namespace exists ::tablelist::ns${win}::data]} {
+    if {[destroyed $win]} {
 	return ""
     }
 
@@ -3906,8 +4306,20 @@ proc tablelist::reconfigWindows win {
 	}
     }
 
+    #
+    # Reconfigure the cells specified in the list data(hdr_cellsToReconfig)
+    #
+    foreach cellIdx $data(hdr_cellsToReconfig) {
+	foreach {row col} [split $cellIdx ","] {}
+	set key [lindex $data(hdr_keyList) $row]
+	if {[info exists data($key,$col-window)]} {
+	    doCellConfig h$row $col $win -window $data($key,$col-window)
+	}
+    }
+
     unset data(reconfigId)
     set data(cellsToReconfig) {}
+    set data(hdr_cellsToReconfig) {}
 }
 
 #------------------------------------------------------------------------------
@@ -3931,14 +4343,57 @@ proc tablelist::isCellEditable {win row col} {
 # Returns the value of the -editwindow option at cell or column level for the
 # given cell of the tablelist widget win.
 #------------------------------------------------------------------------------
-proc tablelist::getEditWindow {win row col} {
+proc tablelist::getEditWindow {win row col {skipLeadingColons 1}} {
     upvar ::tablelist::ns${win}::data data
     set key [lindex $data(keyList) $row]
     if {[info exists data($key,$col-editwindow)]} {
-	return $data($key,$col-editwindow)
-    } elseif {[info exists data($col-editwindow)]} {
-	return $data($col-editwindow)
+	set name $data($key,$col-editwindow)
     } else {
-	return "entry"
+	set name $data($col-editwindow)
+    }
+
+    if {[regexp {^::ttk::(entry|spinbox|combobox|checkbutton|menubutton)$} \
+	 $name] && $skipLeadingColons} {
+	set name [string range $name 2 end]
+    }
+
+    return $name
+}
+
+#------------------------------------------------------------------------------
+# tablelist::getOpt
+#
+# Returns the value of the given option at cell or column level for a given
+# cell of the tablelist widget win.
+#------------------------------------------------------------------------------
+proc tablelist::getOpt {win key col opt} {
+    upvar ::tablelist::ns${win}::data data
+    if {[info exists data($key,$col$opt)]} {
+	return $data($key,$col$opt)
+    } elseif {[info exists data($col$opt)]} {
+	return $data($col$opt)
+    } else {
+	return ""
+    }
+}
+
+#------------------------------------------------------------------------------
+# tablelist::getConfigParams
+#
+# For a given row argument of the form h<number> or <number>, the procedure
+# returns a list consisting of <number>, the prefix "hdr_" or "" (for
+# "keyList", "itemList", "cellsToReconfig", and "updateColorsWhenIdle"), the
+# text widget path name $data(hdrTxt) or $data(body), 0 (false) or 1 (true)
+# indicating whether this is the tablelist's body, and 2 or 1 (the difference
+# between the text widget line number corresponding to <number> and <number>
+# itself).
+#------------------------------------------------------------------------------
+proc tablelist::getConfigParams {win row} {
+    upvar ::tablelist::ns${win}::data data
+
+    if {[string match "h*" $row]} {
+	return [list [string range $row 1 end] "hdr_" $data(hdrTxt) 0 2]
+    } else {
+	return [list $row "" $data(body) 1 1]
     }
 }
